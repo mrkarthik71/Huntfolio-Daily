@@ -193,4 +193,22 @@ class ScreenshotTest {
         val vm = app.assistant.ui.goals.GoalsViewModel(app.assistant.testing.FakeGoalRepository(statuses), app.assistant.testing.FakePlanRepository(FakeTaskRepository(), emptyList()), app.assistant.testing.FakeReportRepository(), FakeTimeSource(), planner)
         capture("04-goals") { Shell("goals") { app.assistant.ui.goals.GoalsScreen(viewModel = vm) } }
     }
+
+    @Test
+    fun reminders() {
+        val planner = app.assistant.testing.FakePlannerRepository(
+            reminders = listOf(
+                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(1), "Pick up the courier", app.assistant.domain.model.ReminderKind.PLACE, placeName = "Office", latitude = 12.9, longitude = 77.6, radiusMeters = 200, onEnter = true),
+                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(2), "Buy groceries for the week", app.assistant.domain.model.ReminderKind.PLACE, placeName = "Home", latitude = 12.9, longitude = 77.6, radiusMeters = 100, onEnter = false),
+                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(3), "Call Mom on the drive home", app.assistant.domain.model.ReminderKind.DEVICE, device = app.assistant.domain.model.DeviceTrigger.CAR_BLUETOOTH, notBefore = java.time.LocalTime.of(18, 0)),
+                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(4), "Plan tomorrow", app.assistant.domain.model.ReminderKind.DEVICE, device = app.assistant.domain.model.DeviceTrigger.CHARGING, notBefore = java.time.LocalTime.of(21, 0), active = false),
+            ),
+        )
+        val scheduler = object : app.assistant.domain.port.ReminderScheduler {
+            override suspend fun sync() = Unit
+            override fun disarm(id: app.assistant.domain.model.ReminderId) = Unit
+        }
+        val vm = app.assistant.ui.reminders.RemindersViewModel(planner, scheduler, app.assistant.testing.FakeSettingsStore(), FakeTimeSource())
+        capture("05-reminders") { Shell("settings") { app.assistant.ui.reminders.RemindersScreen(onBack = {}, viewModel = vm) } }
+    }
 }

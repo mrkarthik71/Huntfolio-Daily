@@ -27,7 +27,7 @@ Branch: claude/add-ui-ux-pro-max-skill (push blocked until GitHub access is gran
 - [x] 8. Plan-with-AI proposal sheet (rule-based fallback when AI is off; GatewayAdvisor when on).
 - [x] 9. Module E: hourly ProactiveWorker + cards through the Notification_Governor.
 - [x] 10. Money: Subscription health hub (monthly burn, renewing soon, second look, mail-found).
-- [ ] 11. Module C: smart reminders (time, place via Geofencing, phone state: charging, car Bluetooth).
+- [x] 11. Module C: smart reminders (time, place via Geofencing, phone state: charging, car Bluetooth).
 - [ ] 12. Widgets v2: focus, quick capture, next up, goals.
 - [ ] 13. Polish pass: every screen on the new components, screenshots, lint/detekt/ktlint.
 - [ ] 14. Blueprint doc published (schema, API, prompt) + server/ scaffold.

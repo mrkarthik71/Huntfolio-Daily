@@ -57,6 +57,7 @@ object Routes {
     const val MAIL = "settings/mail"
     const val TRANSFER = "settings/transfer"
     const val HEALTH = "settings/health"
+    const val REMINDERS = "settings/reminders"
     const val TASK_PREFILL = "tasks/new?title={title}"
 
     fun taskPrefill(title: String) = "tasks/new?title=" + android.net.Uri.encode(title)
@@ -133,6 +134,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenMail = { nav.navigate(Routes.MAIL) },
                     onOpenTransfer = { nav.navigate(Routes.TRANSFER) },
                     onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                    onOpenReminders = { nav.navigate(Routes.REMINDERS) },
                     onDeleteEverything = onDeleteEverything,
                 )
             }
@@ -148,6 +150,9 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             }
             composable(Routes.TRANSFER) {
                 app.assistant.ui.transfer.DataTransferScreen(onBack = { nav.popBackStack() })
+            }
+            composable(Routes.REMINDERS) {
+                app.assistant.ui.reminders.RemindersScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.HEALTH) {
                 app.assistant.ui.health.HealthScreen(onBack = { nav.popBackStack() })

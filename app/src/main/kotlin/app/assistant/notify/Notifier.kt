@@ -107,6 +107,7 @@ class Notifier @Inject constructor(@param:ApplicationContext private val context
             NotificationType.SUBSCRIPTION_USAGE_CHECK -> R.string.channel_subscription_usage_check
             NotificationType.HEALTH_WARNING -> R.string.channel_health_warning
             NotificationType.IMPORTANT_DATE -> R.string.channel_important_date
+            NotificationType.SMART_REMINDER -> R.string.channel_smart_reminder
         }
     }
 }

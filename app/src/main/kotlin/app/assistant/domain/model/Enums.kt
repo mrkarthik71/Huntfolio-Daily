@@ -45,6 +45,9 @@ enum class NotificationType {
     SUBSCRIPTION_USAGE_CHECK,
     HEALTH_WARNING,
 
+    /** Apex smart reminders (time, place, phone state). */
+    SMART_REMINDER,
+
     /** Only where important dates are enabled (Requirement 68). */
     IMPORTANT_DATE,
 }

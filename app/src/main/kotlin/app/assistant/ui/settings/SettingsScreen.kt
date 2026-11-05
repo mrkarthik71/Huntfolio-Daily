@@ -13,6 +13,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Share
@@ -55,6 +56,7 @@ fun SettingsScreen(
     onOpenMail: (() -> Unit)? = null,
     onOpenTransfer: (() -> Unit)? = null,
     onOpenHealth: (() -> Unit)? = null,
+    onOpenReminders: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -89,6 +91,10 @@ fun SettingsScreen(
                 CredRow(stringResource(R.string.settings_calendar_entry), Icons.Outlined.DateRange, onClick = onOpenCalendars)
                 CredDivider()
                 CredRow(stringResource(R.string.notif_settings_entry), Icons.Outlined.Notifications, onClick = onOpenNotifications)
+                onOpenReminders?.let {
+                    CredDivider()
+                    CredRow(stringResource(R.string.reminders_entry), Icons.Outlined.LocationOn, onClick = it)
+                }
             }
         }
         val connected = listOfNotNull(

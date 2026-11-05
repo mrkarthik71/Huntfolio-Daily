@@ -80,3 +80,10 @@ interface MailboxService {
     /** Raises the sender's penalty and counts one Wrong_Mail_Alert (Requirement 55.3, 55.5). */
     suspend fun markNotImportant(itemId: Long, sender: String)
 }
+
+/** Arms the phone triggers behind smart reminders (time jobs, place alerts, charging/car signals). */
+interface ReminderScheduler {
+    suspend fun sync()
+
+    fun disarm(id: app.assistant.domain.model.ReminderId)
+}

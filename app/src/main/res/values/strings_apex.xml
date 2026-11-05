@@ -79,4 +79,47 @@
     <string name="subs_renewing_soon">Renewing soon</string>
     <string name="subs_days">days</string>
     <string name="subs_renews_on">%1$s · renews %2$s</string>
+
+    <!-- Smart reminders -->
+    <string name="channel_smart_reminder">Smart reminders</string>
+    <string name="notif_type_smart_reminder">Smart reminders</string>
+    <string name="reminder_alert_title">Reminder</string>
+    <string name="reminders_title">Reminders</string>
+    <string name="reminders_entry">Smart reminders</string>
+    <string name="reminders_summary">%1$d active</string>
+    <string name="reminders_summary_quiet">%1$d active · quiet %2$s–%3$s</string>
+    <string name="reminders_when">Remind me when…</string>
+    <string name="reminders_kind_time">At a time</string>
+    <string name="reminders_kind_place">At a place</string>
+    <string name="reminders_kind_device">Phone does</string>
+    <string name="reminders_empty">No reminders yet. Pick one of the three kinds above.</string>
+    <string name="reminders_section_time">At a time</string>
+    <string name="reminders_section_place">Places</string>
+    <string name="reminders_section_device">When my phone…</string>
+    <string name="reminders_at_time">%1$s at %2$s</string>
+    <string name="reminders_arriving">Arriving at %1$s · within %2$d m</string>
+    <string name="reminders_leaving">Leaving %1$s · within %2$d m</string>
+    <string name="reminders_device_car">Connects to car Bluetooth</string>
+    <string name="reminders_device_charging">Starts charging</string>
+    <string name="reminders_device_after">%1$s · after %2$s</string>
+    <string name="reminders_delete">Delete reminder</string>
+    <string name="reminders_privacy">Places stay on this phone. Every reminder respects quiet hours and your daily limit, and shows why it appeared.</string>
+    <string name="reminders_add_title">New reminder</string>
+    <string name="reminders_message">Remind me to…</string>
+    <string name="reminders_date">Date</string>
+    <string name="reminders_time">Time</string>
+    <string name="reminders_place_name">Place name (for example Office)</string>
+    <string name="reminders_location_rationale">To remind you at a place, the app needs your location, including in the background. It is checked on this phone only and never sent anywhere.</string>
+    <string name="reminders_use_here">Use where I am now</string>
+    <string name="reminders_location_set">Location saved</string>
+    <string name="reminders_location_unknown">Your location is not known yet. Open a maps app once, then try again.</string>
+    <string name="reminders_location_denied">Without location access, place reminders cannot work.</string>
+    <string name="reminders_background_denied">Allow location “all the time” in system settings so the reminder works while the app is closed.</string>
+    <string name="reminders_on_arrive">When I arrive</string>
+    <string name="reminders_on_leave">When I leave</string>
+    <string name="reminders_radius">%1$d m</string>
+    <string name="reminders_bluetooth_rationale">To notice your car, the app needs to see Bluetooth connections. It only checks the kind of device and keeps nothing.</string>
+    <string name="reminders_allow_bluetooth">Allow Bluetooth</string>
+    <string name="reminders_bluetooth_denied">Without Bluetooth access, car reminders cannot work.</string>
+    <string name="reminders_not_before">Only after a time</string>
 </resources>

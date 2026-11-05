@@ -44,6 +44,7 @@ class AppStartup @Inject constructor(
     private val reviewQueue: app.assistant.domain.port.ReviewQueueRepository,
     private val smsFallback: app.assistant.data.ai.SmsFallbackParser,
     private val backup: app.assistant.domain.port.BackupManager,
+    private val reminders: app.assistant.domain.port.ReminderScheduler,
     @param:ApplicationContext private val context: Context,
     @param:ApplicationScope private val scope: CoroutineScope,
 ) {
@@ -63,6 +64,7 @@ class AppStartup @Inject constructor(
                     app.assistant.data.maintenance.MaintenanceDailyWorker.schedule(context)
                     app.assistant.data.health.HealthCheckWorker.schedule(context)
                     app.assistant.data.planner.ProactiveWorker.schedule(context)
+                    runCatching { reminders.sync() }
                     observeWidgetData()
                     observeReviewQueueForFallback()
                     if (FeatureFlags.CALENDAR) startCalendarRefresh()

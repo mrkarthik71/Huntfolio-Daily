@@ -16,6 +16,12 @@
     <!-- Phase 2 calendar reading (Requirement 22.1); requested at runtime only when the User
          opens calendar settings. Read-only — the app never writes to the calendar. -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Apex smart reminders: asked only when the user adds a place or car reminder. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <application
         android:name=".app.AssistantApplication"
@@ -91,6 +97,15 @@
         </receiver>
 
         <!-- Home-screen widget (design: Today_Widget). -->
+        <!-- Smart reminders: place alerts (explicit PendingIntent) and car Bluetooth connections. -->
+        <receiver
+            android:name=".data.planner.ReminderEventReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".widget.TodayWidgetReceiver"
             android:exported="true">

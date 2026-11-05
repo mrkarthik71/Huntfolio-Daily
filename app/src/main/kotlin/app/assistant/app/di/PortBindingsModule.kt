@@ -30,6 +30,8 @@ abstract class PortBindingsModule {
 
     @Binds abstract fun mailboxService(impl: DataMailboxService): MailboxService
 
+    @Binds abstract fun reminderScheduler(impl: app.assistant.data.planner.ReminderRuntime): app.assistant.domain.port.ReminderScheduler
+
     companion object {
         @Provides
         fun aiUsage(cap: CapGovernor, onDevice: OnDeviceAiProvider): AiUsage = AiUsageReport(cap, onDevice)
