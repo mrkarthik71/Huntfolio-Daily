@@ -25,3 +25,7 @@ secrets.properties
 # graphify knowledge graph (rebuild with: graphify update .)
 graphify-out/
 design-preview/
+
+# Python bytecode (skill scripts)
+__pycache__/
+*.pyc
