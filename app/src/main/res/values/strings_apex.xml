@@ -40,4 +40,43 @@
     <string name="card_renewal_today">Renews today. Still using it?</string>
     <string name="card_free_title">%1$s free today</string>
     <string name="card_free_body">Good time for one of your deep-work tasks.</string>
+
+    <!-- Goals -->
+    <string name="goals_summary">%1$d active · %2$d at risk</string>
+    <string name="goal_milestones">Milestones</string>
+    <string name="goal_plan_it">Plan it for me</string>
+    <string name="goal_more">Deadline and priority</string>
+    <string name="goal_priority_due">Priority %1$d · due %2$s</string>
+    <string name="goal_priority">Priority %1$d</string>
+    <string name="percent">%1$d%%</string>
+    <string name="goal_done">Done</string>
+    <string name="goal_planned">Planned</string>
+    <string name="goal_finish">Finish</string>
+    <string name="goal_finish_none">Not set</string>
+    <string name="goal_at_risk">At risk</string>
+    <string name="goal_milestone_done">Done</string>
+    <string name="goal_tasks_of">%1$d of %2$d tasks</string>
+    <string name="goal_due_on">due %1$s</string>
+    <string name="goal_forecast">Forecast to finish %1$s</string>
+    <string name="goal_hours_value">%1$d h %2$d m</string>
+    <string name="goal_hours_only">%1$d h</string>
+    <string name="goal_deadline">Deadline</string>
+    <string name="goal_priority_label">Priority (1 is highest)</string>
+    <string name="goal_priority_hint">Higher priority goals get more of your free time in the forecast and the planner.</string>
+    <string name="plan_proposal_eyebrow">Proposal · nothing changes until you accept</string>
+    <string name="plan_proposal_summary">%1$d checkpoints, paced to your deadline</string>
+    <string name="plan_proposal_why">Checkpoints are spread evenly to the deadline (four weeks if none is set), so you can see early if the goal slips.</string>
+    <string name="plan_accept">Add to my plan</string>
+    <string name="plan_step_define">Decide what done looks like</string>
+    <string name="plan_step_build">Do the main work</string>
+    <string name="plan_step_finish">Review and finish</string>
+    <string name="plan_step_reach">Reach %1$d %2$s</string>
+
+    <!-- Subscription health -->
+    <string name="subs_monthly_burn">Monthly burn</string>
+    <string name="subs_yearly_active">%1$s a year · %2$d active</string>
+    <string name="subs_more_count">%1$d more</string>
+    <string name="subs_renewing_soon">Renewing soon</string>
+    <string name="subs_days">days</string>
+    <string name="subs_renews_on">%1$s · renews %2$s</string>
 </resources>

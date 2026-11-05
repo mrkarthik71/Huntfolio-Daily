@@ -40,6 +40,10 @@ class RoomPlannerRepository @Inject constructor(private val holder: DbProvider) 
 
     override fun allMilestones(): Flow<List<Milestone>> = dao.allMilestones().map { l -> l.map { it.toDomain() } }
 
+    override fun goalWork(): Flow<List<app.assistant.domain.port.GoalWork>> = dao.goalWork().map { l ->
+        l.map { app.assistant.domain.port.GoalWork(TaskId(it.id), GoalId(it.goalId), it.milestoneId?.let(::MilestoneId), it.status == "DONE", it.estimateMinutes) }
+    }
+
     override suspend fun addMilestone(goal: GoalId, title: String, dueDate: LocalDate?, estimateMinutes: Int?): MilestoneId {
         val position = dao.nextPosition(goal.value)
         return MilestoneId(dao.insertMilestone(MilestoneEntity(0, goal.value, title.trim().take(MAX_TITLE), position, dueDate?.toString(), estimateMinutes, null)))

@@ -39,6 +39,10 @@ class FakePlannerRepository(
 
     override fun allMilestones(): Flow<List<Milestone>> = milestonesState
 
+    val workState = MutableStateFlow<List<app.assistant.domain.port.GoalWork>>(emptyList())
+
+    override fun goalWork(): Flow<List<app.assistant.domain.port.GoalWork>> = workState
+
     override suspend fun addMilestone(goal: GoalId, title: String, dueDate: LocalDate?, estimateMinutes: Int?): MilestoneId {
         val id = MilestoneId(nextId++)
         val position = milestonesState.value.count { it.goalId == goal }

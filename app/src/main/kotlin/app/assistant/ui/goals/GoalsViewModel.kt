@@ -27,7 +27,14 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
-data class GoalsUi(val loading: Boolean = true, val goals: List<GoalStatus> = emptyList(), val streak: Int = 0, val lastWeek: WeeklyProgressReport? = null)
+data class GoalsUi(
+    val loading: Boolean = true,
+    val goals: List<GoalStatus> = emptyList(),
+    val streak: Int = 0,
+    val lastWeek: WeeklyProgressReport? = null,
+    /** Apex: each goal's milestones, hours and forecast, keyed by goal. */
+    val plans: Map<GoalId, app.assistant.domain.engine.schedule.GoalPlanView> = emptyMap(),
+)
 
 @HiltViewModel
 class GoalsViewModel @Inject constructor(
@@ -35,6 +42,7 @@ class GoalsViewModel @Inject constructor(
     private val plans: PlanRepository,
     private val reports: ReportRepository,
     private val time: TimeSource,
+    private val planner: app.assistant.domain.port.PlannerRepository,
 ) : ViewModel() {
 
     private val today = time.today()
@@ -45,8 +53,19 @@ class GoalsViewModel @Inject constructor(
         reports.latestWeek().flatMapLatest { week ->
             flow { emit(if (week == null) null else runCatching { reports.weeklyProgress(week) }.getOrNull()) }
         },
-    ) { statuses, streak, report ->
-        GoalsUi(loading = false, goals = statuses, streak = streak, lastWeek = report)
+        planner.allMilestones(),
+        planner.goalWork(),
+    ) { statuses, streak, report, milestones, work ->
+        val sorted = statuses.sortedWith(compareBy({ it.goal.priority }, { it.goal.deadline ?: LocalDate.MAX }))
+        GoalsUi(
+            loading = false,
+            goals = sorted,
+            streak = streak,
+            lastWeek = report,
+            plans = sorted.associate { st ->
+                st.goal.id to app.assistant.domain.engine.schedule.GoalPlanning.view(st.goal, milestones.filter { it.goalId == st.goal.id }, work, today, st.percent)
+            },
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GoalsUi())
 
     suspend fun load(id: GoalId): Goal? = goals.get(id)
@@ -75,4 +94,21 @@ class GoalsViewModel @Inject constructor(
     fun archive(id: GoalId) = viewModelScope.launch { goals.archive(id, time.now()) }
 
     fun today(): LocalDate = today
+
+    /** The rule-based plan proposal for [goal]; nothing is stored until [acceptPlan]. */
+    fun proposePlan(goal: GoalStatus, titles: app.assistant.domain.engine.schedule.GoalPlanning.StepTitles): List<app.assistant.domain.engine.schedule.ProposedMilestone> =
+        app.assistant.domain.engine.schedule.GoalPlanning.propose(goal.goal, today, goal.progress.hundredths, titles)
+
+    /** Stores the accepted milestones in order (Requirement 2.4: nothing changes until the User accepts). */
+    fun acceptPlan(goal: GoalId, steps: List<app.assistant.domain.engine.schedule.ProposedMilestone>) {
+        viewModelScope.launch { steps.forEach { planner.addMilestone(goal, it.title, it.dueDate, it.estimateMinutes) } }
+    }
+
+    fun setMilestoneDone(id: app.assistant.domain.model.MilestoneId, done: Boolean) {
+        viewModelScope.launch { planner.setMilestoneDone(id, done, time.now()) }
+    }
+
+    fun setGoalPlanning(goal: GoalId, deadline: LocalDate?, priority: Int) {
+        viewModelScope.launch { planner.setGoalPlanning(goal, deadline, priority) }
+    }
 }

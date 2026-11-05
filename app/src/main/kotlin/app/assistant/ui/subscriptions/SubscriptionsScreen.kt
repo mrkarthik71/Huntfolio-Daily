@@ -1,6 +1,13 @@
 package app.assistant.ui.subscriptions
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
+import app.assistant.ui.designsystem.enterAnimated
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -74,19 +81,19 @@ fun SubscriptionsScreen(modifier: Modifier = Modifier, viewModel: SubscriptionsV
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item {
-            HeroCard {
-                CredStat(
-                    caption = stringResource(R.string.subs_total_year),
-                    value = MoneyFormatter.format(ui.totalYearlyCost),
-                    valueColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
-                Text(
-                    stringResource(R.string.subs_active_count, ui.active.size),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(top = 6.dp),
-                )
+        item { BurnHero(ui, Modifier.enterAnimated(0)) }
+
+        val today = viewModel.today()
+        val soon = ui.active.filter { val d = java.time.temporal.ChronoUnit.DAYS.between(today, it.snapshot.nextDue); d in 0..RENEWING_DAYS }
+            .sortedBy { it.snapshot.nextDue }
+        if (soon.isNotEmpty()) {
+            item { SectionHeader(stringResource(R.string.subs_renewing_soon).uppercase()) }
+            item {
+                app.assistant.ui.designsystem.ApexCard(Modifier.enterAnimated(1)) {
+                    soon.forEach { sub ->
+                        RenewalRow(sub, java.time.temporal.ChronoUnit.DAYS.between(today, sub.snapshot.nextDue).toInt())
+                    }
+                }
             }
         }
 
@@ -121,6 +128,78 @@ fun SubscriptionsScreen(modifier: Modifier = Modifier, viewModel: SubscriptionsV
         } else {
             items(ui.active, key = { "act-${it.snapshot.id}" }) { sub -> ActiveCard(sub) }
         }
+    }
+}
+
+/** Monthly burn with a breakdown bar of the biggest subscriptions (each segment also named below it). */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+private fun BurnHero(ui: SubscriptionsUi, modifier: Modifier = Modifier) {
+    val monthly = Paise(ui.totalYearlyCost.value / MONTHS)
+    val top = ui.active.sortedByDescending { it.yearlyCost.value }
+    val shown = top.take(BREAKDOWN_SLOTS)
+    val rest = top.drop(BREAKDOWN_SLOTS).sumOf { it.yearlyCost.value }
+    val colors = listOf(app.assistant.ui.designsystem.EnergyColors.DeepWork, app.assistant.ui.designsystem.EnergyColors.LightAdmin, app.assistant.ui.designsystem.EnergyColors.Physical, app.assistant.ui.designsystem.EnergyColors.Rest)
+    HeroCard(modifier) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            CredStat(caption = stringResource(R.string.subs_monthly_burn), value = MoneyFormatter.format(monthly), valueColor = MaterialTheme.colorScheme.onPrimaryContainer)
+            Text(
+                stringResource(R.string.subs_yearly_active, MoneyFormatter.format(ui.totalYearlyCost), ui.active.size),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+            )
+            if (top.isNotEmpty()) {
+                val p = app.assistant.ui.designsystem.animatedProgress(1f)
+                Row(Modifier.fillMaxWidth().height(10.dp).clip(androidx.compose.foundation.shape.CircleShape), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    shown.forEachIndexed { i, sub ->
+                        Box(Modifier.weight(sub.yearlyCost.value.coerceAtLeast(1).toFloat() * p + 0.0001f).fillMaxHeight().background(colors[i % colors.size]))
+                    }
+                    if (rest > 0) Box(Modifier.weight(rest.toFloat() * p + 0.0001f).fillMaxHeight().background(MaterialTheme.colorScheme.outline))
+                }
+                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    shown.forEach { sub ->
+                        Text(
+                            "${sub.merchant} ${MoneyFormatter.format(sub.snapshot.amount)}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+                        )
+                    }
+                    if (rest > 0) {
+                        Text(
+                            stringResource(R.string.subs_more_count, top.size - BREAKDOWN_SLOTS),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** A renewal with a day countdown tile; two days or less is highlighted. */
+@Composable
+private fun RenewalRow(sub: SubscriptionView, daysLeft: Int) {
+    val warn = daysLeft <= 2
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(
+            Modifier.size(48.dp).clip(MaterialTheme.shapes.small)
+                .background(if (warn) app.assistant.ui.designsystem.EnergyColors.WarningSurface else MaterialTheme.colorScheme.surfaceContainerHigh),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text("$daysLeft", style = MaterialTheme.typography.titleLarge, color = if (warn) app.assistant.ui.designsystem.EnergyColors.Warning else MaterialTheme.colorScheme.onSurface)
+            Text(stringResource(R.string.subs_days), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Column(Modifier.weight(1f)) {
+            Text(sub.merchant, style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.subs_renews_on, stringResource(intervalLabel(sub.snapshot.interval)), formatDate(sub.snapshot.nextDue)),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Text(MoneyFormatter.format(sub.snapshot.amount), style = MaterialTheme.typography.titleLarge)
     }
 }
 
@@ -271,6 +350,9 @@ private fun ManualAddForm(
 }
 
 private const val MAX_MERCHANT = 60
+private const val MONTHS = 12
+private const val BREAKDOWN_SLOTS = 4
+private const val RENEWING_DAYS = 7L
 private const val MAX_AMOUNT = 12
 
 /** Parses a rupee string (e.g. "149" or "149.50") to Paise, or null when it is not a valid non-negative amount. */

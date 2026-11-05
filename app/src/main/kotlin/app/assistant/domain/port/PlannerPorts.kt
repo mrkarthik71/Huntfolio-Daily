@@ -21,11 +21,17 @@ import java.time.LocalDate
 /** A new proactive card the agent wants to show for [forDate]; ignored when that kind already exists for that day. */
 data class CardDraft(val kind: CardKind, val forDate: LocalDate, val title: String, val reason: String)
 
+/** One goal-linked task, any status, for goal progress maths. */
+data class GoalWork(val taskId: TaskId, val goal: GoalId, val milestone: MilestoneId?, val done: Boolean, val estimateMinutes: Int?)
+
 /** The Apex planner store: milestones, task planning fields, routines, smart reminders, proactive cards, proofs. */
 interface PlannerRepository {
     fun milestones(goal: GoalId): Flow<List<Milestone>>
 
     fun allMilestones(): Flow<List<Milestone>>
+
+    /** Every task linked to a goal, done or not. */
+    fun goalWork(): Flow<List<GoalWork>>
 
     suspend fun addMilestone(goal: GoalId, title: String, dueDate: LocalDate?, estimateMinutes: Int?): MilestoneId
 

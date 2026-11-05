@@ -23,10 +23,10 @@ Branch: claude/add-ui-ux-pro-max-skill (push blocked until GitHub access is gran
         SlotAssigner + estimator engine with tests.
 - [x] 5. Module B: routines (daily/weekday rules), Rescheduler engine with tests.
 - [x] 6. Today dashboard: focus hero, load meter, proactive card, energy timeline, free-slot fill.
-- [ ] 7. Goals screen v2: progress ring, hours, forecast, milestones; goal detail.
-- [ ] 8. Plan-with-AI proposal sheet (rule-based fallback when AI is off; GatewayAdvisor when on).
+- [x] 7. Goals screen v2: progress ring, hours, forecast, milestones; goal detail.
+- [x] 8. Plan-with-AI proposal sheet (rule-based fallback when AI is off; GatewayAdvisor when on).
 - [x] 9. Module E: hourly ProactiveWorker + cards through the Notification_Governor.
-- [ ] 10. Money: Subscription health hub (monthly burn, renewing soon, second look, mail-found).
+- [x] 10. Money: Subscription health hub (monthly burn, renewing soon, second look, mail-found).
 - [ ] 11. Module C: smart reminders (time, place via Geofencing, phone state: charging, car Bluetooth).
 - [ ] 12. Widgets v2: focus, quick capture, next up, goals.
 - [ ] 13. Polish pass: every screen on the new components, screenshots, lint/detekt/ktlint.

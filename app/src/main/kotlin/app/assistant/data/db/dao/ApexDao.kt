@@ -12,6 +12,15 @@ import app.assistant.data.db.entity.SmartReminderEntity
 import app.assistant.data.db.entity.TaskVerificationEntity
 import kotlinx.coroutines.flow.Flow
 
+/** A goal-linked task row for progress maths. */
+data class GoalWorkRow(
+    val id: Long,
+    @androidx.room.ColumnInfo(name = "goal_id") val goalId: Long,
+    @androidx.room.ColumnInfo(name = "milestone_id") val milestoneId: Long?,
+    val status: String,
+    @androidx.room.ColumnInfo(name = "estimate_min") val estimateMinutes: Int?,
+)
+
 /** Planner tables: milestones, routines, smart reminders, proactive cards and task proofs. */
 @Dao
 interface ApexDao {
@@ -20,6 +29,9 @@ interface ApexDao {
 
     @Query("SELECT * FROM milestone ORDER BY goal_id, position")
     fun allMilestones(): Flow<List<MilestoneEntity>>
+
+    @Query("SELECT id, goal_id, milestone_id, status, estimate_min FROM task WHERE goal_id IS NOT NULL AND status != 'DROPPED'")
+    fun goalWork(): Flow<List<GoalWorkRow>>
 
     @Query("SELECT * FROM milestone WHERE id = :id")
     suspend fun milestone(id: Long): MilestoneEntity?
