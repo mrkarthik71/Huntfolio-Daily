@@ -21,3 +21,6 @@ keystore.properties
 signing.properties
 secrets.properties
 .env
+
+# graphify knowledge graph (rebuild with: graphify update .)
+graphify-out/
