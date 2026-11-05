@@ -13,11 +13,7 @@ import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,6 +27,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.assistant.R
 import app.assistant.app.FeatureFlags
+import app.assistant.ui.designsystem.CredBarItem
+import app.assistant.ui.designsystem.CredBottomBar
 import app.assistant.ui.goals.GoalsScreen
 import app.assistant.ui.money.MoneyScreen
 import app.assistant.ui.money.settings.MoneySettingsScreen
@@ -91,24 +89,18 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
     Scaffold(
         bottomBar = {
             if (showBar) {
-                NavigationBar {
-                    val dest = backStack?.destination
-                    TABS.forEach { tab ->
-                        val selected = dest?.hierarchy?.any { it.route == tab.route } == true
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                nav.navigate(tab.route) {
-                                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(if (selected) tab.selected else tab.unselected, contentDescription = null) },
-                            label = { Text(stringResource(tab.labelRes)) },
-                        )
-                    }
-                }
+                val selectedKey = TABS.firstOrNull { tab -> backStack?.destination?.hierarchy?.any { it.route == tab.route } == true }?.route
+                CredBottomBar(
+                    items = TABS.map { CredBarItem(it.route, stringResource(it.labelRes), it.selected, it.unselected) },
+                    selectedKey = selectedKey,
+                    onSelect = { route ->
+                        nav.navigate(route) {
+                            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
             }
         },
     ) { padding ->

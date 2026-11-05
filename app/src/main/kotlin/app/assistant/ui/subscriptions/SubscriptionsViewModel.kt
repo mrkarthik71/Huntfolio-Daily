@@ -12,6 +12,7 @@ import app.assistant.domain.port.ManualSubscriptionField
 import app.assistant.domain.port.ManualSubscriptionInput
 import app.assistant.domain.port.SubscriptionRepository
 import app.assistant.domain.port.SubscriptionView
+import app.assistant.domain.port.TimeSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,13 @@ data class SubscriptionsUi(
 )
 
 @HiltViewModel
-class SubscriptionsViewModel @Inject constructor(private val repo: SubscriptionRepository) : ViewModel() {
+class SubscriptionsViewModel @Inject constructor(
+    private val repo: SubscriptionRepository,
+    private val time: TimeSource,
+) : ViewModel() {
+
+    /** Today's date from the injected clock, the default next-due date for a manual Subscription. */
+    fun today(): LocalDate = time.today()
 
     val ui: StateFlow<SubscriptionsUi> = combine(
         repo.proposals(),
