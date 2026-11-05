@@ -9,12 +9,12 @@ import app.assistant.domain.model.DataSource
 import app.assistant.domain.model.TaskStatus
 import app.assistant.domain.port.AuditLog
 import app.assistant.domain.port.TimeSource
-import app.assistant.parse.huntfolio.CareerImporter
-import app.assistant.parse.huntfolio.HuntfolioImport
-import app.assistant.parse.huntfolio.HuntfolioRecord
-import app.assistant.parse.huntfolio.ImportPreview
-import app.assistant.parse.huntfolio.ImportResult
-import app.assistant.parse.huntfolio.SkillChoice
+import app.assistant.domain.career.CareerImporter
+import app.assistant.domain.career.HuntfolioImport
+import app.assistant.domain.career.HuntfolioRecord
+import app.assistant.domain.career.ImportPreview
+import app.assistant.domain.career.ImportResult
+import app.assistant.domain.career.SkillChoice
 import javax.inject.Inject
 import javax.inject.Singleton
 

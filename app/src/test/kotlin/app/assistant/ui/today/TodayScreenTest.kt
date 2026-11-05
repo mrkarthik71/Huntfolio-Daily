@@ -59,6 +59,7 @@ class TodayScreenTest {
         time = time,
         calendar = FakeCalendarRepository(),
         settings = FakeSettingsStore(),
+        advisor = app.assistant.domain.port.Advisor.Disabled,
     )
 
     @Test

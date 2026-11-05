@@ -1,9 +1,9 @@
 package app.assistant.data.mail
 
 import androidx.room.withTransaction
-import app.assistant.ai.feature.FeatureAdvisor
-import app.assistant.ai.output.ValidatedOutput
-import app.assistant.ai.payload.SummaryBuilder
+import app.assistant.domain.port.Advisor
+import app.assistant.domain.port.MailAdvice
+import app.assistant.domain.port.MessageFacts
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.data.db.entity.InboxItemEntity
 import app.assistant.data.db.entity.MailCursorEntity
@@ -13,7 +13,6 @@ import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.DataSource
 import app.assistant.domain.model.MailCategory
 import app.assistant.domain.model.MailMessage
-import app.assistant.domain.model.PromptType
 import app.assistant.domain.port.AuditLog
 import app.assistant.domain.port.MailConnector
 import app.assistant.domain.port.SettingsStore
@@ -36,7 +35,7 @@ class MailSync @Inject constructor(
     private val connector: MailConnector,
     private val refs: SourceRefFactory,
     private val settings: SettingsStore,
-    private val advisor: FeatureAdvisor,
+    private val advisor: Advisor,
     private val audit: AuditLog,
     private val time: TimeSource,
     private val otpPatterns: MailOtpPatterns,
@@ -117,14 +116,10 @@ class MailSync @Inject constructor(
 
     /** The classifier for shortlisted mail; falls back to (Rule_Score, OTHER) when AI is off or fails. */
     private suspend fun classify(message: MailMessage, ruleScore: Int): Pair<Int, MailCategory> {
-        val facts = SummaryBuilder.MessageFacts(handle = "mail1", rawText = "${message.header.subject}\n${message.snippet}")
-        return when (val r = advisor.message(PromptType.MAIL_CLASSIFIER, facts)) {
-            is FeatureAdvisor.Result.Advice -> {
-                val mail = (r.output as? ValidatedOutput.Mail)?.output
-                if (mail == null) ruleScore to MailCategory.OTHER
-                else mail.score to (MailCategory.entries.firstOrNull { it.name == mail.category } ?: MailCategory.OTHER)
-            }
-            is FeatureAdvisor.Result.Unavailable -> ruleScore to MailCategory.OTHER
+        val facts = MessageFacts(handle = "mail1", rawText = "${message.header.subject}\n${message.snippet}")
+        return when (val r = advisor.classifyMail(facts)) {
+            is MailAdvice.Classified -> r.score to (MailCategory.entries.firstOrNull { it.name == r.category } ?: MailCategory.OTHER)
+            is MailAdvice.Unavailable -> ruleScore to MailCategory.OTHER
         }
     }
 
@@ -144,7 +139,7 @@ fun interface MailOtpPatterns {
 
 /** Raises the important-mail notification (Requirement 55.2); kept behind an interface for the notify layer. */
 fun interface MailNotifier {
-    fun important(itemId: Long, subject: String, category: MailCategory)
+    suspend fun important(itemId: Long, subject: String, category: MailCategory)
 }
 
 /** The connected mailbox account id used in Source_Refs. */

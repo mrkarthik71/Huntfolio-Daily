@@ -1,5 +1,7 @@
 package app.assistant.ingest.pipeline
 
+import app.assistant.domain.port.PostCommitHook
+import app.assistant.domain.port.PersistedMessage
 import app.assistant.domain.engine.dedupe.MessageOrigin
 import app.assistant.domain.engine.dedupe.ParsedFact
 import app.assistant.domain.engine.redact.RedactionPatterns
@@ -95,13 +97,7 @@ class BillProposalStage(
     }
 }
 
-/** What a post-commit hook is told about a message that has just been stored. */
-data class PersistedMessage(val transaction: TransactionId, val created: Boolean, val origin: String, val formatId: String)
 
-/** Work that follows a stored message: the Bill paid matcher, Subscription_Detector and Quality_Monitor plug in here. */
-fun interface PostCommitHook {
-    suspend fun onPersisted(event: PersistedMessage)
-}
 
 /**
  * Stores a debit or credit. The Deduplicator and Categoriser run inside the repository, in one Room transaction with the

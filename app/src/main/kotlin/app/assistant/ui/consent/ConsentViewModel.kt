@@ -2,7 +2,7 @@ package app.assistant.ui.consent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.data.consent.ConsentStore
+import app.assistant.domain.port.ConsentRecord
 import app.assistant.domain.engine.consent.ConsentGate
 import app.assistant.domain.port.TimeSource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +18,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class ConsentViewModel @Inject constructor(
-    private val store: ConsentStore,
+    private val store: ConsentRecord,
     private val time: TimeSource,
 ) : ViewModel() {
 

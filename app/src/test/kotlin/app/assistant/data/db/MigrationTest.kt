@@ -40,9 +40,17 @@ class MigrationTest {
         helper.createDatabase(dbPath(DB), AppDatabase.VERSION).close()
     }
 
+    /**
+     * Versions 5 to 8 were developed in one commit and their schema JSON was never exported, so a
+     * database cannot be created at those versions here. Starting from every exported version still
+     * runs the whole chain, including MIGRATION_5_6 to MIGRATION_8_9, and validates the result
+     * against the current schema. Any later version must export its schema (CLAUDE.md).
+     */
     @Test
-    fun everyEarlierVersionMigratesToCurrent() {
-        for (from in 1 until AppDatabase.VERSION) {
+    fun everyExportedVersionMigratesToCurrent() {
+        val exported = (1 until AppDatabase.VERSION).filter { it !in UNEXPORTED_VERSIONS }
+        assertTrue(exported.isNotEmpty())
+        for (from in exported) {
             val path = dbPath("$DB-from-$from")
             helper.createDatabase(path, from).close()
             helper.runMigrationsAndValidate(path, AppDatabase.VERSION, true, *ALL_MIGRATIONS)
@@ -69,5 +77,8 @@ class MigrationTest {
 
     private companion object {
         const val DB = "migration-test"
+
+        /** Versions whose schema JSON was never exported (see [everyExportedVersionMigratesToCurrent]). */
+        val UNEXPORTED_VERSIONS = setOf(5, 6, 7, 8)
     }
 }

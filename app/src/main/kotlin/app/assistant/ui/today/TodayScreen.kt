@@ -76,6 +76,7 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
                 actions = {
                     TextButton(onClick = { ui.date?.let { onOpenReview(it.toString()) } }) { Text(stringResource(R.string.today_open_review)) }
                 },
+                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
     ) { padding ->

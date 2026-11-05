@@ -22,6 +22,7 @@ import app.assistant.domain.port.GoalRepository
 import app.assistant.domain.port.LogDecision
 import app.assistant.domain.port.LogEntry
 import app.assistant.domain.port.NotificationLog
+import app.assistant.domain.port.ImmediateAlert
 import app.assistant.domain.port.NotificationScheduling
 import app.assistant.domain.port.PlanRepository
 import app.assistant.domain.port.QueuedAlarm
@@ -64,6 +65,33 @@ class AndroidNotificationScheduler @Inject constructor(
 ) : NotificationScheduling {
 
     override fun hasExactAlarmAccess(): Boolean = armer.hasExactAccess()
+
+    override suspend fun offerNow(alert: ImmediateAlert) {
+        val s = settings.current()
+        val now = time.now()
+        val zone = time.zone()
+        val today = now.atZone(zone).toLocalDate()
+        val content = NotificationContent(alert.title, alert.text, alert.route)
+        val candidate = Candidate(alert.type, alert.refKey, now, isSnoozeRepeat = false)
+        val ruleId = "now.${alert.type.name.lowercase()}"
+        fun entry(decision: LogDecision, counted: Boolean, typeCounted: Boolean) =
+            LogEntry(0, today.toString(), alert.type, alert.refKey, decision, ruleId, now, counted, typeCounted, content.text)
+        when (val decision = NotificationPolicy.decide(candidate, log.stateFor(today), governor(s), now, zone)) {
+            Decision.Drop -> Unit
+            // Quiet hours or a full cap: the alert waits in the inbox instead of interrupting.
+            is Decision.Hold, is Decision.ToInbox -> log.record(entry(LogDecision.INBOX, counted = false, typeCounted = false))
+            Decision.Show, is Decision.ShowUncounted -> {
+                if (!notifier.canPost()) {
+                    log.record(entry(LogDecision.INBOX, counted = false, typeCounted = false))
+                } else {
+                    val counted = decision == Decision.Show
+                    val typeCounted = counted || (decision is Decision.ShowUncounted && decision.countsForType)
+                    val id = log.record(entry(if (counted) LogDecision.SHOWN else LogDecision.SHOWN_UNCOUNTED, counted, typeCounted))
+                    notifier.post(id, alert.type, content)
+                }
+            }
+        }
+    }
 
     override suspend fun refresh() {
         val s = settings.current()

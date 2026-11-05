@@ -1,5 +1,7 @@
 package app.assistant.ai.cloud
 
+import app.assistant.domain.port.ProxyClient
+import app.assistant.domain.port.CloudKeySource
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.port.AiFailure
 import app.assistant.domain.port.ProviderRequest

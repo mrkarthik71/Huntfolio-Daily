@@ -2,7 +2,7 @@ package app.assistant.app.di
 
 import app.assistant.data.backup.AndroidBackupManager
 import app.assistant.data.backup.BackupDataSource
-import app.assistant.data.backup.BackupManager
+import app.assistant.domain.port.BackupManager
 import app.assistant.data.backup.RoomBackupDataSource
 import dagger.Binds
 import dagger.Module

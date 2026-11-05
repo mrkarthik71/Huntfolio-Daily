@@ -43,7 +43,7 @@ class AppStartup @Inject constructor(
     private val time: TimeSource,
     private val reviewQueue: app.assistant.domain.port.ReviewQueueRepository,
     private val smsFallback: app.assistant.data.ai.SmsFallbackParser,
-    private val backup: app.assistant.data.backup.BackupManager,
+    private val backup: app.assistant.domain.port.BackupManager,
     @param:ApplicationContext private val context: Context,
     @param:ApplicationScope private val scope: CoroutineScope,
 ) {

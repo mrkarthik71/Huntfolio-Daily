@@ -10,8 +10,9 @@ import app.assistant.data.mail.SecretMailCredentialStore
 import app.assistant.domain.port.DispatcherProvider
 import app.assistant.domain.port.MailConnector
 import app.assistant.domain.port.SettingsStore
-import app.assistant.notify.NotificationContent
-import app.assistant.notify.Notifier
+import app.assistant.R
+import app.assistant.domain.port.ImmediateAlert
+import app.assistant.domain.port.NotificationScheduling
 import app.assistant.domain.model.NotificationType
 import com.google.gson.JsonParser
 import dagger.Module
@@ -52,11 +53,16 @@ object MailModule {
 
     @Provides
     @Singleton
-    fun mailNotifier(notifier: Notifier): MailNotifier = MailNotifier { itemId, subject, _ ->
-        notifier.post(
-            logId = itemId,
-            type = NotificationType.IMPORTANT_MAIL,
-            content = NotificationContent(title = "Important email", text = subject, route = "mail"),
+    fun mailNotifier(@ApplicationContext context: Context, notifications: NotificationScheduling): MailNotifier = MailNotifier { itemId, subject, _ ->
+        // Through the Notification_Governor like every other notification (quiet hours, caps, "Why" log).
+        notifications.offerNow(
+            ImmediateAlert(
+                type = NotificationType.IMPORTANT_MAIL,
+                refKey = "mail:$itemId",
+                title = context.getString(R.string.mail_important_title),
+                text = subject,
+                route = "settings/mail",
+            ),
         )
     }
 

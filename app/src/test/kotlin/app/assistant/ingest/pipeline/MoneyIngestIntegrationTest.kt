@@ -1,5 +1,7 @@
 package app.assistant.ingest.pipeline
 
+import app.assistant.domain.port.PostCommitHook
+import app.assistant.domain.port.PersistedMessage
 import android.app.Application
 import app.assistant.data.db.AppDatabase
 import app.assistant.data.db.DbProvider

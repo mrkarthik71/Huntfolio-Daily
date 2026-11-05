@@ -1,25 +1,18 @@
 package app.assistant.ui.mail
 
-import android.content.Context
+import app.assistant.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.data.db.DatabaseHolder
-import app.assistant.data.db.entity.SenderPenaltyEntity
-import app.assistant.data.db.entity.ShortlistRuleEntity
-import app.assistant.data.mail.ImapConfig
-import app.assistant.data.mail.MailSyncWorker
-import app.assistant.data.mail.SecretMailCredentialStore
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.MailError
-import app.assistant.domain.port.MailConnector
+import app.assistant.domain.port.MailQualitySummary
+import app.assistant.domain.port.MailboxService
 import app.assistant.domain.port.SettingsStore
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,7 +27,7 @@ data class MailUi(
     val loading: Boolean = true,
     val connected: Boolean = false,
     val testing: Boolean = false,
-    val testError: String? = null,
+    @androidx.annotation.StringRes val testError: Int? = null,
     val importanceThreshold: Int = 6,
     val snippetLength: Int = 300,
     val syncIntervalMinutes: Int = 60,
@@ -49,32 +42,27 @@ data class MailUi(
 
 @HiltViewModel
 class MailViewModel @Inject constructor(
-    private val holder: DatabaseHolder,
-    private val credentials: SecretMailCredentialStore,
-    private val connector: MailConnector,
+    private val mailbox: MailboxService,
     private val settings: SettingsStore,
-    private val quality: app.assistant.data.mail.MailQuality,
-    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
 
-    private val dao get() = holder.database().mailDao()
     private val connected = MutableStateFlow(false)
     private val testing = MutableStateFlow(false)
-    private val testError = MutableStateFlow<String?>(null)
-    private val metrics = MutableStateFlow(app.assistant.data.mail.MailQuality.Metrics(0, 0, 0, 0, 0.0))
+    private val testError = MutableStateFlow<Int?>(null)
+    private val metrics = MutableStateFlow(MailQualitySummary(0, 0, 0.0))
 
     init {
         viewModelScope.launch {
-            connected.value = credentials.hasCredentials()
-            metrics.value = quality.metrics()
+            connected.value = mailbox.isConnected()
+            metrics.value = mailbox.quality()
         }
     }
 
     val state: StateFlow<MailUi> =
         combine(
             settings.settings,
-            dao.rulesFlow(),
-            dao.items(),
+            mailbox.rules(),
+            mailbox.inbox(),
             combine(connected, testing, testError) { c, t, e -> Triple(c, t, e) },
             metrics,
         ) { s, rules, items, conn, m ->
@@ -89,29 +77,20 @@ class MailViewModel @Inject constructor(
                 rules = rules.map { RuleRow(it.id, it.senderContains, it.subjectContains, it.score) },
                 rulesEmpty = rules.isEmpty(),
                 inbox = items.map { InboxRow(it.id, it.sender, it.subject, it.category, it.finalScore) },
-                wrongAlerts8w = m.wrongAlertsLast8Weeks,
-                notifications8w = m.notificationsLast8Weeks,
+                wrongAlerts8w = m.wrongAlerts8w,
+                notifications8w = m.notifications8w,
                 avgNotificationsPerDay = m.avgNotificationsPerDay,
             )
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), MailUi())
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), MailUi())
 
-    /** Tests the connection, stores credentials only on success (Requirement 51.3, 51.5, 51.6). */
+    /** Tests the connection; credentials are stored only on success (Requirement 51.3, 51.5, 51.6). */
     fun connect(host: String, port: Int, username: String, password: String) {
         viewModelScope.launch {
             testing.value = true
             testError.value = null
-            // Stage credentials so the connector's test uses them, then confirm.
-            credentials.save(ImapConfig(host, port, username), password)
-            when (val r = connector.connectionTest()) {
-                is Outcome.Ok -> {
-                    connected.value = true
-                    val cfg = settings.current()
-                    MailSyncWorker.schedule(context, cfg.mailSyncIntervalMinutes.toLong())
-                    app.assistant.data.mail.MailDigestWorker.schedule(context, cfg.mailDigestTime.toSecondOfDay() / SECONDS_PER_MINUTE)
-                }
+            when (val r = mailbox.connect(host, port, username, password)) {
+                is Outcome.Ok -> connected.value = true
                 is Outcome.Err -> {
-                    // Rejected or unreachable: clear the staged credentials so sync does not retry a bad login.
-                    credentials.save(ImapConfig(host, port, username), "")
                     connected.value = false
                     testError.value = reason(r.error)
                 }
@@ -122,10 +101,8 @@ class MailViewModel @Inject constructor(
 
     fun disconnect() {
         viewModelScope.launch {
-            credentials.save(ImapConfig("", 0, ""), "")
+            mailbox.disconnect()
             connected.value = false
-            MailSyncWorker.cancel(context)
-            app.assistant.data.mail.MailDigestWorker.cancel(context)
         }
     }
 
@@ -135,40 +112,31 @@ class MailViewModel @Inject constructor(
 
     fun setInterval(minutes: Int) {
         viewModelScope.launch {
-            if (settings.update { it.copy(mailSyncIntervalMinutes = minutes) } is Outcome.Ok && connected.value) {
-                MailSyncWorker.schedule(context, minutes.toLong())
-            }
+            if (settings.update { it.copy(mailSyncIntervalMinutes = minutes) } is Outcome.Ok) mailbox.rescheduleSync(minutes)
         }
     }
 
     fun addRule(senderContains: String, subjectContains: String, score: Int) {
-        if (senderContains.isBlank() && subjectContains.isBlank()) return
-        viewModelScope.launch { dao.addRule(ShortlistRuleEntity(senderContains = senderContains.trim(), subjectContains = subjectContains.trim(), score = score.coerceIn(1, MAX_SCORE))) }
+        viewModelScope.launch { mailbox.addRule(senderContains, subjectContains, score) }
     }
 
     fun deleteRule(id: Long) {
-        viewModelScope.launch { dao.deleteRule(id) }
+        viewModelScope.launch { mailbox.deleteRule(id) }
     }
 
     /** "Not important": raises the sender's penalty and counts a Wrong_Mail_Alert once (Requirement 55.3, 55.5). */
     fun notImportant(row: InboxRow) {
-        viewModelScope.launch {
-            val current = dao.penalty(row.sender) ?: 0
-            dao.putPenalty(SenderPenaltyEntity(row.sender, current + PENALTY_STEP))
-            dao.markWrongAlert(row.id)
-        }
+        viewModelScope.launch { mailbox.markNotImportant(row.id, row.sender) }
     }
 
-    private fun reason(error: MailError): String = when (error) {
-        MailError.AUTH_REJECTED -> "Login was rejected. Check the app password."
-        MailError.TIMEOUT -> "The server did not respond in time."
-        MailError.TRANSPORT -> "Could not reach the mail server."
-        MailError.FOLDER_GONE -> "The mailbox folder was not found."
+    private fun reason(error: MailError): Int = when (error) {
+        MailError.AUTH_REJECTED -> R.string.mail_error_auth
+        MailError.TIMEOUT -> R.string.mail_error_timeout
+        MailError.TRANSPORT -> R.string.mail_error_transport
+        MailError.FOLDER_GONE -> R.string.mail_error_folder
     }
 
     private companion object {
-        const val PENALTY_STEP = 2
-        const val MAX_SCORE = 10
-        const val SECONDS_PER_MINUTE = 60
+        const val STOP_TIMEOUT_MS = 5_000L
     }
 }

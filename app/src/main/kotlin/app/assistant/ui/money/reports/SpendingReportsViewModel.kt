@@ -53,7 +53,7 @@ data class AiReportSuggestion(val text: String, val reason: String)
 class SpendingReportsViewModel @Inject constructor(
     private val reports: SpendingReportRepository,
     time: TimeSource,
-    private val advisor: app.assistant.ai.feature.FeatureAdvisor,
+    private val advisor: app.assistant.domain.port.Advisor,
 ) : ViewModel() {
 
     private val today: LocalDate = time.today()
@@ -118,20 +118,19 @@ class SpendingReportsViewModel @Inject constructor(
         if (ui.selection.mode != ReportMode.MONTHLY) return
         val monthly = ui.monthly ?: return
         viewModelScope.launch {
-            val items = monthly.lines.mapIndexed { i, line -> app.assistant.ai.payload.SummaryBuilder.Item("c${i + 1}", line.name) }
+            val items = monthly.lines.mapIndexed { i, line -> app.assistant.domain.port.AdviceItem("c${i + 1}", line.name) }
             val numbers = buildMap {
                 put("total", (monthly.total.value / RUPEE).toString())
                 monthly.lines.forEachIndexed { i, line -> put("c${i + 1}_amount", (line.amount.value / RUPEE).toString()) }
             }
-            val facts = app.assistant.ai.payload.SummaryBuilder.ReviewFacts(items = items, numbers = numbers)
+            val facts = app.assistant.domain.port.ReviewFacts(items = items, numbers = numbers)
             when (val r = advisor.review(app.assistant.domain.model.PromptType.MONTHLY_MONEY_REVIEW, facts)) {
-                is app.assistant.ai.feature.FeatureAdvisor.Result.Advice -> {
-                    val summary = (r.output as? app.assistant.ai.output.ValidatedOutput.Review)?.summary
-                    val suggestions = app.assistant.ai.feature.FeatureAdvisor.suggestionsOf(r.output).map { AiReportSuggestion(it.text, it.reason) }
-                    _state.value = _state.value.copy(aiSummary = summary, aiSuggestions = suggestions, aiUnavailable = false)
+                is app.assistant.domain.port.ReviewAdvice.Wording -> {
+                    val suggestions = r.suggestions.map { AiReportSuggestion(it.text, it.reason) }
+                    _state.value = _state.value.copy(aiSummary = r.summary, aiSuggestions = suggestions, aiUnavailable = false)
                 }
-                is app.assistant.ai.feature.FeatureAdvisor.Result.Unavailable ->
-                    _state.value = _state.value.copy(aiUnavailable = r.reason != app.assistant.ai.feature.FeatureAdvisor.Reason.DISABLED)
+                is app.assistant.domain.port.ReviewAdvice.Unavailable ->
+                    _state.value = _state.value.copy(aiUnavailable = r.reason != app.assistant.domain.port.AdviceUnavailable.DISABLED)
             }
         }
     }

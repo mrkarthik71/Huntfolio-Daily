@@ -43,7 +43,7 @@ class MaintenanceDailyTest {
     private val spending = FakeSpendingReportRepository()
 
     private fun maintenance(provider: DbProvider = DbProvider { db }, sync: FakeBillAlarmSync = billAlarms) =
-        MaintenanceDaily(FakeReportRepository(), spending, sync, scheduler, provider, FakeTimeSource())
+        MaintenanceDaily(FakeReportRepository(), spending, sync, scheduler, app.assistant.testing.FakeSubscriptionRepository(java.time.LocalDate.of(2026, 11, 3)), provider, FakeTimeSource())
 
     @Test
     fun `run catches up reports syncs bill alarms and counts audit rows`() {
@@ -79,6 +79,8 @@ class MaintenanceDailyTest {
     }
 
     private class CountingScheduler : NotificationScheduling {
+        override suspend fun offerNow(alert: app.assistant.domain.port.ImmediateAlert) = Unit
+
         var refreshes = 0
 
         override suspend fun refresh() {

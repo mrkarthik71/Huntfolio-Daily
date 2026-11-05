@@ -1,14 +1,14 @@
 package app.assistant.app.di
 
 import android.content.Context
-import app.assistant.ai.cloud.CloudKeySource
+import app.assistant.domain.port.CloudKeySource
 import app.assistant.ai.cloud.OkHttpCloudTransport
 import app.assistant.ai.cloud.OpenAiCompatibleProvider
-import app.assistant.ai.cloud.ProxyClient
-import app.assistant.ai.gateway.AiConfig
+import app.assistant.domain.port.ProxyClient
+import app.assistant.domain.port.AiConfig
 import app.assistant.ai.gateway.AiGateway
 import app.assistant.ai.gateway.CapGovernor
-import app.assistant.ai.gateway.Connectivity
+import app.assistant.domain.port.Connectivity
 import app.assistant.ai.ondevice.OnDeviceAiProvider
 import app.assistant.ai.ondevice.OnDeviceAvailability
 import app.assistant.ai.ondevice.OnDeviceRuntime
@@ -161,8 +161,8 @@ abstract class AiModule {
 
         @Provides
         @Singleton
-        fun featureAdvisor(gateway: AiGateway, builder: SummaryBuilder, prompts: app.assistant.data.ai.PromptStore): app.assistant.ai.feature.FeatureAdvisor =
-            app.assistant.ai.feature.FeatureAdvisor(gateway, builder) { prompts.prompt(it) }
+        fun advisor(gateway: AiGateway, builder: SummaryBuilder, prompts: app.assistant.data.ai.PromptStore): app.assistant.domain.port.Advisor =
+            app.assistant.ai.feature.GatewayAdvisor(gateway, builder) { prompts.prompt(it) }
     }
 }
 

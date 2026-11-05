@@ -2,7 +2,12 @@ package app.assistant.ui.today
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.ai.payload.SummaryBuilder
+import app.assistant.domain.port.AdviceGap
+import app.assistant.domain.port.AdviceItem
+import app.assistant.domain.port.AdviceUnavailable
+import app.assistant.domain.port.Advisor
+import app.assistant.domain.port.ReviewAdvice
+import app.assistant.domain.port.ReviewFacts
 import app.assistant.domain.engine.bills.BillOccurrence
 import app.assistant.domain.engine.calendar.ConflictDetector
 import app.assistant.domain.engine.calendar.FocusBlockProposal
@@ -93,7 +98,7 @@ class TodayViewModel @Inject constructor(
     private val time: TimeSource,
     private val calendar: CalendarRepository,
     private val settings: SettingsStore,
-    private val advisor: app.assistant.ai.feature.FeatureAdvisor,
+    private val advisor: Advisor,
 ) : ViewModel() {
 
     /** Proposals the User dismissed, keyed by their gap: a changed gap is a new proposal (Requirement 25.5). */
@@ -172,23 +177,22 @@ class TodayViewModel @Inject constructor(
         val date = ui.date ?: return
         viewModelScope.launch {
             val items = buildList {
-                ui.priorities.forEachIndexed { i, p -> add(SummaryBuilder.Item("t${i + 1}", p.task.title)) }
-                ui.otherTasks.forEachIndexed { i, t -> add(SummaryBuilder.Item("o${i + 1}", t.title)) }
+                ui.priorities.forEachIndexed { i, p -> add(AdviceItem("t${i + 1}", p.task.title)) }
+                ui.otherTasks.forEachIndexed { i, t -> add(AdviceItem("o${i + 1}", t.title)) }
             }
             val zone = ui.zone
             val gaps = ui.proposals.mapIndexed { i, p ->
-                SummaryBuilder.Gap("gap${i + 1}", p.gap.start.atZone(zone).toLocalTime().toSecondOfDay() / 60, p.gap.end.atZone(zone).toLocalTime().toSecondOfDay() / 60)
+                AdviceGap("gap${i + 1}", p.gap.start.atZone(zone).toLocalTime().toSecondOfDay() / 60, p.gap.end.atZone(zone).toLocalTime().toSecondOfDay() / 60)
             }
-            val facts = SummaryBuilder.ReviewFacts(items = items, gaps = gaps, numbers = mapOf("streak" to ui.streak.toString()))
+            val facts = ReviewFacts(items = items, gaps = gaps, numbers = mapOf("streak" to ui.streak.toString()))
             when (val r = advisor.review(app.assistant.domain.model.PromptType.DAILY_PLAN, facts)) {
-                is app.assistant.ai.feature.FeatureAdvisor.Result.Advice -> {
-                    val suggestions = app.assistant.ai.feature.FeatureAdvisor.suggestionsOf(r.output).map { AiSuggestionRow(it.text, it.reason) }
-                    val summary = (r.output as? app.assistant.ai.output.ValidatedOutput.DailyPlan)?.output?.summary
-                    aiAdvice.value = AiOverlay(summary = summary, suggestions = suggestions, unavailable = false)
+                is ReviewAdvice.Wording -> {
+                    val suggestions = r.suggestions.map { AiSuggestionRow(it.text, it.reason) }
+                    aiAdvice.value = AiOverlay(summary = r.summary, suggestions = suggestions, unavailable = false)
                 }
-                is app.assistant.ai.feature.FeatureAdvisor.Result.Unavailable ->
+                is ReviewAdvice.Unavailable ->
                     // Disabled is the normal off state: show no indication, just no AI wording.
-                    aiAdvice.value = AiOverlay(unavailable = r.reason != app.assistant.ai.feature.FeatureAdvisor.Reason.DISABLED)
+                    aiAdvice.value = AiOverlay(unavailable = r.reason != AdviceUnavailable.DISABLED)
             }
         }
     }

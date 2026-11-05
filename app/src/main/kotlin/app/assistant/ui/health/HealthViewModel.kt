@@ -3,7 +3,7 @@ package app.assistant.ui.health
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.data.health.HealthCheck
+import app.assistant.domain.port.HealthMonitor
 import app.assistant.domain.engine.health.BatteryGuide
 import app.assistant.domain.engine.health.HealthRules
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,7 +24,7 @@ data class HealthUi(
 @HiltViewModel
 class HealthViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val healthCheck: HealthCheck,
+    private val healthCheck: HealthMonitor,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(HealthUi())

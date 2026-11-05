@@ -1,5 +1,7 @@
 package app.assistant.ui.settings.ai
 
+import app.assistant.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,67 +40,67 @@ fun AiSettingsScreen(viewModel: AiSettingsViewModel, modifier: Modifier = Modifi
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        ScreenTitle("AI advice")
+        ScreenTitle(stringResource(R.string.ai_title))
 
-        SectionHeader("Mode")
+        SectionHeader(stringResource(R.string.ai_mode).uppercase())
         CredCard {
             Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 AiMode.entries.forEach { mode ->
                     ModeRow(mode = mode, selected = ui.mode == mode, onSelect = { viewModel.setMode(mode) })
                 }
                 Text(
-                    "Off until you turn it on. Your plan and reviews work without AI; AI only rewords them.",
+                    stringResource(R.string.ai_mode_body),
                     style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                 )
             }
         }
 
-        SectionHeader("Monthly cap")
+        SectionHeader(stringResource(R.string.ai_cap).uppercase())
         CredCard {
             Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 var cap by remember(ui.monthlyCapPaise) { mutableStateOf(if (ui.monthlyCapPaise > 0) (ui.monthlyCapPaise / PAISE).toString() else "") }
                 androidx.compose.material3.OutlinedTextField(
                     value = cap,
                     onValueChange = { cap = it },
-                    label = { Text("Cap in ₹ / month") },
+                    label = { Text(stringResource(R.string.ai_cap_label)) },
                     isError = ui.capError,
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                androidx.compose.material3.TextButton(onClick = { viewModel.setCapRupees(cap) }) { Text("Save cap") }
-                Text("Spent this month: ₹${ui.spentThisMonthPaise / PAISE}", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                androidx.compose.material3.TextButton(onClick = { viewModel.setCapRupees(cap) }) { Text(stringResource(R.string.ai_cap_save)) }
+                Text(stringResource(R.string.ai_spent, ui.spentThisMonthPaise / PAISE), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                 if (ui.capReached) {
-                    Text("Cap reached. Cloud AI resumes on ${ui.resumeDate}.", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.ai_cap_reached, ui.resumeDate.toString()), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                 }
             }
         }
 
         if (viewModel.keyEntrySupported) {
-            SectionHeader("Cloud key")
+            SectionHeader(stringResource(R.string.ai_key).uppercase())
             CredCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     var key by remember { mutableStateOf("") }
                     androidx.compose.material3.OutlinedTextField(
                         value = key,
                         onValueChange = { key = it },
-                        label = { Text(if (ui.keyConfigured) "Replace key" else "Enter key") },
+                        label = { Text(stringResource(if (ui.keyConfigured) R.string.ai_key_replace else R.string.ai_key_enter)) },
                         visualTransformation = PasswordVisualTransformation(),
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     androidx.compose.material3.TextButton(onClick = { viewModel.setKey(key); key = "" }) {
-                        Text(if (ui.keyConfigured) "Update key" else "Save key")
+                        Text(stringResource(if (ui.keyConfigured) R.string.ai_key_update else R.string.ai_key_save))
                     }
-                    Text(if (ui.keyConfigured) "A key is stored." else "No key stored — Cloud mode is unavailable.", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    Text(stringResource(if (ui.keyConfigured) R.string.ai_key_stored else R.string.ai_key_missing), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                 }
             }
         }
 
-        SectionHeader("On-device")
+        SectionHeader(stringResource(R.string.ai_ondevice).uppercase())
         CredCard {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(
-                    ui.onDeviceUnavailable?.let { "On-device model unavailable: ${it.lowercase().replace('_', ' ')}" } ?: "On-device model ready.",
+                    ui.onDeviceUnavailable?.let { stringResource(R.string.ai_ondevice_unavailable, it.lowercase().replace('_', ' ')) } ?: stringResource(R.string.ai_ondevice_ready),
                     style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                 )
             }
@@ -115,9 +117,9 @@ private fun ModeRow(mode: AiMode, selected: Boolean, onSelect: () -> Unit) {
         androidx.compose.material3.RadioButton(selected = selected, onClick = onSelect)
         Text(
             when (mode) {
-                AiMode.NONE -> "Off"
-                AiMode.CLOUD -> "Cloud"
-                AiMode.ON_DEVICE -> "On device"
+                AiMode.NONE -> stringResource(R.string.ai_mode_off)
+                AiMode.CLOUD -> stringResource(R.string.ai_mode_cloud)
+                AiMode.ON_DEVICE -> stringResource(R.string.ai_mode_ondevice)
             },
         )
     }

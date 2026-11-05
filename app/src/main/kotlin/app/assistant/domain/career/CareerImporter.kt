@@ -1,4 +1,4 @@
-package app.assistant.parse.huntfolio
+package app.assistant.domain.career
 
 import app.assistant.domain.model.GoalPeriod
 import app.assistant.domain.model.Quantity

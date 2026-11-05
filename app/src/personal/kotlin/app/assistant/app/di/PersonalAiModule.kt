@@ -1,8 +1,8 @@
 package app.assistant.app.di
 
-import app.assistant.ai.cloud.CloudKeySource
-import app.assistant.ai.cloud.CloudKeyWriter
-import app.assistant.ai.cloud.ProxyClient
+import app.assistant.domain.port.CloudKeySource
+import app.assistant.domain.port.CloudKeyWriter
+import app.assistant.domain.port.ProxyClient
 import app.assistant.data.ai.PersonalCloudKeySource
 import app.assistant.data.ai.PersonalCloudKeyWriter
 import app.assistant.domain.error.Outcome

@@ -21,7 +21,7 @@ import app.assistant.ingest.pipeline.IngestPipeline
 import app.assistant.ingest.pipeline.OtpStage
 import app.assistant.ingest.pipeline.ParseStage
 import app.assistant.ingest.pipeline.PersistStage
-import app.assistant.ingest.pipeline.PostCommitHook
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.ingest.pipeline.ProcessedRefStage
 import app.assistant.ingest.pipeline.RedactionPatternsProvider
 import app.assistant.ingest.pipeline.ReviewQueueStage

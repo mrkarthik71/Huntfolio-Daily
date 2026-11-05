@@ -1,5 +1,7 @@
 package app.assistant.ai.gateway
 
+import app.assistant.domain.port.Connectivity
+import app.assistant.domain.port.AiConfig
 import app.assistant.ai.output.OutputContext
 import app.assistant.ai.output.OutputValidator
 import app.assistant.ai.output.ValidatedOutput
@@ -16,31 +18,7 @@ import app.assistant.domain.port.TimeSource
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 
-/** Everything the gateway needs to know about the live AI configuration, read fresh per call. */
-interface AiConfig {
-    /** The active AI_Mode. */
-    suspend fun mode(): AiMode
 
-    /**
-     * A monotonically-increasing epoch that changes whenever AI_Mode or the key changes. The gateway
-     * captures it before a send and drops a result whose epoch no longer matches (Requirement 42.7).
-     */
-    suspend fun epoch(): Long
-
-    /** The configured monthly cap in paise; 0 means no cap set. */
-    suspend fun capPaise(): Long
-
-    /** False when Cloud cannot run: no cap, or (in the personal flavour) no key (Requirement 45.1, 45.2). */
-    suspend fun cloudConfigured(): Boolean
-
-    /** The per-Prompt_Type model name, or null for the adapter default. */
-    suspend fun model(type: PromptType): String?
-}
-
-/** Reports whether the device currently has a usable network (Requirement 43.1). */
-fun interface Connectivity {
-    fun isOnline(): Boolean
-}
 
 /**
  * The AI_Gateway (Requirement 42, 43, design: AI_Gateway). It is the ONLY place that decides whether

@@ -24,10 +24,10 @@ class HealthCheck @Inject constructor(
     private val holder: DatabaseHolder,
     private val time: TimeSource,
     private val mailCredentials: SecretMailCredentialStore,
-) {
+) : app.assistant.domain.port.HealthMonitor {
     private val prefs get() = context.getSharedPreferences(DISMISS_FILE, Context.MODE_PRIVATE)
 
-    suspend fun currentProblems(): Set<HealthRules.Problem> {
+    override suspend fun currentProblems(): Set<HealthRules.Problem> {
         val jobs = holder.database().jobRunDao().all().map {
             HealthRules.JobState(it.job, java.time.Instant.ofEpochMilli(it.lastRunAt), expectedInterval(it.job))
         }
@@ -43,10 +43,10 @@ class HealthCheck @Inject constructor(
         )
     }
 
-    suspend fun shouldWarn(): Boolean = HealthRules.shouldWarn(currentProblems(), dismissed())
+    override suspend fun shouldWarn(): Boolean = HealthRules.shouldWarn(currentProblems(), dismissed())
 
     /** Dismiss the current problems until a NEW one appears (Requirement 62.5). */
-    suspend fun dismiss() {
+    override suspend fun dismiss() {
         val names = currentProblems().joinToString(",") { it.name }
         prefs.edit().putString(DISMISSED_KEY, names).commit()
     }

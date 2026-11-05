@@ -1,8 +1,8 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.cloud.CloudKeySource
-import app.assistant.ai.cloud.CloudCredential
-import app.assistant.ai.gateway.AiConfig
+import app.assistant.domain.port.CloudKeySource
+import app.assistant.domain.port.CloudCredential
+import app.assistant.domain.port.AiConfig
 import app.assistant.domain.model.AiMode
 import app.assistant.domain.model.PromptType
 import app.assistant.domain.port.SettingsStore

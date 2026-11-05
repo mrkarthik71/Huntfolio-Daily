@@ -1,5 +1,8 @@
 package app.assistant.data.backup
 
+import app.assistant.domain.port.ExportInfo
+import app.assistant.domain.port.BackupManager
+import app.assistant.domain.port.BackupError
 import android.content.Context
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.port.DispatcherProvider

@@ -13,8 +13,8 @@ import app.assistant.domain.port.BillRepository
 import app.assistant.domain.port.BudgetRepository
 import app.assistant.domain.port.SpendingReportRepository
 import app.assistant.domain.port.TimeSource
-import app.assistant.ingest.pipeline.PersistedMessage
-import app.assistant.ingest.pipeline.PostCommitHook
+import app.assistant.domain.port.PersistedMessage
+import app.assistant.domain.port.PostCommitHook
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

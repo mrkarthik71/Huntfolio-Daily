@@ -1,5 +1,7 @@
 package app.assistant.ai.payload
 
+import app.assistant.domain.port.MessageFacts
+import app.assistant.domain.port.ReviewFacts
 import app.assistant.ai.output.OutputContext
 import app.assistant.domain.engine.redact.RedactionError
 import app.assistant.domain.engine.redact.RedactionPatterns
@@ -19,24 +21,6 @@ import app.assistant.domain.port.RedactedText
  * [MAX_PAYLOAD_CHARS] (Requirement 46.7); the caller then shows the rule-based result with no send.
  */
 class SummaryBuilder(private val patterns: RedactionPatterns) {
-
-    /** One line that pairs a handle with its (to-be-redacted) label, e.g. t1 -> "Pay the electricity bill". */
-    data class Item(val handle: String, val label: String)
-
-    /** A free time window the daily plan may place tasks into, in minutes from midnight. */
-    data class Gap(val handle: String, val startMinute: Int, val endMinute: Int)
-
-    /** Facts for a planning/review payload: handled items, numeric facts, and optional free gaps. */
-    data class ReviewFacts(
-        val items: List<Item> = emptyList(),
-        val gaps: List<Gap> = emptyList(),
-        /** Numeric/opaque facts already safe to send (counts, totals in ₹, streak days). */
-        val numbers: Map<String, String> = emptyMap(),
-        val summaryLine: String = "",
-    )
-
-    /** Facts for the SMS-fallback / mail-classifier payloads: a handle and the raw message text. */
-    data class MessageFacts(val handle: String, val rawText: String, val numbers: Map<String, String> = emptyMap())
 
     fun buildReview(type: PromptType, facts: ReviewFacts): Outcome<BuiltPayload, RedactionError> {
         require(type in REVIEW_TYPES) { "buildReview called for $type" }

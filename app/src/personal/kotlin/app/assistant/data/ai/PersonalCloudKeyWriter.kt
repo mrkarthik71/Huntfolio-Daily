@@ -1,6 +1,6 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.cloud.CloudKeyWriter
+import app.assistant.domain.port.CloudKeyWriter
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.data.db.entity.SecretEntity
 import app.assistant.domain.error.Outcome

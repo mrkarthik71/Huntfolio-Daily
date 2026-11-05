@@ -8,8 +8,9 @@ import app.assistant.data.db.DatabaseHolder
 import app.assistant.domain.engine.mail.DigestBuilder
 import app.assistant.domain.model.MailCategory
 import app.assistant.domain.model.NotificationType
-import app.assistant.notify.NotificationContent
-import app.assistant.notify.Notifier
+import app.assistant.R
+import app.assistant.domain.port.ImmediateAlert
+import app.assistant.domain.port.NotificationScheduling
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.first
@@ -27,7 +28,8 @@ class MailDigestWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val holder: DatabaseHolder,
     private val credentials: SecretMailCredentialStore,
-    private val notifier: Notifier,
+    private val notifications: NotificationScheduling,
+    private val time: app.assistant.domain.port.TimeSource,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -50,26 +52,29 @@ class MailDigestWorker @AssistedInject constructor(
         if (DigestBuilder.isEmpty(items) && connected) return
 
         val sections = DigestBuilder.build(items)
+        val ctx = applicationContext
         val body = if (sections.isEmpty() && !connected) {
-            "Mail sync is stopped. Reconnect your mailbox in settings."
+            ctx.getString(R.string.mail_digest_stopped)
         } else {
-            sections.joinToString("\n") { s -> "${s.category.name.lowercase().replaceFirstChar(Char::uppercase)}: ${s.items.size}" } +
-                if (!connected) "\nMail sync is stopped — reconnect to update this." else ""
+            sections.joinToString("\n") { s -> ctx.getString(R.string.mail_digest_line, s.category.name.lowercase().replaceFirstChar(Char::uppercase), s.items.size) } +
+                if (!connected) "\n" + ctx.getString(R.string.mail_digest_stopped_short) else ""
         }
-        notifier.post(
-            logId = DIGEST_LOG_ID,
-            type = NotificationType.MAIL_DIGEST,
-            content = NotificationContent(title = "Your mail digest", text = body, route = "settings/mail"),
+        notifications.offerNow(
+            ImmediateAlert(
+                type = NotificationType.MAIL_DIGEST,
+                refKey = "digest:${time.today()}",
+                title = ctx.getString(R.string.mail_digest_title),
+                text = body,
+                route = "settings/mail",
+            ),
         )
     }
 
     companion object {
         const val UNIQUE_NAME = "mail-digest"
-        private const val DIGEST_LOG_ID = -43L
 
         /** Schedules the digest to fire daily at [digestMinuteOfDay] (minutes after local midnight). */
-        fun schedule(context: Context, digestMinuteOfDay: Int) {
-            val now = java.time.LocalTime.now()
+        fun schedule(context: Context, digestMinuteOfDay: Int, now: java.time.LocalTime) {
             val target = java.time.LocalTime.of(digestMinuteOfDay / MIN_PER_HOUR, digestMinuteOfDay % MIN_PER_HOUR)
             var delayMin = java.time.Duration.between(now, target).toMinutes()
             if (delayMin < 0) delayMin += MIN_PER_DAY

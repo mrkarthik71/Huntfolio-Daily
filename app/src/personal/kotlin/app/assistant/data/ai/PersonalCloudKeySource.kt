@@ -1,7 +1,7 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.cloud.CloudCredential
-import app.assistant.ai.cloud.CloudKeySource
+import app.assistant.domain.port.CloudCredential
+import app.assistant.domain.port.CloudKeySource
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.domain.error.Outcome
 import app.assistant.security.keys.KeyManager

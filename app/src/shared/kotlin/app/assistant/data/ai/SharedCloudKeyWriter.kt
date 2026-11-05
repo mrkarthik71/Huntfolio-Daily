@@ -1,6 +1,6 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.cloud.CloudKeyWriter
+import app.assistant.domain.port.CloudKeyWriter
 import javax.inject.Inject
 import javax.inject.Singleton
 

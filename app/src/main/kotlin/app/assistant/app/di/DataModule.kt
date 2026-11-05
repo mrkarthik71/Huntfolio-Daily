@@ -47,7 +47,7 @@ import app.assistant.domain.port.SourceDisconnect
 import app.assistant.domain.port.SourceStatusProvider
 import app.assistant.domain.port.TaskRepository
 import app.assistant.domain.port.TransactionRepository
-import app.assistant.ingest.pipeline.PostCommitHook
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.notify.AndroidNotificationScheduler
 import app.assistant.ui.permission.AndroidPermissionManager
 import app.assistant.ui.permission.PermissionManager

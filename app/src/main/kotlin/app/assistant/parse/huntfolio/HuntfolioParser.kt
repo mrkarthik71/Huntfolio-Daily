@@ -1,5 +1,10 @@
 package app.assistant.parse.huntfolio
 
+import app.assistant.domain.career.HuntfolioRecordType
+import app.assistant.domain.career.HuntfolioRecord
+import app.assistant.domain.career.HuntfolioImport
+import app.assistant.domain.career.HuntfolioError
+import app.assistant.domain.career.HUNTFOLIO_FORMAT_VERSION
 import app.assistant.domain.error.Outcome
 import java.time.LocalDate
 

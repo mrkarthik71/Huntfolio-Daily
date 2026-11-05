@@ -1,6 +1,6 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.cloud.ProxyClient
+import app.assistant.domain.port.ProxyClient
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.port.AiFailure
