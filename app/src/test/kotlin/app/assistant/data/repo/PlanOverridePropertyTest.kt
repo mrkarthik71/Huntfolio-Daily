@@ -7,10 +7,12 @@ import app.assistant.domain.engine.tasks.TaskInput
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.TaskId
 import io.kotest.property.Arb
-import io.kotest.property.arbitrary.arbitrary
+import io.kotest.property.arbitrary.bind
+import io.kotest.property.arbitrary.choice
 import io.kotest.property.arbitrary.element
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.list
+import io.kotest.property.arbitrary.map
 import io.kotest.property.checkAll
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -59,17 +61,17 @@ class PlanOverridePropertyTest {
 
     private val estimateArb = Arb.element(listOf(null, 30, 45, 90, 180))
 
-    private val opArb = arbitrary {
-        when (Arb.int(0..5).bind()) {
-            in 0..2 -> PlanOp.SetOrder(Arb.list(Arb.int(0..20), 0..5).bind())
-            in 3..4 -> PlanOp.Remove(Arb.int(0..20).bind())
-            else -> PlanOp.AddTask(estimateArb.bind())
-        }
-    }
+    // Built from choice/bind rather than the arbitrary {} builder, whose edge-case sampling could
+    // hit an empty collection and fail the run at random.
+    private val opArb: Arb<PlanOp> = Arb.choice(
+        Arb.list(Arb.int(0..20), 0..5).map { PlanOp.SetOrder(it) },
+        Arb.list(Arb.int(0..20), 0..5).map { PlanOp.SetOrder(it) },
+        Arb.int(0..20).map { PlanOp.Remove(it) },
+        estimateArb.map { PlanOp.AddTask(it) },
+    )
 
-    private val scenarioArb = arbitrary {
-        PlanScenario(Arb.list(estimateArb, 2..6).bind(), Arb.list(opArb, 1..10).bind())
-    }
+    private val scenarioArb: Arb<PlanScenario> =
+        Arb.bind(Arb.list(estimateArb, 2..6), Arb.list(opArb, 1..10)) { estimates, ops -> PlanScenario(estimates, ops) }
 
     private suspend fun addTask(estimate: Int?): TaskId {
         val input = TaskInput("t", plannedDate = rig.time.today(), estimateText = estimate?.toString().orEmpty())

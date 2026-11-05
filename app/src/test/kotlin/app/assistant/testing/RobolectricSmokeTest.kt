@@ -19,6 +19,6 @@ class RobolectricSmokeTest {
     @Test
     fun appResourcesAreAvailable() {
         val context = ApplicationProvider.getApplicationContext<Application>()
-        assertEquals("Assistant", context.getString(R.string.app_name))
+        assertEquals("Apex Assistant", context.getString(R.string.app_name))
     }
 }
