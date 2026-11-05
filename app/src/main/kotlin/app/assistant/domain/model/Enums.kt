@@ -48,6 +48,18 @@ enum class NotificationType {
     /** Apex smart reminders (time, place, phone state). */
     SMART_REMINDER,
 
+    /** Habit and medicine check-ins, with a Done button. */
+    HABIT_CHECK,
+
+    /** "Waiting for" follow-up nudges. */
+    FOLLOW_UP,
+
+    /** A category passing 80% or 100% of its budget. */
+    BUDGET_ALERT,
+
+    /** A focus block reaching its end. */
+    FOCUS_END,
+
     /** Only where important dates are enabled (Requirement 68). */
     IMPORTANT_DATE,
 }

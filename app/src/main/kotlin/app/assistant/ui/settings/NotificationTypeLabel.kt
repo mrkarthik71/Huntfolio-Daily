@@ -22,4 +22,8 @@ fun notificationTypeLabel(type: NotificationType): Int = when (type) {
     NotificationType.HEALTH_WARNING -> R.string.notif_type_health_warning
     NotificationType.IMPORTANT_DATE -> R.string.notif_type_important_date
     NotificationType.SMART_REMINDER -> R.string.notif_type_smart_reminder
+    NotificationType.HABIT_CHECK -> R.string.notif_type_habit_check
+    NotificationType.FOLLOW_UP -> R.string.notif_type_follow_up
+    NotificationType.BUDGET_ALERT -> R.string.notif_type_budget_alert
+    NotificationType.FOCUS_END -> R.string.notif_type_focus_end
 }

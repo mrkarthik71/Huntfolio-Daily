@@ -16,6 +16,8 @@
     <!-- Phase 2 calendar reading (Requirement 22.1); requested at runtime only when the User
          opens calendar settings. Read-only — the app never writes to the calendar. -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Asked only when the User taps "Import birthdays from contacts". -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <!-- Apex smart reminders: asked only when the user adds a place or car reminder. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -80,6 +82,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="app.assistant.action.SNOOZE" />
+                <action android:name="app.assistant.action.DONE" />
             </intent-filter>
         </receiver>
 

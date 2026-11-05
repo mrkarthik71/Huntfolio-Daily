@@ -76,6 +76,24 @@ abstract class DataModule {
     abstract fun plannerRepository(impl: app.assistant.data.repo.RoomPlannerRepository): app.assistant.domain.port.PlannerRepository
 
     @Binds
+    abstract fun habitStore(impl: app.assistant.data.repo.RoomHabitStore): app.assistant.domain.port.HabitStore
+
+    @Binds
+    abstract fun dateStore(impl: app.assistant.data.repo.RoomDateStore): app.assistant.domain.port.DateStore
+
+    @Binds
+    abstract fun savingsStore(impl: app.assistant.data.repo.RoomSavingsStore): app.assistant.domain.port.SavingsStore
+
+    @Binds
+    abstract fun followUpStore(impl: app.assistant.data.repo.RoomFollowUpStore): app.assistant.domain.port.FollowUpStore
+
+    @Binds
+    abstract fun reflectionStore(impl: app.assistant.data.repo.RoomReflectionStore): app.assistant.domain.port.ReflectionStore
+
+    @Binds
+    abstract fun contactDates(impl: app.assistant.data.contacts.AndroidContactDatesReader): app.assistant.domain.port.ContactDatesReader
+
+    @Binds
     abstract fun memoryRepository(impl: app.assistant.data.repo.RoomMemoryRepository): app.assistant.domain.port.MemoryRepository
 
     @Binds

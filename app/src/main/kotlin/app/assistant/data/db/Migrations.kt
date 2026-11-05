@@ -271,3 +271,24 @@ val MIGRATION_10_11: Migration = object : Migration(10, 11) {
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_memory_note_created_at` ON `memory_note` (`created_at`)")
     }
 }
+
+/** v11 -> v12: habits, important dates, savings goals, follow-ups, mood log and focus sessions. */
+val MIGRATION_11_12: Migration = object : Migration(11, 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V12_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V12_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `habit` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `times` TEXT NOT NULL, `days` TEXT NOT NULL, `active` INTEGER NOT NULL, `created_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `habit_check` (`habit_id` INTEGER NOT NULL, `date` TEXT NOT NULL, `slot` TEXT NOT NULL, PRIMARY KEY(`habit_id`, `date`, `slot`), FOREIGN KEY(`habit_id`) REFERENCES `habit`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+    "CREATE INDEX IF NOT EXISTS `index_habit_check_date` ON `habit_check` (`date`)",
+    "CREATE TABLE IF NOT EXISTS `important_date` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `kind` TEXT NOT NULL, `date` TEXT NOT NULL, `yearly` INTEGER NOT NULL, `from_contacts` INTEGER NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `savings_goal` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `target_paise` INTEGER NOT NULL, `deadline` TEXT, `created_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `savings_entry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `goal_id` INTEGER NOT NULL, `amount_paise` INTEGER NOT NULL, `date` TEXT NOT NULL, FOREIGN KEY(`goal_id`) REFERENCES `savings_goal`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+    "CREATE INDEX IF NOT EXISTS `index_savings_entry_goal_id` ON `savings_entry` (`goal_id`)",
+    "CREATE TABLE IF NOT EXISTS `follow_up` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `person` TEXT NOT NULL, `about` TEXT NOT NULL, `nudge_on` TEXT NOT NULL, `done` INTEGER NOT NULL, `created_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `mood_log` (`date` TEXT NOT NULL, `mood` INTEGER NOT NULL, `energy` INTEGER NOT NULL, PRIMARY KEY(`date`))",
+    "CREATE TABLE IF NOT EXISTS `focus_session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `task_id` INTEGER, `started_at` INTEGER NOT NULL, `planned_min` INTEGER NOT NULL, `ended_at` INTEGER, `completed` INTEGER NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS `index_focus_session_started_at` ON `focus_session` (`started_at`)",
+)

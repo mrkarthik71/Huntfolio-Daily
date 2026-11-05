@@ -62,6 +62,9 @@ class AndroidNotificationScheduler @Inject constructor(
     private val armer: AlarmArmer,
     /** Lazy because the Bill repository syncs bill alarms through this scheduler. */
     private val bills: Lazy<BillRepository>,
+    /** Lazy: the whole-day planner and content read stores that are only needed when those types are on. */
+    private val lifeAlarms: Lazy<app.assistant.domain.port.LifeAlarms>,
+    private val life: Lazy<LifeNotifications>,
 ) : NotificationScheduling {
 
     override fun hasExactAlarmAccess(): Boolean = armer.hasExactAccess()
@@ -112,6 +115,7 @@ class AndroidNotificationScheduler @Inject constructor(
             }
         }
         refreshEventReminders()
+        runCatching { lifeAlarms.get().sync() }
         armer.arm(alarms.earliest())
     }
 
@@ -270,7 +274,8 @@ class AndroidNotificationScheduler @Inject constructor(
                 } else {
                     context.resources.getQuantityString(R.plurals.brief_text, brief.priorityCount, brief.priorityCount, brief.firstTitle)
                 }
-                NotificationContent(context.getString(R.string.brief_title), text, routeFor(row.type, today))
+                val extras = runCatching { life.get().briefExtras(today) }.getOrNull()
+                NotificationContent(context.getString(R.string.brief_title), if (extras == null) text else "$text\n$extras", routeFor(row.type, today))
             }
             NotificationType.GOAL_NUDGE -> {
                 val nudge = BriefContent.goalNudge(goals.statusesNow(today)) ?: return null
@@ -284,7 +289,7 @@ class AndroidNotificationScheduler @Inject constructor(
                 NotificationContent(context.getString(R.string.review_title), context.getString(R.string.review_text), routeFor(row.type, today))
             NotificationType.EVENT_REMINDER -> eventContent(row, zone)
             NotificationType.BILL_DUE -> billContent(row)
-            else -> null
+            else -> life.get().content(row)
         }
     }
 
@@ -313,6 +318,9 @@ class AndroidNotificationScheduler @Inject constructor(
     private fun routeFor(type: NotificationType, today: LocalDate): String = when (type) {
         NotificationType.EVENING_REVIEW -> "review/$today"
         NotificationType.GOAL_NUDGE -> "goals"
+        NotificationType.HABIT_CHECK -> "plan"
+        NotificationType.IMPORTANT_DATE, NotificationType.FOLLOW_UP -> "inbox"
+        NotificationType.BUDGET_ALERT -> "money"
         else -> "today"
     }
 

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Notification channels and types -->
+    <string name="channel_habit_check">Habit and medicine check-ins</string>
+    <string name="channel_follow_up">Follow-ups</string>
+    <string name="channel_budget_alert">Budget alerts</string>
+    <string name="channel_focus_end">Focus timer</string>
+    <string name="notif_type_habit_check">Habit and medicine check-ins</string>
+    <string name="notif_type_follow_up">Follow-ups</string>
+    <string name="notif_type_budget_alert">Budget alerts</string>
+    <string name="notif_type_focus_end">Focus timer</string>
+    <string name="action_done">Done</string>
+
+    <!-- Notification text -->
+    <string name="habit_notif_title">Time for %1$s</string>
+    <string name="habit_notif_medicine">Medicine: %1$s</string>
+    <string name="habit_notif_text">Tap Done when it is finished.</string>
+    <string name="date_when_today">today</string>
+    <string name="date_when_tomorrow">tomorrow</string>
+    <string name="date_when_in_days">in %1$d days</string>
+    <string name="date_notif_birthday">%1$s\'s birthday is %2$s</string>
+    <string name="date_notif_birthday_age">%1$s turns %2$d %3$s</string>
+    <string name="date_notif_anniversary">%1$s anniversary is %2$s</string>
+    <string name="date_notif_expiry">%1$s expires %2$s</string>
+    <string name="date_notif_other">%1$s is %2$s</string>
+    <string name="follow_notif_title">Follow up with %1$s</string>
+    <string name="follow_notif_text">About: %1$s</string>
+    <string name="focus_notif_title">Focus block done</string>
+    <string name="focus_notif_text">%1$s · %2$d min. Take a short break.</string>
+    <string name="budget_alert_near">%1$s is at %2$d%% of its budget</string>
+    <string name="budget_alert_over">%1$s is over budget</string>
+    <string name="budget_alert_text">%1$s spent of %2$s this month.</string>
+    <string name="brief_dates">Today: %1$s</string>
+    <plurals name="brief_habits">
+        <item quantity="one">%1$d check-in</item>
+        <item quantity="other">%1$d check-ins</item>
+    </plurals>
+    <plurals name="brief_follow_ups">
+        <item quantity="one">%1$d follow-up due</item>
+        <item quantity="other">%1$d follow-ups due</item>
+    </plurals>
+</resources>
