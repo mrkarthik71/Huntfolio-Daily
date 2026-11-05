@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -48,58 +49,64 @@ import androidx.compose.ui.unit.dp
 data class CredBarItem(val key: String, val label: String, val selectedIcon: ImageVector, val icon: ImageVector)
 
 /**
- * A floating, pill-shaped bottom bar in the Cred style: a raised dark capsule over the canvas, the
- * selected tab shown as a filled accent pill with its label, the rest as quiet icons. Every item
- * keeps a 48dp touch target and a text label for screen readers (Requirement 63).
+ * The console nav: a raised panel along the bottom. The selected destination sits pressed into a
+ * recessed key with a signal-orange icon; the rest are quiet icons. [center] (the Ask key) sits in
+ * the middle, raised above the panel. Every item keeps a 48dp target and its label for screen
+ * readers (Requirement 63).
  */
 @Composable
-fun CredBottomBar(items: List<CredBarItem>, selectedKey: String?, onSelect: (String) -> Unit, modifier: Modifier = Modifier) {
+fun CredBottomBar(
+    items: List<CredBarItem>,
+    selectedKey: String?,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    center: (@Composable () -> Unit)? = null,
+) {
     val scheme = MaterialTheme.colorScheme
+    val haptics = LocalHapticFeedback.current
     Box(
         modifier
             .fillMaxWidth()
-            .background(scheme.background)
             .navigationBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(start = 18.dp, end = 18.dp, top = 6.dp, bottom = 12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Row(
             Modifier
                 .fillMaxWidth()
-                .clip(CircleShape)
-                .background(scheme.surfaceContainerHigh)
-                .credEdge(CircleShape)
-                .padding(6.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .heightIn(min = 72.dp)
+                .raisedPanel(MaterialTheme.shapes.large, elevation = 18.dp)
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            items.forEach { item ->
+            val half = items.size / 2
+            items.forEachIndexed { index, item ->
+                if (center != null && index == half) center()
                 val selected = item.key == selectedKey
-                val bg by animateColorAsState(if (selected) scheme.onBackground else Color.Transparent, label = "barBg")
-                val fg by animateColorAsState(if (selected) scheme.background else scheme.onSurfaceVariant, label = "barFg")
-                Row(
+                val tint by animateColorAsState(if (selected) scheme.primary else scheme.onSurfaceVariant, label = "barTint")
+                Box(
                     Modifier
-                        .clip(CircleShape)
-                        .background(bg)
-                        .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(item.key) })
-                        .heightIn(min = 48.dp)
-                        .padding(horizontal = if (selected) 16.dp else 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        .size(52.dp)
+                        .let { if (selected) it.recessedWell(MaterialTheme.shapes.small, deep = true) else it.clip(MaterialTheme.shapes.small) }
+                        .selectable(selected = selected, role = Role.Tab) {
+                            haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onSelect(item.key)
+                        }
+                        .semantics { contentDescription = item.label },
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Icon(if (selected) item.selectedIcon else item.icon, contentDescription = if (selected) null else item.label, tint = fg)
-                    if (selected) {
-                        Text(item.label, style = MaterialTheme.typography.labelLarge, color = fg, maxLines = 1)
-                    }
+                    Icon(if (selected) item.selectedIcon else item.icon, contentDescription = null, tint = tint, modifier = Modifier.size(24.dp))
                 }
             }
+            if (center != null && items.size == half) center()
         }
     }
 }
 
 /**
- * Horizontally scrolling pill tabs: the Cred replacement for an underlined tab row. The selected
- * pill is filled with the on-background ink so it reads as the one strong element on the strip.
+ * A segmented control: the options sit in one recessed well and the selected one rises out of it
+ * as a raised key. Scrolls sideways when there are more options than fit.
  */
 @Composable
 fun CredPillTabs(
@@ -110,31 +117,32 @@ fun CredPillTabs(
     trailing: (@Composable (index: Int) -> Unit)? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
-    Row(
-        modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        labels.forEachIndexed { index, label ->
-            val selected = index == selectedIndex
-            Row(
-                Modifier
-                    .clip(CircleShape)
-                    .background(if (selected) scheme.onBackground else scheme.surface)
-                    .let { if (selected) it else it.credEdge(CircleShape) }
-                    .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(index) })
-                    .heightIn(min = 40.dp)
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                Text(
-                    label,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = if (selected) scheme.background else scheme.onSurface,
-                )
-                trailing?.invoke(index)
+    Box(modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Row(
+            Modifier
+                .recessedWell(MaterialTheme.shapes.medium)
+                .horizontalScroll(rememberScrollState())
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            labels.forEachIndexed { index, label ->
+                val selected = index == selectedIndex
+                Row(
+                    Modifier
+                        .let { if (selected) it.raisedPanel(MaterialTheme.shapes.small, elevation = 6.dp) else it.clip(MaterialTheme.shapes.small) }
+                        .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(index) })
+                        .heightIn(min = 44.dp)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = if (selected) scheme.onBackground else scheme.onSurfaceVariant,
+                    )
+                    trailing?.invoke(index)
+                }
             }
         }
     }
@@ -148,9 +156,7 @@ fun CredGroup(title: String?, modifier: Modifier = Modifier, content: @Composabl
         Column(
             Modifier
                 .fillMaxWidth()
-                .clip(MaterialTheme.shapes.large)
-                .background(MaterialTheme.colorScheme.surface)
-                .credEdge(MaterialTheme.shapes.large),
+                .raisedPanel(MaterialTheme.shapes.large),
         ) { content() }
     }
 }
@@ -243,8 +249,9 @@ fun CredPrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Mo
             .fillMaxWidth()
             .heightIn(min = 52.dp)
             .pressScale(interaction)
+            .let { if (enabled) it.shadow(12.dp, CircleShape, ambientColor = scheme.primary, spotColor = scheme.primary) else it }
             .clip(CircleShape)
-            .background(if (enabled) scheme.onBackground else scheme.surfaceVariant)
+            .background(if (enabled) scheme.primary else scheme.surfaceVariant)
             .clickable(interaction, ripple(), enabled = enabled, role = Role.Button) {
                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                 onClick()
@@ -255,7 +262,7 @@ fun CredPrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Mo
         Text(
             text,
             style = MaterialTheme.typography.titleMedium,
-            color = if (enabled) scheme.background else scheme.onSurfaceVariant,
+            color = if (enabled) scheme.onPrimary else scheme.onSurfaceVariant,
         )
     }
 }
@@ -271,7 +278,7 @@ fun CredStat(caption: String, value: String, modifier: Modifier = Modifier, valu
         )
         Text(
             value,
-            style = MaterialTheme.typography.headlineLarge,
+            style = AssistantType.Readout,
             color = if (valueColor == Color.Unspecified) MaterialTheme.colorScheme.onBackground else valueColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -295,7 +302,7 @@ fun CredTopBar(
         modifier.fillMaxWidth().background(scheme.background).statusBarsPadding().padding(start = 12.dp, end = 8.dp, top = 8.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.clip(CircleShape).background(scheme.surface).credEdge(CircleShape)) { navigationIcon() }
+        Box(Modifier.raisedPanel(CircleShape, elevation = 8.dp)) { navigationIcon() }
         Spacer(Modifier.width(14.dp))
         Box(Modifier.weight(1f)) {
             androidx.compose.material3.ProvideTextStyle(MaterialTheme.typography.headlineMedium.copy(color = scheme.onBackground)) { title() }
@@ -325,8 +332,8 @@ fun CredInputBar(
     val haptics = LocalHapticFeedback.current
     val canAct = value.isNotBlank()
     Row(
-        modifier.fillMaxWidth().clip(CircleShape).background(scheme.surface)
-            .let { if (isError) it.border(1.dp, scheme.error, CircleShape) else it.credEdge(CircleShape) }
+        modifier.fillMaxWidth().recessedWell(CircleShape)
+            .let { if (isError) it.border(1.dp, scheme.error, CircleShape) else it }
             .padding(start = 20.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

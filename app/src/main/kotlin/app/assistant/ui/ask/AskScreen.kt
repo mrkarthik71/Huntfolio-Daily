@@ -32,7 +32,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,9 +73,10 @@ import app.assistant.ui.designsystem.EnergyColors
 import app.assistant.ui.designsystem.Eyebrow
 import app.assistant.ui.designsystem.ProgressRing
 import app.assistant.ui.designsystem.animatedProgress
-import app.assistant.ui.designsystem.credEdge
 import app.assistant.ui.designsystem.enterAnimated
 import app.assistant.ui.designsystem.pressScale
+import app.assistant.ui.designsystem.raisedPanel
+import app.assistant.ui.designsystem.recessedWell
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -175,7 +175,7 @@ fun AskContent(ui: AskUi, onBack: () -> Unit, onAsk: (String) -> Unit, onClear: 
 private fun CircleIconButton(onClick: () -> Unit, content: @Composable () -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     Box(
-        Modifier.size(44.dp).pressScale(interaction).clip(CircleShape).background(MaterialTheme.colorScheme.surface).credEdge(CircleShape)
+        Modifier.size(44.dp).pressScale(interaction).raisedPanel(CircleShape, elevation = 8.dp)
             .clickable(interaction, ripple(), role = Role.Button, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) { content() }
@@ -186,7 +186,7 @@ private fun SuggestionChip(text: String, modifier: Modifier = Modifier, onClick:
     val interaction = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
     Box(
-        modifier.pressScale(interaction).heightIn(min = 44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surface).credEdge(CircleShape)
+        modifier.pressScale(interaction).heightIn(min = 44.dp).raisedPanel(CircleShape, elevation = 8.dp)
             .clickable(interaction, ripple(), role = Role.Button) {
                 haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
@@ -202,9 +202,8 @@ private fun QuestionBubble(text: String, modifier: Modifier = Modifier) {
         Text(
             text,
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.background,
-            modifier = Modifier.widthIn(max = 300.dp).clip(RoundedCornerShape(22.dp, 22.dp, 6.dp, 22.dp))
-                .background(MaterialTheme.colorScheme.onBackground).padding(horizontal = 16.dp, vertical = 10.dp),
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.widthIn(max = 300.dp).recessedWell(RoundedCornerShape(20.dp, 20.dp, 6.dp, 20.dp)).padding(horizontal = 16.dp, vertical = 10.dp),
         )
     }
 }
@@ -217,7 +216,7 @@ private fun Composer(text: String, onChange: (String) -> Unit, onSend: () -> Uni
     val canSend = enabled && text.isNotBlank()
     Row(
         Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp)
-            .clip(CircleShape).background(scheme.surfaceContainerHigh).credEdge(CircleShape).padding(start = 20.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+            .recessedWell(CircleShape).padding(start = 20.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.weight(1f).padding(vertical = 8.dp)) {
@@ -250,7 +249,7 @@ private fun Composer(text: String, onChange: (String) -> Unit, onSend: () -> Uni
 private fun AnswerCard(turn: AskTurn, modifier: Modifier = Modifier, onAsk: (String) -> Unit) {
     val scheme = MaterialTheme.colorScheme
     Column(
-        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(scheme.surface).credEdge(MaterialTheme.shapes.large).padding(18.dp),
+        modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large).padding(18.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         when (val a = turn.answer) {
@@ -352,7 +351,7 @@ private fun SpendAnswer(a: AskAnswer.Spend) {
     }
     if (a.topMerchants.isNotEmpty()) {
         Eyebrow(stringResource(R.string.ask_top_merchants))
-        a.topMerchants.forEach { ValueRow(it.label, MoneyFormatter.format(it.amount), null) }
+        Column { a.topMerchants.forEach { ValueRow(it.label, MoneyFormatter.format(it.amount), null) } }
     }
 }
 
@@ -399,13 +398,15 @@ private fun SubscriptionsAnswer(a: AskAnswer.Subscriptions) {
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
-    a.items.forEach { s ->
-        ValueRow(
-            s.name,
-            stringResource(R.string.ask_per_month, MoneyFormatter.format(s.monthly)),
-            if (s.unusedFlag) stringResource(R.string.ask_check_usage) else stringResource(R.string.ask_renews, formatShortDate(s.nextDue)),
-            if (s.unusedFlag) EnergyColors.Warning else null,
-        )
+    Column {
+        a.items.forEach { s ->
+            ValueRow(
+                s.name,
+                stringResource(R.string.ask_per_month, MoneyFormatter.format(s.monthly)),
+                if (s.unusedFlag) stringResource(R.string.ask_check_usage) else stringResource(R.string.ask_renews, formatShortDate(s.nextDue)),
+                if (s.unusedFlag) EnergyColors.Warning else null,
+            )
+        }
     }
 }
 
@@ -417,7 +418,7 @@ private fun BillsAnswer(a: AskAnswer.Bills) {
         return
     }
     CountUpAmount(a.total)
-    a.items.forEach { ValueRow(it.name, MoneyFormatter.format(it.amount), stringResource(R.string.ask_due_on, formatShortDate(it.dueDate))) }
+    Column { a.items.forEach { ValueRow(it.name, MoneyFormatter.format(it.amount), stringResource(R.string.ask_due_on, formatShortDate(it.dueDate))) } }
 }
 
 @Composable
@@ -510,7 +511,7 @@ private fun RecallAnswer(a: AskAnswer.Recall) {
         Body(stringResource(R.string.ask_recall_none))
         return
     }
-    a.notes.take(MAX_LIST).forEach { ValueRow(it.text, "", formatShortDate(it.createdOn)) }
+    Column { a.notes.take(MAX_LIST).forEach { ValueRow(it.text, "", formatShortDate(it.createdOn)) } }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -551,7 +552,7 @@ fun AskEntryCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
     val interaction = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
     Row(
-        modifier.fillMaxWidth().pressScale(interaction).clip(CircleShape).background(scheme.surface).credEdge(CircleShape)
+        modifier.fillMaxWidth().pressScale(interaction).raisedPanel(CircleShape, elevation = 8.dp)
             .clickable(interaction, ripple(), role = Role.Button) {
                 haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
@@ -560,8 +561,8 @@ fun AskEntryCard(onClick: () -> Unit, modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Box(Modifier.size(44.dp).clip(CircleShape).background(scheme.primary), contentAlignment = Alignment.Center) {
-            Icon(Icons.Filled.Star, contentDescription = null, tint = scheme.onPrimary, modifier = Modifier.size(22.dp))
+        Box(Modifier.size(44.dp).recessedWell(CircleShape, deep = true), contentAlignment = Alignment.Center) {
+            app.assistant.ui.designsystem.LiveLight()
         }
         Column(Modifier.weight(1f)) {
             Text(stringResource(R.string.ask_entry), style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)

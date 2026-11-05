@@ -2,7 +2,7 @@
 <resources>
     <!-- Today dashboard -->
     <string name="today_focus_now">Focus now · %1$s</string>
-    <string name="today_focus_left">%1$s – %2$s · %3$d min left</string>
+    <string name="today_focus_left">%3$d min left · till %2$s</string>
     <string name="today_free_now">Today</string>
     <string name="today_next_up">Next: %1$s at %2$s</string>
     <string name="today_load_chip">Day load %1$d%%</string>
@@ -12,8 +12,8 @@
     <string name="today_booked">%1$s booked · %2$s free</string>
     <string name="today_free_slot">Free · %1$d min</string>
     <string name="today_free_slot_hint">Good for focused work</string>
-    <string name="duration_h_m">%1$d h %2$d m</string>
-    <string name="duration_m">%1$d m</string>
+    <string name="duration_h_m">%1$dh %2$dm</string>
+    <string name="duration_m">%1$dm</string>
     <string name="energy_deep_work">Deep work</string>
     <string name="energy_light_admin">Light admin</string>
     <string name="energy_physical">Physical routine</string>

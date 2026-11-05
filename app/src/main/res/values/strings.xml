@@ -103,6 +103,11 @@
 
     <string name="widget_progress">of %1$d done today</string>
     <string name="widget_ask">Ask Apex</string>
+    <string name="today_dial_done">done</string>
+    <string name="today_tile_free">Free time</string>
+    <string name="today_tile_load">Day load</string>
+    <string name="nav_plan">Plan</string>
+    <string name="nav_inbox">Inbox</string>
     <!-- Ask Apex -->
     <string name="ask_eyebrow">ASK APEX</string>
     <string name="ask_title">What can I do for you?</string>

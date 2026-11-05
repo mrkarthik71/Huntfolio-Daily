@@ -1,0 +1,53 @@
+package app.assistant.ui.navigation
+
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import app.assistant.R
+import app.assistant.ui.designsystem.CredPillTabs
+import app.assistant.ui.designsystem.consoleGround
+
+/** A tab that holds two or three related screens behind one segmented control. */
+@Composable
+private fun SegmentedHost(labels: List<String>, content: @Composable (Int) -> Unit) {
+    var index by rememberSaveable { mutableIntStateOf(0) }
+    Column(Modifier.fillMaxSize().consoleGround().statusBarsPadding()) {
+        CredPillTabs(labels, index, onSelect = { index = it }, modifier = Modifier.fillMaxWidth())
+        AnimatedContent(index, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "segment") { i ->
+            Box(Modifier.fillMaxSize()) { content(i) }
+        }
+    }
+}
+
+/** Plan: goals and their milestones, and the task list, in one tab. */
+@Composable
+fun PlanHost() {
+    SegmentedHost(listOf(stringResource(R.string.nav_goals), stringResource(R.string.nav_tasks))) { i ->
+        if (i == 0) app.assistant.ui.goals.GoalsScreen() else app.assistant.ui.tasks.TasksScreen()
+    }
+}
+
+/** Inbox: smart reminders and the mail that needs action, in one tab. */
+@Composable
+fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit) {
+    SegmentedHost(listOf(stringResource(R.string.reminders_title), stringResource(R.string.mail_title))) { i ->
+        if (i == 0) {
+            app.assistant.ui.reminders.RemindersScreen(onBack = null)
+        } else {
+            app.assistant.ui.mail.MailScreen(onBack = null, onCreateTask = onCreateTask, onCreateBill = onCreateBill)
+        }
+    }
+}

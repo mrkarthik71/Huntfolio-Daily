@@ -25,11 +25,9 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -101,14 +99,9 @@ fun GoalsScreen(viewModel: GoalsViewModel = hiltViewModel()) {
                     )
                     Text(stringResource(R.string.nav_goals), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
                 }
-                FilledIconButton(
-                    onClick = { editing = GoalEditorTarget.New },
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.onBackground,
-                        contentColor = MaterialTheme.colorScheme.background,
-                    ),
-                    modifier = Modifier.size(48.dp),
-                ) { Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.goals_add)) }
+                app.assistant.ui.designsystem.KeyButton(Icons.Filled.Add, stringResource(R.string.goals_add), onClick = {
+                    editing = GoalEditorTarget.New
+                }, tint = MaterialTheme.colorScheme.primary)
             }
         }
         if (!ui.loading && ui.goals.isEmpty()) {
@@ -266,9 +259,9 @@ private fun GoalHero(status: GoalStatus, plan: GoalPlanView?, modifier: Modifier
                     Eyebrow(
                         status.goal.deadline?.let { stringResource(R.string.goal_priority_due, status.goal.priority, formatDate(it)) }
                             ?: stringResource(R.string.goal_priority, status.goal.priority),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f),
+                        color = MaterialTheme.colorScheme.primary,
                     )
-                    Text(status.goal.name, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(status.goal.name, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
                     if (plan?.atRisk == true) RiskChip()
                 }
                 ProgressRing(percent / 100f, stringResource(R.string.percent, percent), size = 68.dp, track = MaterialTheme.colorScheme.surfaceContainerHighest)

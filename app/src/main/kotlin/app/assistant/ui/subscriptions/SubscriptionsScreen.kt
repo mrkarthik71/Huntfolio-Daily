@@ -156,12 +156,12 @@ private fun BurnHero(ui: SubscriptionsUi, modifier: Modifier = Modifier) {
             CredStat(
                 caption = stringResource(R.string.subs_monthly_burn),
                 value = MoneyFormatter.format(monthly),
-                valueColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                valueColor = MaterialTheme.colorScheme.onBackground,
             )
             Text(
                 stringResource(R.string.subs_yearly_active, MoneyFormatter.format(ui.totalYearlyCost), ui.active.size),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+                color = MaterialTheme.colorScheme.secondary,
             )
             if (top.isNotEmpty()) {
                 val p = app.assistant.ui.designsystem.animatedProgress(1f)
@@ -182,14 +182,14 @@ private fun BurnHero(ui: SubscriptionsUi, modifier: Modifier = Modifier) {
                         Text(
                             "${sub.merchant} ${MoneyFormatter.format(sub.snapshot.amount)}",
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+                            color = MaterialTheme.colorScheme.secondary,
                         )
                     }
                     if (rest > 0) {
                         Text(
                             stringResource(R.string.subs_more_count, top.size - BREAKDOWN_SLOTS),
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f),
+                            color = MaterialTheme.colorScheme.secondary,
                         )
                     }
                 }

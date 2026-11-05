@@ -5,17 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -81,13 +70,15 @@ class ScreenshotTest {
     @Composable
     private fun Shell(selected: String, content: @Composable () -> Unit) {
         val items = listOf(
-            CredBarItem("today", "Today", Icons.Filled.Home, Icons.Outlined.Home),
-            CredBarItem("tasks", "Tasks", Icons.Filled.CheckCircle, Icons.Outlined.CheckCircle),
-            CredBarItem("goals", "Goals", Icons.Filled.DateRange, Icons.Outlined.DateRange),
-            CredBarItem("money", "Money", Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart),
-            CredBarItem("settings", "Settings", Icons.Filled.Settings, Icons.Outlined.Settings),
+            CredBarItem("today", "Today", ApexIcons.Today, ApexIcons.Today),
+            CredBarItem("plan", "Plan", ApexIcons.Plan, ApexIcons.Plan),
+            CredBarItem("money", "Money", ApexIcons.Money, ApexIcons.Money),
+            CredBarItem("inbox", "Inbox", ApexIcons.Inbox, ApexIcons.Inbox),
         )
-        Scaffold(bottomBar = { CredBottomBar(items, selected, onSelect = {}) }) { padding ->
+        Scaffold(
+            containerColor = AssistantColors.Ground,
+            bottomBar = { CredBottomBar(items, selected, onSelect = {}, center = { SignalButton(ApexIcons.Mic, "Ask Apex", onClick = {}) }) },
+        ) { padding ->
             Box(Modifier.fillMaxSize().padding(padding)) { content() }
         }
     }
@@ -189,7 +180,7 @@ class ScreenshotTest {
     fun settings() {
         val vm = SettingsViewModel(emptySet())
         capture("03-settings") {
-            Shell("settings") {
+            Shell("today") {
                 SettingsScreen(
                     onOpenAuditLog = {},
                     onOpenNotifications = {},
@@ -267,7 +258,7 @@ class ScreenshotTest {
             FakeTimeSource(),
             planner,
         )
-        capture("04-goals") { Shell("goals") { app.assistant.ui.goals.GoalsScreen(viewModel = vm) } }
+        capture("04-goals") { Shell("plan") { app.assistant.ui.goals.GoalsScreen(viewModel = vm) } }
     }
 
     @Test
@@ -316,7 +307,7 @@ class ScreenshotTest {
             override fun disarm(id: app.assistant.domain.model.ReminderId) = Unit
         }
         val vm = app.assistant.ui.reminders.RemindersViewModel(planner, scheduler, app.assistant.testing.FakeSettingsStore(), FakeTimeSource())
-        capture("05-reminders") { Shell("settings") { app.assistant.ui.reminders.RemindersScreen(onBack = {}, viewModel = vm) } }
+        capture("05-reminders") { Shell("inbox") { app.assistant.ui.reminders.RemindersScreen(onBack = null, viewModel = vm) } }
     }
 
     @Test

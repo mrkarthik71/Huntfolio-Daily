@@ -1,7 +1,6 @@
 package app.assistant.ui.designsystem
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,22 +11,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,14 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -54,12 +44,12 @@ import app.assistant.domain.model.EnergyTag
 
 /** Energy colours: each differs in lightness as well as hue, and is always paired with a text label. */
 object EnergyColors {
-    val DeepWork = Color(0xFFE6C58F)
-    val LightAdmin = Color(0xFF9CC3F5)
-    val Physical = Color(0xFF7ED7AE)
-    val Rest = Color(0xFFF0A58F)
-    val Meeting = Color(0xFFD8D6CF)
-    val Warning = Color(0xFFFFC27A)
+    val DeepWork = Color(0xFFFF8A3D)
+    val LightAdmin = Color(0xFF8FC1FF)
+    val Physical = Color(0xFF7FD8A6)
+    val Rest = Color(0xFFE9C98F)
+    val Meeting = Color(0xFFD8D5CD)
+    val Warning = Color(0xFFFF8A3D)
     val WarningSurface = Color(0xFF1E1A14)
     val WarningOutline = Color(0xFF4A3A1E)
     val WarningText = Color(0xFFE8D9C4)
@@ -86,7 +76,7 @@ fun FactChip(text: String, modifier: Modifier = Modifier) {
         text,
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onBackground,
-        modifier = modifier.clip(CircleShape).background(MaterialTheme.colorScheme.background).padding(horizontal = 12.dp, vertical = 6.dp),
+        modifier = modifier.recessedWell(CircleShape, deep = true).padding(horizontal = 12.dp, vertical = 6.dp),
     )
 }
 
@@ -107,24 +97,18 @@ fun ProgressRing(
     modifier: Modifier = Modifier,
     size: Dp = 64.dp,
     color: Color = MaterialTheme.colorScheme.primary,
-    track: Color = MaterialTheme.colorScheme.primaryContainer,
+    track: Color = AssistantColors.Hairline,
 ) {
-    val p = animatedProgress(progress.coerceIn(0f, 1f))
-    Box(modifier.size(size).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
-        Canvas(Modifier.size(size)) {
-            val stroke = 7.dp.toPx()
-            val inset = stroke / 2
-            val arcSize = Size(this.size.width - stroke, this.size.height - stroke)
-            drawArc(track, 0f, 360f, false, Offset(inset, inset), arcSize, style = Stroke(stroke))
-            drawArc(color, -90f, 360f * p, false, Offset(inset, inset), arcSize, style = Stroke(stroke, cap = StrokeCap.Round))
-        }
-        Text(label, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
-    }
+    Dial(progress, label, caption = null, modifier = modifier, size = size, color = color, description = label, track = track)
 }
 
-/** The focus-now hero: what you should be doing, how long is left, and a few facts about the day. */
+/**
+ * The focus-now hero (Instrument panel): the day's progress dial on the left; on the right the live
+ * caption, what you should be doing and the time left in mono. Facts sit below in small wells.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
+@Suppress("LongParameterList") // every slot is a distinct readout on the hero
 fun FocusHero(
     eyebrow: String,
     title: String,
@@ -133,26 +117,38 @@ fun FocusHero(
     facts: List<String>,
     modifier: Modifier = Modifier,
     accent: Color = MaterialTheme.colorScheme.primary,
+    dayDone: Int = 0,
+    dayTotal: Int = 0,
+    dayCaption: String? = null,
+    live: Boolean = progress != null,
 ) {
     HeroCard(modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(Modifier.size(8.dp).clip(CircleShape).background(accent))
-                Eyebrow(eyebrow, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f))
+        Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (dayTotal > 0) {
+                    Dial(
+                        dayDone.toFloat() / dayTotal,
+                        "$dayDone/$dayTotal",
+                        dayCaption,
+                        description =
+                        dayCaption?.let { "$dayDone/$dayTotal $it" } ?: "$dayDone/$dayTotal",
+                    )
+                }
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Caption(eyebrow, color = accent, live = live)
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (subtitle != null) {
+                        Text(subtitle, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+                    }
+                }
             }
-            Text(
-                title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (subtitle !=
-                null
-            ) {
-                Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f))
-            }
-            if (progress != null) ApexProgressBar(progress, accent, track = MaterialTheme.colorScheme.surfaceContainerHighest)
+            if (progress != null) ApexProgressBar(progress, accent, track = AssistantColors.Hairline, height = 4.dp)
             if (facts.isNotEmpty()) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { facts.forEach { FactChip(it) } }
             }
@@ -175,24 +171,36 @@ fun ProactiveCardView(
 ) {
     val showWhy = androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     val scheme = MaterialTheme.colorScheme
-    Row(
-        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(scheme.surface)
-            .credEdge(MaterialTheme.shapes.large).height(IntrinsicSize.Min),
+    // A heads-up is an indicator lamp, not a painted card: one glowing row, the detail one tap away.
+    val open = androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
+    Column(
+        modifier.fillMaxWidth().clip(MaterialTheme.shapes.medium).background(scheme.primary.copy(alpha = 0.08f))
+            .border(1.dp, scheme.primary.copy(alpha = 0.25f), MaterialTheme.shapes.medium),
     ) {
-        // A thin warm rail marks a heads-up without painting the whole card amber.
-        Box(Modifier.width(3.dp).fillMaxHeight().background(EnergyColors.Warning))
-        Column(Modifier.weight(1f).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Filled.Warning, contentDescription = null, tint = EnergyColors.Warning, modifier = Modifier.size(18.dp))
-                Text(title, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
-            }
-            Text(body, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
-            if (showWhy.value) Text(why, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant.copy(alpha = 0.85f))
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (acceptLabel != null) PillButton(acceptLabel, onAccept)
-                PillButton(dismissLabel, onDismiss, container = Color.Transparent, content = scheme.onSurface, border = scheme.outline)
-                Spacer(Modifier.weight(1f))
-                TextButton(onClick = { showWhy.value = !showWhy.value }) { Text(whyLabel, color = scheme.primary) }
+        Row(
+            Modifier.fillMaxWidth().clickable { open.value = !open.value }.heightIn(min = 52.dp).padding(start = 12.dp, end = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            LiveLight(scheme.primary)
+            Text(
+                title,
+                style = MaterialTheme.typography.titleSmall,
+                color = scheme.onSurface,
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (acceptLabel != null) TextButton(onClick = onAccept) { Text(acceptLabel, color = scheme.primary, style = MaterialTheme.typography.labelLarge) }
+        }
+        if (open.value) {
+            Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text(body, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+                if (showWhy.value) Text(why, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = onDismiss) { Text(dismissLabel, color = scheme.onSurface) }
+                    TextButton(onClick = { showWhy.value = !showWhy.value }) { Text(whyLabel, color = scheme.onSurfaceVariant) }
+                }
             }
         }
     }
@@ -204,8 +212,8 @@ fun PillButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    container: Color = MaterialTheme.colorScheme.onBackground,
-    content: Color = MaterialTheme.colorScheme.background,
+    container: Color = MaterialTheme.colorScheme.primary,
+    content: Color = MaterialTheme.colorScheme.onPrimary,
     border: Color? = null,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -240,21 +248,13 @@ fun TimelineRow(
     val interaction = remember { MutableInteractionSource() }
     val shape = RoundedCornerShape(18.dp)
     Row(
-        modifier.fillMaxWidth().pressScale(interaction).alpha(if (done) DONE_ALPHA else 1f).clip(shape)
-            .background(
-                if (isNow) {
-                    scheme.primaryContainer
-                } else if (dashed) {
-                    Color.Transparent
-                } else {
-                    scheme.surface
-                },
-            )
+        modifier.fillMaxWidth().pressScale(interaction).alpha(if (done) DONE_ALPHA else 1f)
             .let {
+                // Rows sit on the console ground; only the live one is pressed into a well.
                 when {
-                    isNow -> it.border(1.dp, scheme.primary.copy(alpha = 0.45f), shape)
-                    dashed -> it.border(1.dp, scheme.outlineVariant, shape)
-                    else -> it.credEdge(shape)
+                    isNow -> it.recessedWell(shape).border(1.dp, scheme.primary.copy(alpha = 0.35f), shape)
+                    dashed -> it.clip(shape).border(1.dp, scheme.outlineVariant, shape)
+                    else -> it.clip(shape)
                 }
             }
             .let {
@@ -271,10 +271,14 @@ fun TimelineRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Column(Modifier.widthIn(min = 44.dp)) {
-            Text(start, style = MaterialTheme.typography.labelLarge, color = scheme.onSurface)
+            Text(
+                start,
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold),
+                color = scheme.onSurface,
+            )
             Text(end, style = MaterialTheme.typography.labelSmall, color = scheme.onSurfaceVariant)
         }
-        if (energy != null) Box(Modifier.width(4.dp).height(36.dp).clip(CircleShape).background(energy))
+        if (energy != null) Box(Modifier.size(10.dp).clip(RoundedCornerShape(3.dp)).background(energy))
         Column(Modifier.weight(1f)) {
             Text(
                 title,
@@ -282,7 +286,7 @@ fun TimelineRow(
                 color = if (done) {
                     scheme.onSurfaceVariant
                 } else if (isNow) {
-                    scheme.onPrimaryContainer
+                    scheme.onBackground
                 } else {
                     scheme.onSurface
                 },
@@ -293,7 +297,7 @@ fun TimelineRow(
             Text(
                 subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = if (isNow) scheme.onPrimaryContainer.copy(alpha = 0.8f) else scheme.onSurfaceVariant,
+                color = if (isNow) scheme.primary else scheme.onSurfaceVariant,
             )
         }
         if (done) Icon(Icons.Filled.Check, contentDescription = null, tint = EnergyColors.Physical, modifier = Modifier.size(20.dp))
@@ -305,7 +309,7 @@ fun TimelineRow(
 @Composable
 fun MiniStat(caption: String, value: String, modifier: Modifier = Modifier) {
     Column(
-        modifier.clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.background).padding(10.dp),
+        modifier.recessedWell(MaterialTheme.shapes.small).padding(10.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -317,8 +321,7 @@ fun MiniStat(caption: String, value: String, modifier: Modifier = Modifier) {
 @Composable
 fun ApexCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(
-        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface)
-            .credEdge(MaterialTheme.shapes.large).padding(16.dp),
+        modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         content = content,
     )

@@ -78,7 +78,7 @@ import java.time.LocalTime
  * one permission group per request (product rules).
  */
 @Composable
-fun RemindersScreen(onBack: () -> Unit, viewModel: RemindersViewModel = hiltViewModel()) {
+fun RemindersScreen(onBack: (() -> Unit)?, viewModel: RemindersViewModel = hiltViewModel()) {
     val ui by viewModel.state.collectAsStateWithLifecycle()
     var adding by rememberSaveable { mutableStateOf<ReminderKind?>(null) }
 
@@ -89,7 +89,11 @@ fun RemindersScreen(onBack: () -> Unit, viewModel: RemindersViewModel = hiltView
     ) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
+                if (onBack !=
+                    null
+                ) {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
+                }
                 Column(Modifier.weight(1f)) {
                     Text(
                         if (ui.quietStart != null && ui.quietEnd != null) {

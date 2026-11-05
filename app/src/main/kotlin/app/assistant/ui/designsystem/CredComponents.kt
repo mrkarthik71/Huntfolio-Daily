@@ -1,6 +1,5 @@
 package app.assistant.ui.designsystem
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -22,8 +20,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CredCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Column(
-        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface)
-            .credEdge(MaterialTheme.shapes.large).padding(18.dp),
+        modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large).padding(18.dp),
     ) { content() }
 }
 
@@ -38,9 +35,7 @@ fun HeroCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Box(
         modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
-            .background(heroSheen(base = scheme.surfaceVariant, highlight = scheme.primaryContainer))
-            .credEdge(MaterialTheme.shapes.extraLarge, strong = true)
+            .raisedPanel(MaterialTheme.shapes.extraLarge, elevation = 20.dp)
             .padding(20.dp),
     ) {
         Column { content() }
@@ -91,7 +86,7 @@ fun EmptyState(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun CredSurface(modifier: Modifier = Modifier, content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
     Column(
-        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface).credEdge(MaterialTheme.shapes.large),
+        modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large),
         content = content,
     )
 }

@@ -20,11 +20,13 @@ Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tas
 - Every notification goes through the Notification_Governor (quiet hours, daily cap, per-type limits) and has a "Why am I seeing this?" action.
 - Parsers must have unit tests with anonymised (synthetic) sample messages.
 
-## Design language (CRED-style; applies to every screen)
-- Look: near-black canvas, raised dark surfaces with 1dp hairline borders, one accent, large confident numbers (Manrope), uppercase micro-captions, generous spacing. One strong call to action per screen (`CredPrimaryButton`).
-- Components: build screens from `ui/designsystem` (HeroCard, CredGroup/CredRow, CredPillTabs, CredBottomBar, CredStat, ApexComponents). No stock Material list/tab/app-bar look; no raw hex in screens.
-- Motion: every screen enters with a staggered lift (`enterAnimated`), every tappable surface has `pressScale` and haptic feedback, numbers and rings count up (`animatedProgress`), heroes carry the sheen. Pushed screens slide in from the right over a dimmed, slightly receding parent; tab switches fade-through; sheets rise with a spring. Exits are faster than entrances. Reduced-motion (`LocalReducedMotion`) turns all of it into plain fades or jumps.
-- Navigation: floating capsule bottom bar (max 5 tabs), hidden on pushed screens; predictable back; secondary features open as pushed screens or bottom sheets.
+## Design language ("Instrument panel", direction B, chosen by the user; applies to every screen)
+- Materials: only three. The console ground (`consoleGround()`: graphite with a top glow), raised panels (`raisedPanel()`: top-lit gradient, hairline of light on the top edge, soft shadow) and recessed wells (`recessedWell()`: darker, shaded top inner edge) for readouts and inputs. Plain rows sit directly on the ground; do not wrap everything in cards.
+- Colour: graphite neutrals plus ONE signal orange (`AssistantColors.Signal`) for what is live, progress and the main action. Green = good/done, blue = admin/info. No gradients washes, no purple, no emoji.
+- Type: Space Grotesk for words, JetBrains Mono for every number, time, amount and uppercase caption (`Caption`, `AssistantType.Readout`).
+- Signature parts: the progress `Dial`, the breathing `LiveLight`, `ReadoutTile`, `ReadoutRow`, `KeyButton` (square raised key), `SignalButton` (round glowing orange key, used once: Ask), `ApexIcons` (custom stroke icons; no stock Material glyphs for navigation).
+- Navigation: console bottom bar with 4 tabs (Today, Plan, Money, Inbox) and the orange Ask key in the centre; selected tab sits pressed in a well. Settings opens from the key on Today. Pushed screens use `CredTopBar`. Max one hero per screen; short copy, no explanatory subtitles.
+- Motion: staggered lift on entry (`enterAnimated`), `pressScale` + haptics on every tappable surface, dials and numbers count up, live light breathes; pushed screens slide from the right over a receding parent, tabs fade-through; exits faster than entrances; `LocalReducedMotion` turns it all into plain fades.
 - Check new screens with the Robolectric ScreenshotTest before shipping.
 
 ## Code conventions

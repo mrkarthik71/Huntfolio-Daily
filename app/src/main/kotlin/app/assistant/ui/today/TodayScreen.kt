@@ -6,13 +6,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -46,22 +49,27 @@ import app.assistant.domain.model.Task
 import app.assistant.domain.model.TaskStatus
 import app.assistant.ui.common.errorText
 import app.assistant.ui.common.formatDate
+import app.assistant.ui.designsystem.Caption
 import app.assistant.ui.designsystem.CredCard
 import app.assistant.ui.designsystem.EnergyColors
 import app.assistant.ui.designsystem.FocusHero
-import app.assistant.ui.designsystem.PillButton
+import app.assistant.ui.designsystem.KeyButton
 import app.assistant.ui.designsystem.ProactiveCardView
+import app.assistant.ui.designsystem.ReadoutTile
 import app.assistant.ui.designsystem.SectionHeader
 import app.assistant.ui.designsystem.TimelineRow
+import app.assistant.ui.designsystem.consoleGround
 import app.assistant.ui.designsystem.enterAnimated
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+private val weekdayFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEEE")
+private val dayMonthFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM")
 private val clock: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 private const val MAX_QUICK_ADD = 200
 
 @Composable
-fun TodayScreen(onOpenReview: (String) -> Unit, onOpenAsk: () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
+fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
     var text by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<ValidationError?>(null) }
@@ -71,33 +79,44 @@ fun TodayScreen(onOpenReview: (String) -> Unit, onOpenAsk: () -> Unit = {}, view
         if (ui.date != null) viewModel.requestAiWording()
     }
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+    Scaffold(containerColor = androidx.compose.ui.graphics.Color.Transparent, modifier = Modifier.consoleGround()) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                Row(Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.Bottom) {
-                    Column(Modifier.weight(1f)) {
+                Row(Modifier.fillMaxWidth().padding(start = 4.dp, top = 8.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f).semantics { heading() }) {
+                        Caption(ui.date?.format(weekdayFormat).orEmpty())
                         Text(
-                            ui.date?.let(::formatDate).orEmpty(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ui.date?.format(dayMonthFormat).orEmpty(),
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
                         )
-                        Text(stringResource(R.string.today_title), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
                     }
-                    PillButton(
-                        stringResource(R.string.today_open_review),
-                        onClick = { ui.date?.let { onOpenReview(it.toString()) } },
-                        container = MaterialTheme.colorScheme.surface,
-                        content = MaterialTheme.colorScheme.onSurface,
-                        border = MaterialTheme.colorScheme.outlineVariant,
-                    )
+                    KeyButton(Icons.AutoMirrored.Filled.List, stringResource(R.string.today_open_review), onClick = {
+                        ui.date?.let { onOpenReview(it.toString()) }
+                    })
+                    androidx.compose.foundation.layout.Spacer(Modifier.size(10.dp))
+                    KeyButton(Icons.Filled.Settings, stringResource(R.string.nav_settings), onClick = onOpenSettings)
                 }
             }
             item { TodayHero(ui, Modifier.enterAnimated(0)) }
-            item { app.assistant.ui.ask.AskEntryCard(onOpenAsk, Modifier.enterAnimated(1)) }
+            ui.day?.let { day ->
+                item {
+                    Row(Modifier.fillMaxWidth().enterAnimated(1), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        ReadoutTile(stringResource(R.string.today_tile_free), durationText(day.freeMinutes), Modifier.weight(1f))
+                        ReadoutTile(
+                            stringResource(R.string.today_tile_load),
+                            stringResource(R.string.percent, day.loadPercent),
+                            Modifier.weight(1f),
+                            note = if (ui.streak > 0) stringResource(R.string.today_streak_chip, ui.streak) else null,
+                            noteColor = EnergyColors.Physical,
+                        )
+                    }
+                }
+            }
             itemsIndexed(ui.cards, key = { _, c -> "card${c.id.value}" }) { i, card ->
                 ProactiveCardView(
                     title = card.title,
@@ -219,11 +238,10 @@ fun TodayScreen(onOpenReview: (String) -> Unit, onOpenAsk: () -> Unit = {}, view
 private fun TodayHero(ui: TodayUi, modifier: Modifier = Modifier) {
     val day = ui.day
     val focus = day?.focusNow
-    val facts = buildList {
-        if (day != null) add(stringResource(R.string.today_load_chip, day.loadPercent))
-        if (ui.streak > 0) add(stringResource(R.string.today_streak_chip, ui.streak))
-        if (day != null && day.tasksTotal > 0) add(stringResource(R.string.today_done_chip, day.tasksDone, day.tasksTotal))
-    }
+    val facts = emptyList<String>()
+    val done = day?.tasksDone ?: 0
+    val total = day?.tasksTotal ?: 0
+    val doneCaption = stringResource(R.string.today_dial_done)
     if (focus != null) {
         FocusHero(
             eyebrow = stringResource(R.string.today_focus_now, stringResource(energyLabel(focus.energy, focus.kind))),
@@ -231,8 +249,11 @@ private fun TodayHero(ui: TodayUi, modifier: Modifier = Modifier) {
             subtitle = stringResource(R.string.today_focus_left, minuteText(focus.span.start), minuteText(focus.span.end), day.focusMinutesLeft),
             progress = day.focusProgress,
             facts = facts,
-            accent = EnergyColors.of(focus.energy).takeIf { focus.kind != DayItemKind.MEETING } ?: MaterialTheme.colorScheme.primary,
+            accent = MaterialTheme.colorScheme.primary,
             modifier = modifier,
+            dayDone = done,
+            dayTotal = total,
+            dayCaption = doneCaption,
         )
     } else {
         val next = day?.items?.firstOrNull { it.kind != DayItemKind.FREE && !it.done && it.span.start >= (day.items.firstOrNull()?.span?.start ?: 0) }
@@ -243,6 +264,10 @@ private fun TodayHero(ui: TodayUi, modifier: Modifier = Modifier) {
             progress = null,
             facts = facts,
             modifier = modifier,
+            dayDone = done,
+            dayTotal = total,
+            dayCaption = doneCaption,
+            accent = MaterialTheme.colorScheme.secondary,
         )
     }
 }
@@ -253,7 +278,7 @@ private fun LazyListScope.timelineSection(ui: TodayUi) {
     if (day.items.isEmpty()) return
     item {
         Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-            SectionHeader(stringResource(R.string.today_timeline).uppercase(), Modifier.weight(1f))
+            Caption(stringResource(R.string.today_timeline), Modifier.weight(1f))
             Text(
                 stringResource(R.string.today_booked, durationText(day.bookedMinutes), durationText(day.freeMinutes)),
                 style = MaterialTheme.typography.labelMedium,

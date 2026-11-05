@@ -44,7 +44,7 @@ import app.assistant.ui.designsystem.SectionHeader
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MailScreen(
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     onCreateTask: (subject: String) -> Unit,
     onCreateBill: (subject: String) -> Unit,
     viewModel: MailViewModel = hiltViewModel(),
@@ -52,12 +52,16 @@ fun MailScreen(
     val ui by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
         topBar = {
-            CredTopBar(title = {
-                Text(stringResource(R.string.mail_title))
-            }, navigationIcon = {
-                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
-            })
+            // Embedded in the Inbox tab (onBack == null) the host provides the header.
+            if (onBack != null) {
+                CredTopBar(title = {
+                    Text(stringResource(R.string.mail_title))
+                }, navigationIcon = {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
+                })
+            }
         },
     ) { padding ->
         LazyColumn(

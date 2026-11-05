@@ -10,150 +10,154 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.assistant.R
 
 /**
- * A dark-first, Cred-inspired Material 3 theme: a near-black canvas, confident large type,
- * generous radii, and one restrained accent used as punctuation rather than decoration. Colours
- * are fixed (no dynamic colour) so contrast can be checked: text pairs reach at least 4.5:1 and
- * outlines 3:1 (Requirement 63.4, 63.5). The app is dark by identity; the light scheme is a
+ * "Instrument panel" (design direction B, chosen by the User): a graphite console lit from above.
+ * Raised panels catch a highlight on their top edge and cast a soft shadow; readouts sit in
+ * recessed wells; one signal orange marks what is live and the main action. Text pairs reach at
+ * least 4.5:1 and outlines 3:1 (Requirement 63.4, 63.5). Dark by identity; the light scheme is a
  * high-contrast fallback for users who force light (Requirement 10.9).
  */
 object AssistantColors {
-    // --- Cred-style dark canvas: ink-black base, two raised surface steps, soft outlines. ---
-    private val Ink = Color(0xFF050505) // canvas: near-pure black, OLED friendly
-    private val Surface1 = Color(0xFF111113) // cards
-    private val Surface2 = Color(0xFF1A1A1D) // raised / sheets
-    private val OnInk = Color(0xFFF5F4F0) // primary text, a warm white
-    private val OnInkMuted = Color(0xFF9F9EA4) // secondary text (7:1 on cards)
-    private val HairlineDark = Color(0xFF26262A) // outlineVariant / dividers
+    /** Console ground (top of the screen glows a little lighter: see [Instrument.groundGlow]). */
+    val Ground = Color(0xFF0E0F10)
+    val GroundGlow = Color(0xFF1C1D20)
 
-    // Restrained signature accent: champagne gold, used as punctuation (progress, the live item, key numbers).
-    private val Accent = Color(0xFFE6C58F)
-    private val AccentContainer = Color(0xFF2A2316)
-    private val OnAccentContainer = Color(0xFFF4E4C4)
+    /** Raised panel: top and bottom of its vertical gradient. */
+    val PanelTop = Color(0xFF202226)
+    val PanelBottom = Color(0xFF141517)
+
+    /** Recessed well for readouts and inputs. */
+    val Well = Color(0xFF131416)
+    val WellDeep = Color(0xFF0D0E0F)
+
+    val Ink = Color(0xFFEDEBE6)
+    val InkSecondary = Color(0xFFB9B6AF)
+    val InkMuted = Color(0xFF8A8780)
+    val Hairline = Color(0xFF2A2C30)
+
+    /** Signal orange: live state, progress, the primary action. */
+    val Signal = Color(0xFFFF8A3D)
+    val SignalHot = Color(0xFFFFA061)
+    val OnSignal = Color(0xFF1A0E05)
+
+    val Good = Color(0xFF7FD8A6)
+    val Info = Color(0xFF8FC1FF)
+    val Neutral = Color(0xFFD8D5CD)
+    val Alert = Color(0xFFFF7A6B)
 
     val dark: ColorScheme = darkColorScheme(
-        primary = Accent,
-        onPrimary = Color(0xFF221807),
-        primaryContainer = AccentContainer,
-        onPrimaryContainer = OnAccentContainer,
-        secondary = Color(0xFFCFCDC6),
-        onSecondary = Color(0xFF1C1B18),
-        secondaryContainer = Surface2,
-        onSecondaryContainer = OnInk,
-        tertiary = Color(0xFF7ED7AE),
-        onTertiary = Color(0xFF00382A),
-        error = Color(0xFFFF9B94),
+        primary = Signal,
+        onPrimary = OnSignal,
+        primaryContainer = Color(0xFF2B1A0E),
+        onPrimaryContainer = Color(0xFFFFD9BF),
+        secondary = InkSecondary,
+        onSecondary = Ground,
+        secondaryContainer = PanelTop,
+        onSecondaryContainer = Ink,
+        tertiary = Good,
+        onTertiary = Color(0xFF00301A),
+        error = Alert,
         onError = Color(0xFF3B0907),
-        errorContainer = Color(0xFF4A1512),
+        errorContainer = Color(0xFF3D1512),
         onErrorContainer = Color(0xFFFFD9D6),
-        background = Ink,
-        onBackground = OnInk,
-        surface = Surface1,
-        onSurface = OnInk,
-        surfaceVariant = Surface2,
-        onSurfaceVariant = OnInkMuted,
-        surfaceContainerLowest = Ink,
-        surfaceContainerLow = Surface1,
-        surfaceContainer = Surface1,
-        surfaceContainerHigh = Surface2,
-        surfaceContainerHighest = Color(0xFF232327),
-        outline = Color(0xFF4E4E55),
-        outlineVariant = HairlineDark,
+        background = Ground,
+        onBackground = Ink,
+        surface = Color(0xFF17181B),
+        onSurface = Ink,
+        surfaceVariant = PanelTop,
+        onSurfaceVariant = InkMuted,
+        surfaceContainerLowest = WellDeep,
+        surfaceContainerLow = Well,
+        surfaceContainer = Color(0xFF17181B),
+        surfaceContainerHigh = PanelTop,
+        surfaceContainerHighest = Color(0xFF282A2E),
+        outline = Color(0xFF55575C),
+        outlineVariant = Hairline,
     )
 
-    // High-contrast light fallback (same accent, white canvas) for forced-light users.
     val light: ColorScheme = lightColorScheme(
-        primary = Color(0xFF7A5A1E),
+        primary = Color(0xFFA34A0B),
         onPrimary = Color(0xFFFFFFFF),
-        primaryContainer = Color(0xFFF6E7C8),
-        onPrimaryContainer = Color(0xFF2A1C04),
-        secondary = Color(0xFF4A4458),
+        primaryContainer = Color(0xFFFFE1CC),
+        onPrimaryContainer = Color(0xFF341300),
+        secondary = Color(0xFF4F4D48),
         onSecondary = Color(0xFFFFFFFF),
-        secondaryContainer = Color(0xFFEDE8F4),
-        onSecondaryContainer = Color(0xFF1A1626),
-        tertiary = Color(0xFF1F6B52),
+        secondaryContainer = Color(0xFFEDEAE3),
+        onSecondaryContainer = Color(0xFF1C1B18),
+        tertiary = Color(0xFF1F6B47),
         onTertiary = Color(0xFFFFFFFF),
         error = Color(0xFFB3261E),
         onError = Color(0xFFFFFFFF),
         errorContainer = Color(0xFFF9DEDC),
         onErrorContainer = Color(0xFF410E0B),
-        background = Color(0xFFFCFCFD),
-        onBackground = Color(0xFF16161A),
+        background = Color(0xFFF6F5F2),
+        onBackground = Color(0xFF161616),
         surface = Color(0xFFFFFFFF),
-        onSurface = Color(0xFF16161A),
-        surfaceVariant = Color(0xFFF2F1F6),
-        onSurfaceVariant = Color(0xFF5A5A66),
-        outline = Color(0xFF8A8A96),
-        outlineVariant = Color(0xFFD9D8E0),
+        onSurface = Color(0xFF161616),
+        surfaceVariant = Color(0xFFEDEAE3),
+        onSurfaceVariant = Color(0xFF55534E),
+        outline = Color(0xFF85837D),
+        outlineVariant = Color(0xFFD8D5CD),
     )
 }
 
 /**
- * Confident, tightly-tracked type. Large display/headline sizes carry the Cred feel; body stays
- * calm and readable. A shared line-height trim keeps big headings from floating.
+ * Space Grotesk for words, JetBrains Mono for every number, time and caption (bundled, SIL OFL;
+ * licences in assets/licenses). Numbers in mono line up like readouts on a panel.
  */
 object AssistantType {
-    /** Manrope (variable, bundled, SIL OFL) for display, headline and title roles; body stays the system face. */
-    @OptIn(androidx.compose.ui.text.ExperimentalTextApi::class)
-    private fun manrope(weight: FontWeight) = androidx.compose.ui.text.font.Font(
-        app.assistant.R.font.manrope,
-        weight = weight,
-        variationSettings = androidx.compose.ui.text.font.FontVariation.Settings(androidx.compose.ui.text.font.FontVariation.weight(weight.weight)),
+    val Grotesk = FontFamily(
+        Font(R.font.space_grotesk_regular, FontWeight.Normal),
+        Font(R.font.space_grotesk_medium, FontWeight.Medium),
+        Font(R.font.space_grotesk_semibold, FontWeight.SemiBold),
+        Font(R.font.space_grotesk_bold, FontWeight.Bold),
     )
 
-    val display = androidx.compose.ui.text.font.FontFamily(
-        manrope(FontWeight.Medium),
-        manrope(FontWeight.SemiBold),
-        manrope(FontWeight.Bold),
-        manrope(FontWeight.ExtraBold),
+    val Mono = FontFamily(
+        Font(R.font.jetbrains_mono_regular, FontWeight.Normal),
+        Font(R.font.jetbrains_mono_medium, FontWeight.Medium),
+        Font(R.font.jetbrains_mono_semibold, FontWeight.SemiBold),
     )
 
-    private val trim = LineHeightStyle(
-        alignment = LineHeightStyle.Alignment.Center,
-        trim = LineHeightStyle.Trim.None,
-    )
+    /** A large mono readout (amounts, timers, the dial). */
+    val Readout = TextStyle(fontFamily = Mono, fontWeight = FontWeight.SemiBold, fontSize = 30.sp, lineHeight = 34.sp, letterSpacing = (-1).sp)
+
+    /** The small uppercase mono caption ("LIVE · DEEP WORK", "SPENT TODAY"). */
+    val Caption = TextStyle(fontFamily = Mono, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 1.1.sp)
 
     val typography = Typography(
-        displayLarge = TextStyle(
-            fontFamily = display,
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 44.sp,
-            lineHeight = 48.sp,
-            letterSpacing = (-0.5).sp,
-            lineHeightStyle = trim,
-        ),
-        displayMedium = TextStyle(
-            fontFamily = display,
-            fontWeight = FontWeight.ExtraBold,
-            fontSize = 34.sp,
-            lineHeight = 40.sp,
-            letterSpacing = (-0.4).sp,
-            lineHeightStyle = trim,
-        ),
-        headlineLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 32.sp, lineHeight = 38.sp, letterSpacing = (-0.6).sp),
-        headlineMedium = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp, lineHeight = 30.sp, letterSpacing = (-0.4).sp),
-        titleLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 19.sp, lineHeight = 24.sp, letterSpacing = (-0.1).sp),
-        titleMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp),
-        bodyLarge = TextStyle(fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 23.sp),
-        bodyMedium = TextStyle(fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
-        labelLarge = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 18.sp, letterSpacing = 0.1.sp),
-        labelMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
-        labelSmall = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 11.sp, lineHeight = 15.sp, letterSpacing = 1.2.sp),
+        displayLarge = TextStyle(fontFamily = Mono, fontWeight = FontWeight.SemiBold, fontSize = 48.sp, lineHeight = 52.sp, letterSpacing = (-2).sp),
+        displayMedium = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.SemiBold, fontSize = 34.sp, lineHeight = 38.sp, letterSpacing = (-1).sp),
+        displaySmall = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.SemiBold, fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.6).sp),
+        headlineLarge = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.SemiBold, fontSize = 28.sp, lineHeight = 32.sp, letterSpacing = (-0.6).sp),
+        headlineMedium = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.SemiBold, fontSize = 22.sp, lineHeight = 26.sp, letterSpacing = (-0.4).sp),
+        headlineSmall = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.SemiBold, fontSize = 20.sp, lineHeight = 24.sp, letterSpacing = (-0.3).sp),
+        titleLarge = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.SemiBold, fontSize = 18.sp, lineHeight = 23.sp, letterSpacing = (-0.2).sp),
+        titleMedium = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 21.sp),
+        titleSmall = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 19.sp),
+        bodyLarge = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 23.sp),
+        bodyMedium = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
+        bodySmall = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.Normal, fontSize = 13.sp, lineHeight = 18.sp),
+        labelLarge = TextStyle(fontFamily = Grotesk, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 18.sp),
+        labelMedium = TextStyle(fontFamily = Mono, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
+        labelSmall = Caption,
     )
 }
 
-/** Generous, Cred-style corner radii: cards and sheets are softly rounded, controls are pills. */
+/** Instrument radii: panels 24–28, wells 20, keys 16, pills full. */
 val AssistantShapes = Shapes(
-    extraSmall = RoundedCornerShape(10.dp),
-    small = RoundedCornerShape(14.dp),
+    extraSmall = RoundedCornerShape(12.dp),
+    small = RoundedCornerShape(16.dp),
     medium = RoundedCornerShape(20.dp),
-    large = RoundedCornerShape(26.dp),
-    extraLarge = RoundedCornerShape(32.dp),
+    large = RoundedCornerShape(24.dp),
+    extraLarge = RoundedCornerShape(28.dp),
 )
 
 @Composable
