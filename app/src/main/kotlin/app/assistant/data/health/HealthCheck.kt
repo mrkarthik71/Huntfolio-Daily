@@ -2,7 +2,6 @@ package app.assistant.data.health
 
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
-import app.assistant.data.consent.ConsentStore
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.data.mail.SecretMailCredentialStore
 import app.assistant.domain.engine.health.HealthRules
@@ -51,10 +50,9 @@ class HealthCheck @Inject constructor(
         prefs.edit().putString(DISMISSED_KEY, names).commit()
     }
 
-    private fun dismissed(): Set<HealthRules.Problem> =
-        prefs.getString(DISMISSED_KEY, "").orEmpty().split(",").filter { it.isNotBlank() }
-            .mapNotNull { name -> HealthRules.Problem.entries.firstOrNull { it.name == name } }
-            .toSet()
+    private fun dismissed(): Set<HealthRules.Problem> = prefs.getString(DISMISSED_KEY, "").orEmpty().split(",").filter { it.isNotBlank() }
+        .mapNotNull { name -> HealthRules.Problem.entries.firstOrNull { it.name == name } }
+        .toSet()
 
     private fun expectedInterval(job: String): Duration = when (job) {
         "mail-sync" -> Duration.ofHours(2)

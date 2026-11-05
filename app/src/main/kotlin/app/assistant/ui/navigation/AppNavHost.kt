@@ -118,7 +118,12 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             composable(Routes.TASKS) { TasksScreen() }
             composable(
                 Routes.TASK_PREFILL,
-                arguments = listOf(androidx.navigation.navArgument("title") { type = androidx.navigation.NavType.StringType; defaultValue = "" }),
+                arguments = listOf(
+                    androidx.navigation.navArgument("title") {
+                        type = androidx.navigation.NavType.StringType
+                        defaultValue = ""
+                    },
+                ),
             ) { entry ->
                 TasksScreen(prefillTitle = entry.arguments?.getString("title"))
             }

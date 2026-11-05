@@ -2,8 +2,8 @@ package app.assistant.ui.consent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.domain.port.ConsentRecord
 import app.assistant.domain.engine.consent.ConsentGate
+import app.assistant.domain.port.ConsentRecord
 import app.assistant.domain.port.TimeSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,10 +17,7 @@ import javax.inject.Inject
  * shown and records acceptance; a decline simply never records, so the gate shows again next launch.
  */
 @HiltViewModel
-class ConsentViewModel @Inject constructor(
-    private val store: ConsentRecord,
-    private val time: TimeSource,
-) : ViewModel() {
+class ConsentViewModel @Inject constructor(private val store: ConsentRecord, private val time: TimeSource) : ViewModel() {
 
     private val _accepted = MutableStateFlow(false)
     val accepted: StateFlow<Boolean> = _accepted.asStateFlow()

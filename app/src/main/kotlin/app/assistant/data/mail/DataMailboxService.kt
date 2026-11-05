@@ -33,8 +33,7 @@ class DataMailboxService @Inject constructor(
 
     private val dao get() = holder.database().mailDao()
 
-    override fun rules(): Flow<List<MailRule>> =
-        dao.rulesFlow().map { rows -> rows.map { MailRule(it.id, it.senderContains, it.subjectContains, it.score) } }
+    override fun rules(): Flow<List<MailRule>> = dao.rulesFlow().map { rows -> rows.map { MailRule(it.id, it.senderContains, it.subjectContains, it.score) } }
 
     override fun inbox(): Flow<List<MailInboxItem>> =
         dao.items().map { rows -> rows.map { MailInboxItem(it.id, it.sender, it.subject, it.category, it.finalScore) } }

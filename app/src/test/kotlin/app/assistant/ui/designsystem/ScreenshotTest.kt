@@ -113,14 +113,45 @@ class ScreenshotTest {
             advisor = app.assistant.domain.port.Advisor.Disabled,
             planner = app.assistant.testing.FakePlannerRepository(
                 routines = listOf(
-                    app.assistant.domain.model.Routine(app.assistant.domain.model.RoutineId(1), "Morning run", app.assistant.domain.model.EnergyTag.PHYSICAL_ROUTINE, java.time.DayOfWeek.entries.toSet(), java.time.LocalTime.of(7, 0), 45, 30, true),
-                    app.assistant.domain.model.Routine(app.assistant.domain.model.RoutineId(2), "Draft the Q4 roadmap", app.assistant.domain.model.EnergyTag.DEEP_WORK, java.time.DayOfWeek.entries.toSet(), java.time.LocalTime.of(8, 30), 90, 0, true),
-                    app.assistant.domain.model.Routine(app.assistant.domain.model.RoutineId(3), "Inbox and admin", app.assistant.domain.model.EnergyTag.LIGHT_ADMIN, java.time.DayOfWeek.entries.toSet(), java.time.LocalTime.of(13, 30), 45, 15, true),
+                    app.assistant.domain.model.Routine(
+                        app.assistant.domain.model.RoutineId(1),
+                        "Morning run",
+                        app.assistant.domain.model.EnergyTag.PHYSICAL_ROUTINE,
+                        java.time.DayOfWeek.entries.toSet(),
+                        java.time.LocalTime.of(7, 0),
+                        45,
+                        30,
+                        true,
+                    ),
+                    app.assistant.domain.model.Routine(
+                        app.assistant.domain.model.RoutineId(2),
+                        "Draft the Q4 roadmap",
+                        app.assistant.domain.model.EnergyTag.DEEP_WORK,
+                        java.time.DayOfWeek.entries.toSet(),
+                        java.time.LocalTime.of(8, 30),
+                        90,
+                        0,
+                        true,
+                    ),
+                    app.assistant.domain.model.Routine(
+                        app.assistant.domain.model.RoutineId(3),
+                        "Inbox and admin",
+                        app.assistant.domain.model.EnergyTag.LIGHT_ADMIN,
+                        java.time.DayOfWeek.entries.toSet(),
+                        java.time.LocalTime.of(13, 30),
+                        45,
+                        15,
+                        true,
+                    ),
                 ),
                 cards = listOf(
                     app.assistant.domain.model.ProactiveCard(
-                        app.assistant.domain.model.CardId(1), app.assistant.domain.model.CardKind.OVERLOAD, today.plusDays(1),
-                        "Tomorrow is overbooked", "9 h 20 m planned in 7 h 0 m of free time. Move something to a lighter day?", app.assistant.domain.model.CardStatus.NEW,
+                        app.assistant.domain.model.CardId(1),
+                        app.assistant.domain.model.CardKind.OVERLOAD,
+                        today.plusDays(1),
+                        "Tomorrow is overbooked",
+                        "9 h 20 m planned in 7 h 0 m of free time. Move something to a lighter day?",
+                        app.assistant.domain.model.CardStatus.NEW,
                     ),
                 ),
             ),
@@ -133,7 +164,15 @@ class ScreenshotTest {
         val repo = FakeSubscriptionRepository(
             today,
             proposals = listOf(
-                FakeSubscriptionRepository.view(9, "CloudDrive", Paise(13_000), SubscriptionInterval.MONTHLY, today.plusDays(6), today, SubscriptionStatus.PROPOSED),
+                FakeSubscriptionRepository.view(
+                    9,
+                    "CloudDrive",
+                    Paise(13_000),
+                    SubscriptionInterval.MONTHLY,
+                    today.plusDays(6),
+                    today,
+                    SubscriptionStatus.PROPOSED,
+                ),
             ),
             active = listOf(
                 FakeSubscriptionRepository.view(1, "StreamFlix", Paise(64_900), SubscriptionInterval.MONTHLY, today.plusDays(2), today),
@@ -178,19 +217,57 @@ class ScreenshotTest {
             app.assistant.domain.model.GoalId(2), "Read 12 books", app.assistant.domain.model.GoalPeriod.YEAR, today.minusDays(300),
             app.assistant.domain.model.Quantity(1200), "books", null, Instant.EPOCH, null, deadline = today.plusDays(10), priority = 3,
         )
-        val instance = app.assistant.domain.model.PeriodInstance(app.assistant.domain.model.GoalPeriod.MONTH, today.withDayOfMonth(1), today.withDayOfMonth(1).plusMonths(1).minusDays(1))
+        val instance = app.assistant.domain.model.PeriodInstance(
+            app.assistant.domain.model.GoalPeriod.MONTH,
+            today.withDayOfMonth(1),
+            today.withDayOfMonth(1).plusMonths(1).minusDays(1),
+        )
         val statuses = listOf(
             app.assistant.domain.model.GoalStatus(g1, instance, app.assistant.domain.model.Quantity(62), 62, 0),
             app.assistant.domain.model.GoalStatus(g2, instance, app.assistant.domain.model.Quantity(700), 58, 3),
         )
         val mk = { id: Long, title: String, pos: Int, done: Boolean ->
-            app.assistant.domain.model.Milestone(app.assistant.domain.model.MilestoneId(id), app.assistant.domain.model.GoalId(1), title, pos, today.plusDays(pos * 12L), null, if (done) Instant.EPOCH else null)
+            app.assistant.domain.model.Milestone(
+                app.assistant.domain.model.MilestoneId(id),
+                app.assistant.domain.model.GoalId(1),
+                title,
+                pos,
+                today.plusDays(
+                    pos * 12L,
+                ),
+                null,
+                if (done) Instant.EPOCH else null,
+            )
         }
-        val planner = app.assistant.testing.FakePlannerRepository(milestones = listOf(mk(1, "Research and spec", 0, true), mk(2, "Build the new importer", 1, false), mk(3, "Beta with 20 users", 2, false)))
+        val planner = app.assistant.testing.FakePlannerRepository(
+            milestones = listOf(mk(1, "Research and spec", 0, true), mk(2, "Build the new importer", 1, false), mk(3, "Beta with 20 users", 2, false)),
+        )
         planner.workState.value = (1..13).map { i ->
-            app.assistant.domain.port.GoalWork(TaskId(i.toLong()), app.assistant.domain.model.GoalId(1), app.assistant.domain.model.MilestoneId(if (i <= 6) 1 else if (i <= 13) 2 else 3), i <= 10, 180)
+            app.assistant.domain.port.GoalWork(
+                TaskId(i.toLong()),
+                app.assistant.domain.model.GoalId(1),
+                app.assistant.domain.model.MilestoneId(
+                    if (i <=
+                        6
+                    ) {
+                        1
+                    } else if (i <= 13) {
+                        2
+                    } else {
+                        3
+                    },
+                ),
+                i <= 10,
+                180,
+            )
         } + listOf(app.assistant.domain.port.GoalWork(TaskId(40), app.assistant.domain.model.GoalId(2), null, false, 900))
-        val vm = app.assistant.ui.goals.GoalsViewModel(app.assistant.testing.FakeGoalRepository(statuses), app.assistant.testing.FakePlanRepository(FakeTaskRepository(), emptyList()), app.assistant.testing.FakeReportRepository(), FakeTimeSource(), planner)
+        val vm = app.assistant.ui.goals.GoalsViewModel(
+            app.assistant.testing.FakeGoalRepository(statuses),
+            app.assistant.testing.FakePlanRepository(FakeTaskRepository(), emptyList()),
+            app.assistant.testing.FakeReportRepository(),
+            FakeTimeSource(),
+            planner,
+        )
         capture("04-goals") { Shell("goals") { app.assistant.ui.goals.GoalsScreen(viewModel = vm) } }
     }
 
@@ -198,10 +275,41 @@ class ScreenshotTest {
     fun reminders() {
         val planner = app.assistant.testing.FakePlannerRepository(
             reminders = listOf(
-                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(1), "Pick up the courier", app.assistant.domain.model.ReminderKind.PLACE, placeName = "Office", latitude = 12.9, longitude = 77.6, radiusMeters = 200, onEnter = true),
-                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(2), "Buy groceries for the week", app.assistant.domain.model.ReminderKind.PLACE, placeName = "Home", latitude = 12.9, longitude = 77.6, radiusMeters = 100, onEnter = false),
-                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(3), "Call Mom on the drive home", app.assistant.domain.model.ReminderKind.DEVICE, device = app.assistant.domain.model.DeviceTrigger.CAR_BLUETOOTH, notBefore = java.time.LocalTime.of(18, 0)),
-                app.assistant.domain.model.SmartReminder(app.assistant.domain.model.ReminderId(4), "Plan tomorrow", app.assistant.domain.model.ReminderKind.DEVICE, device = app.assistant.domain.model.DeviceTrigger.CHARGING, notBefore = java.time.LocalTime.of(21, 0), active = false),
+                app.assistant.domain.model.SmartReminder(
+                    app.assistant.domain.model.ReminderId(1),
+                    "Pick up the courier",
+                    app.assistant.domain.model.ReminderKind.PLACE,
+                    placeName = "Office",
+                    latitude = 12.9,
+                    longitude = 77.6,
+                    radiusMeters = 200,
+                    onEnter = true,
+                ),
+                app.assistant.domain.model.SmartReminder(
+                    app.assistant.domain.model.ReminderId(2),
+                    "Buy groceries for the week",
+                    app.assistant.domain.model.ReminderKind.PLACE,
+                    placeName = "Home",
+                    latitude = 12.9,
+                    longitude = 77.6,
+                    radiusMeters = 100,
+                    onEnter = false,
+                ),
+                app.assistant.domain.model.SmartReminder(
+                    app.assistant.domain.model.ReminderId(3),
+                    "Call Mom on the drive home",
+                    app.assistant.domain.model.ReminderKind.DEVICE,
+                    device = app.assistant.domain.model.DeviceTrigger.CAR_BLUETOOTH,
+                    notBefore = java.time.LocalTime.of(18, 0),
+                ),
+                app.assistant.domain.model.SmartReminder(
+                    app.assistant.domain.model.ReminderId(4),
+                    "Plan tomorrow",
+                    app.assistant.domain.model.ReminderKind.DEVICE,
+                    device = app.assistant.domain.model.DeviceTrigger.CHARGING,
+                    notBefore = java.time.LocalTime.of(21, 0),
+                    active = false,
+                ),
             ),
         )
         val scheduler = object : app.assistant.domain.port.ReminderScheduler {

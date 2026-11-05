@@ -1,14 +1,10 @@
 package app.assistant.app.di
 
 import android.content.Context
-import app.assistant.domain.port.CloudKeySource
 import app.assistant.ai.cloud.OkHttpCloudTransport
 import app.assistant.ai.cloud.OpenAiCompatibleProvider
-import app.assistant.domain.port.ProxyClient
-import app.assistant.domain.port.AiConfig
 import app.assistant.ai.gateway.AiGateway
 import app.assistant.ai.gateway.CapGovernor
-import app.assistant.domain.port.Connectivity
 import app.assistant.ai.ondevice.OnDeviceAiProvider
 import app.assistant.ai.ondevice.OnDeviceAvailability
 import app.assistant.ai.ondevice.OnDeviceRuntime
@@ -20,10 +16,14 @@ import app.assistant.data.ai.RoomCapStore
 import app.assistant.data.ai.SettingsAiConfig
 import app.assistant.domain.engine.redact.RedactionPatterns
 import app.assistant.domain.model.AiMode
+import app.assistant.domain.port.AiConfig
 import app.assistant.domain.port.AiProvider
 import app.assistant.domain.port.AuditLog
 import app.assistant.domain.port.CapStore
+import app.assistant.domain.port.CloudKeySource
+import app.assistant.domain.port.Connectivity
 import app.assistant.domain.port.NoneProvider
+import app.assistant.domain.port.ProxyClient
 import app.assistant.domain.port.TimeSource
 import app.assistant.security.network.EgressPolicy
 import app.assistant.security.network.HttpClientFactory
@@ -104,11 +104,7 @@ abstract class AiModule {
 
         @Provides
         @Singleton
-        fun cloudProvider(
-            keySource: CloudKeySource,
-            proxy: ProxyClient,
-            @Named("ai") policy: EgressPolicy,
-        ): OpenAiCompatibleProvider {
+        fun cloudProvider(keySource: CloudKeySource, proxy: ProxyClient, @Named("ai") policy: EgressPolicy): OpenAiCompatibleProvider {
             val client = HttpClientFactory.create(policy)
             val transport = OkHttpCloudTransport(AI_ENDPOINT) { url, body, apiKey ->
                 val request = Request.Builder()

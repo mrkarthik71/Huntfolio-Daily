@@ -67,11 +67,4 @@ enum class CardKind { OVERLOAD, GOAL_AT_RISK, RENEWAL_SOON, FREE_SLOT, ROUTINE_M
 enum class CardStatus { NEW, ACCEPTED, DISMISSED }
 
 /** A proactive heads-up for a day, with the reason shown under "Why?". Nothing changes until it is accepted. */
-data class ProactiveCard(
-    val id: CardId,
-    val kind: CardKind,
-    val forDate: LocalDate,
-    val title: String,
-    val reason: String,
-    val status: CardStatus,
-)
+data class ProactiveCard(val id: CardId, val kind: CardKind, val forDate: LocalDate, val title: String, val reason: String, val status: CardStatus)

@@ -4,11 +4,11 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import app.assistant.R
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.domain.engine.mail.DigestBuilder
 import app.assistant.domain.model.MailCategory
 import app.assistant.domain.model.NotificationType
-import app.assistant.R
 import app.assistant.domain.port.ImmediateAlert
 import app.assistant.domain.port.NotificationScheduling
 import dagger.assisted.Assisted
@@ -56,7 +56,9 @@ class MailDigestWorker @AssistedInject constructor(
         val body = if (sections.isEmpty() && !connected) {
             ctx.getString(R.string.mail_digest_stopped)
         } else {
-            sections.joinToString("\n") { s -> ctx.getString(R.string.mail_digest_line, s.category.name.lowercase().replaceFirstChar(Char::uppercase), s.items.size) } +
+            sections.joinToString("\n") { s ->
+                ctx.getString(R.string.mail_digest_line, s.category.name.lowercase().replaceFirstChar(Char::uppercase), s.items.size)
+            } +
                 if (!connected) "\n" + ctx.getString(R.string.mail_digest_stopped_short) else ""
         }
         notifications.offerNow(

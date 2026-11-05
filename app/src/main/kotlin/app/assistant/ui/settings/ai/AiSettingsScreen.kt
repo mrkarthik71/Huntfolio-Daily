@@ -1,7 +1,5 @@
 package app.assistant.ui.settings.ai
 
-import app.assistant.R
-import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +14,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.assistant.R
 import app.assistant.domain.model.AiMode
 import app.assistant.ui.designsystem.CredCard
 import app.assistant.ui.designsystem.ScreenTitle
@@ -70,7 +70,10 @@ fun AiSettingsScreen(viewModel: AiSettingsViewModel, modifier: Modifier = Modifi
                 androidx.compose.material3.TextButton(onClick = { viewModel.setCapRupees(cap) }) { Text(stringResource(R.string.ai_cap_save)) }
                 Text(stringResource(R.string.ai_spent, ui.spentThisMonthPaise / PAISE), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
                 if (ui.capReached) {
-                    Text(stringResource(R.string.ai_cap_reached, ui.resumeDate.toString()), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    Text(
+                        stringResource(R.string.ai_cap_reached, ui.resumeDate.toString()),
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
         }
@@ -88,10 +91,16 @@ fun AiSettingsScreen(viewModel: AiSettingsViewModel, modifier: Modifier = Modifi
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    androidx.compose.material3.TextButton(onClick = { viewModel.setKey(key); key = "" }) {
+                    androidx.compose.material3.TextButton(onClick = {
+                        viewModel.setKey(key)
+                        key = ""
+                    }) {
                         Text(stringResource(if (ui.keyConfigured) R.string.ai_key_update else R.string.ai_key_save))
                     }
-                    Text(stringResource(if (ui.keyConfigured) R.string.ai_key_stored else R.string.ai_key_missing), style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                    Text(
+                        stringResource(if (ui.keyConfigured) R.string.ai_key_stored else R.string.ai_key_missing),
+                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
         }
@@ -100,7 +109,8 @@ fun AiSettingsScreen(viewModel: AiSettingsViewModel, modifier: Modifier = Modifi
         CredCard {
             Column(Modifier.fillMaxWidth().padding(16.dp)) {
                 Text(
-                    ui.onDeviceUnavailable?.let { stringResource(R.string.ai_ondevice_unavailable, it.lowercase().replace('_', ' ')) } ?: stringResource(R.string.ai_ondevice_ready),
+                    ui.onDeviceUnavailable?.let { stringResource(R.string.ai_ondevice_unavailable, it.lowercase().replace('_', ' ')) }
+                        ?: stringResource(R.string.ai_ondevice_ready),
                     style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
                 )
             }

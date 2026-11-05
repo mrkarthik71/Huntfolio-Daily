@@ -44,12 +44,11 @@ object NumberTokens {
         return if (percent) "$s%" else s
     }
 
-    private fun clockTimes(text: String): Set<String> =
-        CLOCK.findAll(text).map { m ->
-            val h = m.groupValues[1].toInt()
-            val min = m.groupValues[2].toInt()
-            "%02d:%02d".format(h, min)
-        }.toSet()
+    private fun clockTimes(text: String): Set<String> = CLOCK.findAll(text).map { m ->
+        val h = m.groupValues[1].toInt()
+        val min = m.groupValues[2].toInt()
+        "%02d:%02d".format(h, min)
+    }.toSet()
 
     /** Spelled-out cardinals 0-9999 (e.g. "one thousand two hundred" -> "1200"). Best effort, no decimals. */
     private fun englishNumbers(text: String): Set<String> {
@@ -125,7 +124,17 @@ object DerivationRules {
         PromptType.WEEKLY_REVIEW,
         PromptType.MONTHLY_MONEY_REVIEW,
         -> Rule(mayRephraseText = true, numbersFromPayloadOnly = true, handlesFromPayloadOnly = true, placementsWithinFreeGaps = false)
-        PromptType.MAIL_CLASSIFIER -> Rule(mayRephraseText = true, numbersFromPayloadOnly = true, handlesFromPayloadOnly = true, placementsWithinFreeGaps = false)
-        PromptType.SMS_FALLBACK_PARSER -> Rule(mayRephraseText = false, numbersFromPayloadOnly = true, handlesFromPayloadOnly = false, placementsWithinFreeGaps = false)
+        PromptType.MAIL_CLASSIFIER -> Rule(
+            mayRephraseText = true,
+            numbersFromPayloadOnly = true,
+            handlesFromPayloadOnly = true,
+            placementsWithinFreeGaps = false,
+        )
+        PromptType.SMS_FALLBACK_PARSER -> Rule(
+            mayRephraseText = false,
+            numbersFromPayloadOnly = true,
+            handlesFromPayloadOnly = false,
+            placementsWithinFreeGaps = false,
+        )
     }
 }

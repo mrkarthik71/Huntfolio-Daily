@@ -1,18 +1,16 @@
 package app.assistant.ui.transfer
 
-import app.assistant.R
-import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,14 +26,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import app.assistant.domain.model.GoalPeriod
-import app.assistant.domain.model.Quantity
+import app.assistant.R
 import app.assistant.domain.career.HuntfolioRecord
 import app.assistant.domain.career.SkillChoice
+import app.assistant.domain.model.GoalPeriod
+import app.assistant.domain.model.Quantity
 import app.assistant.ui.designsystem.CredCard
 import app.assistant.ui.designsystem.SectionHeader
 
@@ -61,7 +61,13 @@ fun DataTransferScreen(onBack: () -> Unit, viewModel: DataTransferViewModel = hi
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.transfer_title)) }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) } }) },
+        topBar = {
+            TopAppBar(title = {
+                Text(stringResource(R.string.transfer_title))
+            }, navigationIcon = {
+                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
+            })
+        },
     ) { padding ->
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(16.dp),
@@ -73,10 +79,15 @@ fun DataTransferScreen(onBack: () -> Unit, viewModel: DataTransferViewModel = hi
                     TextButton(onClick = { importPicker.launch("application/json") }) { Text("Choose a Huntfolio file") }
                     ui.importError?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                     ui.preview?.let { p ->
-                        Text("${p.followUps} follow-ups (${p.followUpsAlreadyImported} already imported), ${p.skills} skills.", style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            "${p.followUps} follow-ups (${p.followUpsAlreadyImported} already imported), ${p.skills} skills.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                         SkillSelection(ui, viewModel)
                     }
-                    ui.importResult?.let { r -> Text("Imported: ${r.tasksCreated} tasks, ${r.goalsCreated} goals, ${r.skipped} skipped.", style = MaterialTheme.typography.bodyMedium) }
+                    ui.importResult?.let { r ->
+                        Text("Imported: ${r.tasksCreated} tasks, ${r.goalsCreated} goals, ${r.skipped} skipped.", style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
 
@@ -84,8 +95,16 @@ fun DataTransferScreen(onBack: () -> Unit, viewModel: DataTransferViewModel = hi
             CredCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.transfer_backup_body), style = MaterialTheme.typography.bodySmall)
-                    OutlinedTextField(exportPass, { exportPass = it }, label = { Text(stringResource(R.string.transfer_passphrase)) }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(exportRepeat, { exportRepeat = it }, label = { Text(stringResource(R.string.transfer_passphrase_repeat)) }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(exportPass, {
+                        exportPass = it
+                    }, label = {
+                        Text(stringResource(R.string.transfer_passphrase))
+                    }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(exportRepeat, {
+                        exportRepeat = it
+                    }, label = {
+                        Text(stringResource(R.string.transfer_passphrase_repeat))
+                    }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
                     ui.passphraseError?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                     TextButton(enabled = !ui.busy, onClick = { exportPicker.launch("assistant-backup.paa") }) { Text(stringResource(R.string.transfer_export)) }
                     if (ui.exportDone) Text(stringResource(R.string.transfer_export_done), style = MaterialTheme.typography.bodySmall)
@@ -96,7 +115,11 @@ fun DataTransferScreen(onBack: () -> Unit, viewModel: DataTransferViewModel = hi
             CredCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(stringResource(R.string.transfer_restore_body), style = MaterialTheme.typography.bodySmall)
-                    OutlinedTextField(restorePass, { restorePass = it }, label = { Text(stringResource(R.string.transfer_restore_passphrase)) }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(restorePass, {
+                        restorePass = it
+                    }, label = {
+                        Text(stringResource(R.string.transfer_restore_passphrase))
+                    }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
                     TextButton(enabled = !ui.busy, onClick = { restorePicker.launch("*/*") }) { Text(stringResource(R.string.transfer_restore_choose)) }
                     ui.backupError?.let { Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                     if (ui.restoreDone) Text(stringResource(R.string.transfer_restore_done), style = MaterialTheme.typography.bodySmall)

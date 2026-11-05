@@ -1,11 +1,11 @@
 package app.assistant.data.backup
 
-import app.assistant.domain.port.ExportInfo
-import app.assistant.domain.port.BackupManager
-import app.assistant.domain.port.BackupError
 import android.content.Context
 import app.assistant.domain.error.Outcome
+import app.assistant.domain.port.BackupError
+import app.assistant.domain.port.BackupManager
 import app.assistant.domain.port.DispatcherProvider
+import app.assistant.domain.port.ExportInfo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayInputStream
@@ -38,7 +38,16 @@ class AndroidBackupManager @Inject constructor(
         val temp = File.createTempFile("export", ".tmp", context.cacheDir)
         try {
             val salt = ByteArray(ExportHeader.SALT_BYTES).also { SecureRandom().nextBytes(it) }
-            val header = ExportHeader(ExportHeader.MAGIC, ExportHeader.VERSION, ExportHeader.KDF, ExportHeader.ARGON_MEMORY_KIB, ExportHeader.ARGON_PASSES, salt, ExportHeader.AEAD)
+            val header =
+                ExportHeader(
+                    ExportHeader.MAGIC,
+                    ExportHeader.VERSION,
+                    ExportHeader.KDF,
+                    ExportHeader.ARGON_MEMORY_KIB,
+                    ExportHeader.ARGON_PASSES,
+                    salt,
+                    ExportHeader.AEAD,
+                )
             val key = BackupCrypto.deriveKey(passphrase, salt, header.argonMemoryKib, header.argonPasses)
             try {
                 temp.outputStream().use { file ->
@@ -106,7 +115,15 @@ class AndroidBackupManager @Inject constructor(
     }
 
     private fun readHeader(input: InputStream): ExportHeader? {
-        val len = ByteArray(4).let { if (input.read(it) != 4) return null else (it[0].toInt() and 0xff shl 24) or (it[1].toInt() and 0xff shl 16) or (it[2].toInt() and 0xff shl 8) or (it[3].toInt() and 0xff) }
+        val len = ByteArray(4).let {
+            if (input.read(it) !=
+                4
+            ) {
+                return null
+            } else {
+                (it[0].toInt() and 0xff shl 24) or (it[1].toInt() and 0xff shl 16) or (it[2].toInt() and 0xff shl 8) or (it[3].toInt() and 0xff)
+            }
+        }
         if (len <= 0 || len > MAX_HEADER) return null
         val bytes = ByteArray(len)
         if (input.read(bytes) != len) return null
@@ -126,9 +143,15 @@ class AndroidBackupManager @Inject constructor(
     private suspend fun zipPayload(): InputStream {
         val buffer = ByteArrayOutputStream()
         ZipOutputStream(buffer).use { zip ->
-            zip.putNextEntry(ZipEntry(DATA_ENTRY)); data.dumpData(zip); zip.closeEntry()
-            zip.putNextEntry(ZipEntry(SETTINGS_ENTRY)); zip.write(data.dumpSettings()); zip.closeEntry()
-            zip.putNextEntry(ZipEntry(REFKEY_ENTRY)); zip.write(data.dumpRefKey()); zip.closeEntry()
+            zip.putNextEntry(ZipEntry(DATA_ENTRY))
+            data.dumpData(zip)
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry(SETTINGS_ENTRY))
+            zip.write(data.dumpSettings())
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry(REFKEY_ENTRY))
+            zip.write(data.dumpRefKey())
+            zip.closeEntry()
         }
         return ByteArrayInputStream(buffer.toByteArray())
     }

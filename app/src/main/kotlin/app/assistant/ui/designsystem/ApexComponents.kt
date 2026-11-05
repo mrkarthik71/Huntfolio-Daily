@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -99,7 +99,14 @@ fun ApexProgressBar(progress: Float, color: Color, modifier: Modifier = Modifier
 
 /** A progress ring that draws itself in on first show, with the percent in its centre. */
 @Composable
-fun ProgressRing(progress: Float, label: String, modifier: Modifier = Modifier, size: Dp = 64.dp, color: Color = MaterialTheme.colorScheme.primary, track: Color = MaterialTheme.colorScheme.primaryContainer) {
+fun ProgressRing(
+    progress: Float,
+    label: String,
+    modifier: Modifier = Modifier,
+    size: Dp = 64.dp,
+    color: Color = MaterialTheme.colorScheme.primary,
+    track: Color = MaterialTheme.colorScheme.primaryContainer,
+) {
     val p = animatedProgress(progress.coerceIn(0f, 1f))
     Box(modifier.size(size).semantics { contentDescription = label }, contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(size)) {
@@ -116,15 +123,33 @@ fun ProgressRing(progress: Float, label: String, modifier: Modifier = Modifier, 
 /** The focus-now hero: what you should be doing, how long is left, and a few facts about the day. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FocusHero(eyebrow: String, title: String, subtitle: String?, progress: Float?, facts: List<String>, modifier: Modifier = Modifier, accent: Color = MaterialTheme.colorScheme.primary) {
+fun FocusHero(
+    eyebrow: String,
+    title: String,
+    subtitle: String?,
+    progress: Float?,
+    facts: List<String>,
+    modifier: Modifier = Modifier,
+    accent: Color = MaterialTheme.colorScheme.primary,
+) {
     HeroCard(modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(Modifier.size(8.dp).clip(CircleShape).background(accent))
                 Eyebrow(eyebrow, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f))
             }
-            Text(title, style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onPrimaryContainer, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f))
+            Text(
+                title,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (subtitle !=
+                null
+            ) {
+                Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f))
+            }
             if (progress != null) ApexProgressBar(progress, accent, track = MaterialTheme.colorScheme.surfaceContainerHighest)
             if (facts.isNotEmpty()) {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) { facts.forEach { FactChip(it) } }
@@ -135,7 +160,17 @@ fun FocusHero(eyebrow: String, title: String, subtitle: String?, progress: Float
 
 /** A heads-up card from the proactive agent, with its reason one tap away and nothing applied until accepted. */
 @Composable
-fun ProactiveCardView(title: String, body: String, acceptLabel: String?, dismissLabel: String, whyLabel: String, why: String, onAccept: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+fun ProactiveCardView(
+    title: String,
+    body: String,
+    acceptLabel: String?,
+    dismissLabel: String,
+    whyLabel: String,
+    why: String,
+    onAccept: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val showWhy = androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
     Column(
         modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(EnergyColors.WarningSurface)
@@ -161,7 +196,14 @@ fun ProactiveCardView(title: String, body: String, acceptLabel: String?, dismiss
 
 /** A compact pill button with a press-scale. */
 @Composable
-fun PillButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, container: Color = MaterialTheme.colorScheme.onBackground, content: Color = MaterialTheme.colorScheme.background, border: Color? = null) {
+fun PillButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    container: Color = MaterialTheme.colorScheme.onBackground,
+    content: Color = MaterialTheme.colorScheme.background,
+    border: Color? = null,
+) {
     val interaction = remember { MutableInteractionSource() }
     Box(
         modifier.pressScale(interaction).heightIn(min = 44.dp).clip(CircleShape).background(container)
@@ -195,9 +237,35 @@ fun TimelineRow(
     val shape = RoundedCornerShape(18.dp)
     Row(
         modifier.fillMaxWidth().pressScale(interaction).clip(shape)
-            .background(if (isNow) scheme.primaryContainer else if (dashed) Color.Transparent else scheme.surface)
-            .border(1.dp, if (isNow) scheme.primary.copy(alpha = 0.35f) else if (dashed) scheme.outline else Color.Transparent, shape)
-            .let { if (onClick != null) it.clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), onClick = onClick) else it }
+            .background(
+                if (isNow) {
+                    scheme.primaryContainer
+                } else if (dashed) {
+                    Color.Transparent
+                } else {
+                    scheme.surface
+                },
+            )
+            .border(
+                1.dp,
+                if (isNow) {
+                    scheme.primary.copy(alpha = 0.35f)
+                } else if (dashed) {
+                    scheme.outline
+                } else {
+                    Color.Transparent
+                },
+                shape,
+            )
+            .let {
+                if (onClick !=
+                    null
+                ) {
+                    it.clickable(interactionSource = interaction, indication = androidx.compose.material3.ripple(), onClick = onClick)
+                } else {
+                    it
+                }
+            }
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -211,12 +279,22 @@ fun TimelineRow(
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
-                color = if (done) scheme.onSurfaceVariant else if (isNow) scheme.onPrimaryContainer else scheme.onSurface,
+                color = if (done) {
+                    scheme.onSurfaceVariant
+                } else if (isNow) {
+                    scheme.onPrimaryContainer
+                } else {
+                    scheme.onSurface
+                },
                 textDecoration = if (done) TextDecoration.LineThrough else null,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = if (isNow) scheme.onPrimaryContainer.copy(alpha = 0.8f) else scheme.onSurfaceVariant)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = if (isNow) scheme.onPrimaryContainer.copy(alpha = 0.8f) else scheme.onSurfaceVariant,
+            )
         }
         if (done) Icon(Icons.Filled.Check, contentDescription = null, tint = EnergyColors.Physical, modifier = Modifier.size(20.dp))
         trailing?.invoke()
@@ -226,7 +304,10 @@ fun TimelineRow(
 /** A stat block for hero rows: caption over a number. */
 @Composable
 fun MiniStat(caption: String, value: String, modifier: Modifier = Modifier) {
-    Column(modifier.clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.background).padding(10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    Column(
+        modifier.clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.background).padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+    ) {
         Text(caption, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(value, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
     }

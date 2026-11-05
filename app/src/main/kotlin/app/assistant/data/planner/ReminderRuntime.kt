@@ -118,7 +118,17 @@ class ReminderRuntime @Inject constructor(
         val now = time.now()
         val local = now.atZone(zone)
         dao.activeReminders(ReminderKind.DEVICE.name).forEach { r ->
-            if (ReminderRules.deviceFires(r.toRule(), trigger, local.toLocalTime(), local.toLocalDate(), r.lastFiredAt?.let(Instant::ofEpochMilli), zone)) fire(r)
+            if (ReminderRules.deviceFires(
+                    r.toRule(),
+                    trigger,
+                    local.toLocalTime(),
+                    local.toLocalDate(),
+                    r.lastFiredAt?.let(Instant::ofEpochMilli),
+                    zone,
+                )
+            ) {
+                fire(r)
+            }
         }
     }
 
@@ -174,11 +184,8 @@ private fun SmartReminderEntity.toRule() = app.assistant.domain.model.SmartRemin
 )
 
 @HiltWorker
-class TimeReminderWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
-    private val runtime: ReminderRuntime,
-) : CoroutineWorker(context, params) {
+class TimeReminderWorker @AssistedInject constructor(@Assisted context: Context, @Assisted params: WorkerParameters, private val runtime: ReminderRuntime) :
+    CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         runCatching { runtime.fireTime(inputData.getLong(ReminderRuntime.KEY_ID, -1)) }
         return Result.success()
@@ -217,9 +224,15 @@ class ReminderEventReceiver : BroadcastReceiver() {
                         intent.getBooleanExtra(LocationManager.KEY_PROXIMITY_ENTERING, true),
                     )
                     android.bluetooth.BluetoothDevice.ACTION_ACL_CONNECTED -> {
-                        val device = androidx.core.content.IntentCompat.getParcelableExtra(intent, android.bluetooth.BluetoothDevice.EXTRA_DEVICE, android.bluetooth.BluetoothDevice::class.java)
+                        val device = androidx.core.content.IntentCompat.getParcelableExtra(
+                            intent,
+                            android.bluetooth.BluetoothDevice.EXTRA_DEVICE,
+                            android.bluetooth.BluetoothDevice::class.java,
+                        )
                         val cls = runCatching { device?.bluetoothClass?.deviceClass }.getOrNull()
-                        val car = cls == android.bluetooth.BluetoothClass.Device.AUDIO_VIDEO_CAR_AUDIO || cls == android.bluetooth.BluetoothClass.Device.AUDIO_VIDEO_HANDSFREE
+                        val car =
+                            cls == android.bluetooth.BluetoothClass.Device.AUDIO_VIDEO_CAR_AUDIO ||
+                                cls == android.bluetooth.BluetoothClass.Device.AUDIO_VIDEO_HANDSFREE
                         if (car) runtime.onDevice(DeviceTrigger.CAR_BLUETOOTH)
                     }
                 }

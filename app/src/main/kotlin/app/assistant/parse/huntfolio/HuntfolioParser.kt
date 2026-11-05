@@ -1,10 +1,10 @@
 package app.assistant.parse.huntfolio
 
-import app.assistant.domain.career.HuntfolioRecordType
-import app.assistant.domain.career.HuntfolioRecord
-import app.assistant.domain.career.HuntfolioImport
-import app.assistant.domain.career.HuntfolioError
 import app.assistant.domain.career.HUNTFOLIO_FORMAT_VERSION
+import app.assistant.domain.career.HuntfolioError
+import app.assistant.domain.career.HuntfolioImport
+import app.assistant.domain.career.HuntfolioRecord
+import app.assistant.domain.career.HuntfolioRecordType
 import app.assistant.domain.error.Outcome
 import java.time.LocalDate
 
@@ -57,7 +57,12 @@ object HuntfolioFormatter {
     fun format(import: HuntfolioImport): List<HuntfolioParser.Row> = import.records.map { record ->
         when (record) {
             is HuntfolioRecord.FollowUp -> HuntfolioParser.Row(
-                linkedMapOf("type" to HuntfolioRecordType.FOLLOW_UP.name, "key" to record.key, "title" to record.title, "due_date" to record.dueDate?.toString()),
+                linkedMapOf(
+                    "type" to HuntfolioRecordType.FOLLOW_UP.name,
+                    "key" to record.key,
+                    "title" to record.title,
+                    "due_date" to record.dueDate?.toString(),
+                ),
             )
             is HuntfolioRecord.Skill -> HuntfolioParser.Row(
                 linkedMapOf("type" to HuntfolioRecordType.SKILL.name, "key" to record.key, "name" to record.name),

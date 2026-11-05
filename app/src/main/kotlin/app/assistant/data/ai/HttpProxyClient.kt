@@ -1,9 +1,9 @@
 package app.assistant.data.ai
 
-import app.assistant.domain.port.ProxyClient
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.port.AiFailure
+import app.assistant.domain.port.ProxyClient
 import app.assistant.security.keys.KeyManager
 import app.assistant.security.network.EgressPolicy
 import app.assistant.security.network.HttpClientFactory
@@ -21,12 +21,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
  * Optional certificate pinning with a backup pin is applied by the OkHttp client when the host and
  * pins are configured; the egress interceptor still runs first.
  */
-class HttpProxyClient(
-    private val endpointUrl: String,
-    private val holder: DatabaseHolder,
-    private val keyManager: KeyManager,
-    policy: EgressPolicy,
-) : ProxyClient {
+class HttpProxyClient(private val endpointUrl: String, private val holder: DatabaseHolder, private val keyManager: KeyManager, policy: EgressPolicy) :
+    ProxyClient {
     private val client = HttpClientFactory.create(policy)
 
     override suspend fun forward(model: String?, body: String): Outcome<String, AiFailure> {

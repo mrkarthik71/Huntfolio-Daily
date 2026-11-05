@@ -1,6 +1,5 @@
 package app.assistant.domain.career
 
-import app.assistant.domain.error.Outcome
 import java.time.LocalDate
 
 /**

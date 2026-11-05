@@ -1,16 +1,14 @@
 package app.assistant.ui.health
 
-import app.assistant.R
-import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,9 +20,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.assistant.R
 import app.assistant.domain.engine.health.HealthRules
 import app.assistant.ui.designsystem.CredCard
 import app.assistant.ui.designsystem.SectionHeader
@@ -40,7 +40,13 @@ fun HealthScreen(onBack: () -> Unit, viewModel: HealthViewModel = hiltViewModel(
     val ui by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text(stringResource(R.string.health_title)) }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) } }) },
+        topBar = {
+            TopAppBar(title = {
+                Text(stringResource(R.string.health_title))
+            }, navigationIcon = {
+                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
+            })
+        },
     ) { padding ->
         Column(
             Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(padding).padding(16.dp),
@@ -53,7 +59,9 @@ fun HealthScreen(onBack: () -> Unit, viewModel: HealthViewModel = hiltViewModel(
 
             SectionHeader(stringResource(R.string.health_attention).uppercase())
             ui.problems.forEach { problem ->
-                CredCard { Column(Modifier.fillMaxWidth().padding(16.dp)) { Text(stringResource(describe(problem)), style = MaterialTheme.typography.bodyMedium) } }
+                CredCard {
+                    Column(Modifier.fillMaxWidth().padding(16.dp)) { Text(stringResource(describe(problem)), style = MaterialTheme.typography.bodyMedium) }
+                }
             }
 
             if (HealthRules.Problem.JOB_MISSED in ui.problems) {

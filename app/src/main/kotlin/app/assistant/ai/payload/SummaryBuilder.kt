@@ -1,14 +1,14 @@
 package app.assistant.ai.payload
 
-import app.assistant.domain.port.MessageFacts
-import app.assistant.domain.port.ReviewFacts
 import app.assistant.ai.output.OutputContext
 import app.assistant.domain.engine.redact.RedactionError
 import app.assistant.domain.engine.redact.RedactionPatterns
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.PromptType
+import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.RedactedPayload
 import app.assistant.domain.port.RedactedText
+import app.assistant.domain.port.ReviewFacts
 
 /**
  * Builds the [RedactedPayload] for each Prompt_Type from the feature's own facts (Requirement 46,
@@ -55,7 +55,11 @@ class SummaryBuilder(private val patterns: RedactionPatterns) {
             }
             lists["free_gaps"] = gapTexts
             // The numeric window is itself a fact the model may echo; carry it as structured numbers.
-            facts.gaps.forEachIndexed { i, g -> fields["gap${i}_start"] = RedactedText.opaqueHandle(g.startMinute.toString()); fields["gap${i}_end"] = RedactedText.opaqueHandle(g.endMinute.toString()) }
+            facts.gaps.forEachIndexed { i, g ->
+                fields["gap${i}_start"] = RedactedText.opaqueHandle(g.startMinute.toString())
+                fields["gap${i}_end"] =
+                    RedactedText.opaqueHandle(g.endMinute.toString())
+            }
         }
 
         return finish(type, fields, lists, handles, gapRanges)

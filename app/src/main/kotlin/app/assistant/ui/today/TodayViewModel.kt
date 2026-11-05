@@ -2,12 +2,6 @@ package app.assistant.ui.today
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.domain.port.AdviceGap
-import app.assistant.domain.port.AdviceItem
-import app.assistant.domain.port.AdviceUnavailable
-import app.assistant.domain.port.Advisor
-import app.assistant.domain.port.ReviewAdvice
-import app.assistant.domain.port.ReviewFacts
 import app.assistant.domain.engine.bills.BillOccurrence
 import app.assistant.domain.engine.calendar.ConflictDetector
 import app.assistant.domain.engine.calendar.FocusBlockProposal
@@ -24,10 +18,16 @@ import app.assistant.domain.model.TaskStatus
 import app.assistant.domain.model.TimeBlock
 import app.assistant.domain.model.TimeBlockId
 import app.assistant.domain.model.TimedEvent
+import app.assistant.domain.port.AdviceGap
+import app.assistant.domain.port.AdviceItem
+import app.assistant.domain.port.AdviceUnavailable
+import app.assistant.domain.port.Advisor
 import app.assistant.domain.port.BillRepository
 import app.assistant.domain.port.CalendarRepository
 import app.assistant.domain.port.GoalRepository
 import app.assistant.domain.port.PlanRepository
+import app.assistant.domain.port.ReviewAdvice
+import app.assistant.domain.port.ReviewFacts
 import app.assistant.domain.port.SettingsStore
 import app.assistant.domain.port.TaskRepository
 import app.assistant.domain.port.TimeSource
@@ -177,8 +177,11 @@ class TodayViewModel @Inject constructor(
 
     /** The screen observes this: the rule-based plan, with AI wording layered on top once it arrives. */
     val uiState: StateFlow<TodayUi> = combine(state, aiAdvice) { base, ai ->
-        if (base.date == null) base
-        else base.copy(aiSummary = ai.summary, aiSuggestions = ai.suggestions, aiUnavailable = ai.unavailable)
+        if (base.date == null) {
+            base
+        } else {
+            base.copy(aiSummary = ai.summary, aiSuggestions = ai.suggestions, aiUnavailable = ai.unavailable)
+        }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TodayUi())
 
     private data class AiOverlay(val summary: String? = null, val suggestions: List<AiSuggestionRow> = emptyList(), val unavailable: Boolean = false)

@@ -54,7 +54,15 @@ class SubscriptionsScreenTest {
 
     @Test
     fun confirmingAProposal_movesItToActive() {
-        val proposal = FakeSubscriptionRepository.view(7, "StreamFlix", Paise(14_900), SubscriptionInterval.MONTHLY, today.plusDays(4), today, SubscriptionStatus.PROPOSED)
+        val proposal = FakeSubscriptionRepository.view(
+            7,
+            "StreamFlix",
+            Paise(14_900),
+            SubscriptionInterval.MONTHLY,
+            today.plusDays(4),
+            today,
+            SubscriptionStatus.PROPOSED,
+        )
         val repository = FakeSubscriptionRepository(today, proposals = listOf(proposal))
         show(repository)
 

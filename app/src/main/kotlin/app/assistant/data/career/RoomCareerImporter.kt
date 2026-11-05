@@ -5,16 +5,16 @@ import app.assistant.data.db.DatabaseHolder
 import app.assistant.data.db.entity.GoalEntity
 import app.assistant.data.db.entity.ImportRecordEntity
 import app.assistant.data.db.entity.TaskEntity
-import app.assistant.domain.model.DataSource
-import app.assistant.domain.model.TaskStatus
-import app.assistant.domain.port.AuditLog
-import app.assistant.domain.port.TimeSource
 import app.assistant.domain.career.CareerImporter
 import app.assistant.domain.career.HuntfolioImport
 import app.assistant.domain.career.HuntfolioRecord
 import app.assistant.domain.career.ImportPreview
 import app.assistant.domain.career.ImportResult
 import app.assistant.domain.career.SkillChoice
+import app.assistant.domain.model.DataSource
+import app.assistant.domain.model.TaskStatus
+import app.assistant.domain.port.AuditLog
+import app.assistant.domain.port.TimeSource
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,11 +25,7 @@ import javax.inject.Singleton
  * Audit_Log read entry. Re-importing the same file is a no-op (Property 78).
  */
 @Singleton
-class RoomCareerImporter @Inject constructor(
-    private val holder: DatabaseHolder,
-    private val audit: AuditLog,
-    private val time: TimeSource,
-) : CareerImporter {
+class RoomCareerImporter @Inject constructor(private val holder: DatabaseHolder, private val audit: AuditLog, private val time: TimeSource) : CareerImporter {
 
     override suspend fun preview(import: HuntfolioImport): ImportPreview {
         val known = holder.database().importRecordDao().allKeys().toHashSet()

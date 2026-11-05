@@ -14,44 +14,23 @@ import kotlinx.serialization.json.Json
 
 /** A proposed change the user can accept or dismiss; at most [MAX_SUGGESTIONS] per output. */
 @Serializable
-data class SuggestionDto(
-    val text: String,
-    val reason: String,
-)
+data class SuggestionDto(val text: String, val reason: String)
 
 /** A plan line: an opaque task handle placed in a time window, both from the payload. */
 @Serializable
-data class PlacementDto(
-    @SerialName("task") val taskHandle: String,
-    @SerialName("start") val startMinute: Int,
-    @SerialName("end") val endMinute: Int,
-)
+data class PlacementDto(@SerialName("task") val taskHandle: String, @SerialName("start") val startMinute: Int, @SerialName("end") val endMinute: Int)
 
 @Serializable
-data class DailyPlanOutput(
-    val summary: String,
-    val placements: List<PlacementDto> = emptyList(),
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class DailyPlanOutput(val summary: String, val placements: List<PlacementDto> = emptyList(), val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
-data class EveningReviewOutput(
-    val summary: String,
-    val encouragement: String = "",
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class EveningReviewOutput(val summary: String, val encouragement: String = "", val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
-data class WeeklyReviewOutput(
-    val summary: String,
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class WeeklyReviewOutput(val summary: String, val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
-data class MonthlyMoneyReviewOutput(
-    val summary: String,
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class MonthlyMoneyReviewOutput(val summary: String, val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
 data class MailClassifierOutput(

@@ -1,10 +1,10 @@
 package app.assistant.ai.cloud
 
-import app.assistant.domain.port.ProxyClient
-import app.assistant.domain.port.CloudKeySource
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.port.AiFailure
+import app.assistant.domain.port.CloudKeySource
 import app.assistant.domain.port.ProviderRequest
+import app.assistant.domain.port.ProxyClient
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -16,12 +16,8 @@ import kotlinx.serialization.json.Json
  * host must be on the egress allow-list; the request carries only the redacted payload + prompt, and
  * the response is parsed strictly for the single assistant message, which the gateway then validates.
  */
-class OpenAiCompatibleProvider(
-    keySource: CloudKeySource,
-    transport: CloudTransport,
-    proxy: ProxyClient?,
-    private val defaultModel: String,
-) : CloudAiProvider(keySource, transport, proxy) {
+class OpenAiCompatibleProvider(keySource: CloudKeySource, transport: CloudTransport, proxy: ProxyClient?, private val defaultModel: String) :
+    CloudAiProvider(keySource, transport, proxy) {
 
     override fun buildRequestBody(request: ProviderRequest): String {
         val body = ChatRequest(
@@ -36,20 +32,22 @@ class OpenAiCompatibleProvider(
         return JSON.encodeToString(ChatRequest.serializer(), body)
     }
 
-    override fun extractText(responseJson: String): String =
-        runCatching { JSON.decodeFromString(ChatResponse.serializer(), responseJson) }
-            .getOrNull()
-            ?.choices
-            ?.firstOrNull()
-            ?.message
-            ?.content
-            .orEmpty()
+    override fun extractText(responseJson: String): String = runCatching { JSON.decodeFromString(ChatResponse.serializer(), responseJson) }
+        .getOrNull()
+        ?.choices
+        ?.firstOrNull()
+        ?.message
+        ?.content
+        .orEmpty()
 
     private fun renderPayload(request: ProviderRequest): String {
         val p = request.payload
         return buildString {
             p.fields.forEach { (k, v) -> append(k).append(": ").append(v.value).append('\n') }
-            p.lists.forEach { (k, v) -> append(k).append(":\n"); v.forEach { append("  - ").append(it.value).append('\n') } }
+            p.lists.forEach { (k, v) ->
+                append(k).append(":\n")
+                v.forEach { append("  - ").append(it.value).append('\n') }
+            }
         }
     }
 
@@ -74,7 +72,10 @@ class OpenAiCompatibleProvider(
     private data class Choice(val message: ChatMessage)
 
     private companion object {
-        val JSON = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+        val JSON = Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+        }
     }
 }
 
@@ -83,21 +84,18 @@ class OpenAiCompatibleProvider(
  * client, so a request to any host but the configured vendor is refused before it leaves the phone.
  * A non-2xx reply, a transport error or a timeout maps to the matching [AiFailure].
  */
-class OkHttpCloudTransport(
-    private val endpointUrl: String,
-    private val call: suspend (url: String, body: String, apiKey: String) -> HttpReply,
-) : CloudTransport {
-    override suspend fun post(model: String?, body: String, apiKey: String): Outcome<String, AiFailure> =
-        try {
-            val reply = call(endpointUrl, body, apiKey)
-            when {
-                reply.code in SUCCESS -> Outcome.Ok(reply.body)
-                reply.code == TOO_MANY_REQUESTS -> Outcome.Err(AiFailure.CAP_REACHED)
-                else -> Outcome.Err(AiFailure.TRANSPORT)
-            }
-        } catch (_: Exception) {
-            Outcome.Err(AiFailure.TRANSPORT)
+class OkHttpCloudTransport(private val endpointUrl: String, private val call: suspend (url: String, body: String, apiKey: String) -> HttpReply) :
+    CloudTransport {
+    override suspend fun post(model: String?, body: String, apiKey: String): Outcome<String, AiFailure> = try {
+        val reply = call(endpointUrl, body, apiKey)
+        when {
+            reply.code in SUCCESS -> Outcome.Ok(reply.body)
+            reply.code == TOO_MANY_REQUESTS -> Outcome.Err(AiFailure.CAP_REACHED)
+            else -> Outcome.Err(AiFailure.TRANSPORT)
         }
+    } catch (_: Exception) {
+        Outcome.Err(AiFailure.TRANSPORT)
+    }
 
     data class HttpReply(val code: Int, val body: String)
 

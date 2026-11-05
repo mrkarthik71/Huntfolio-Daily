@@ -1,8 +1,8 @@
 package app.assistant.data.career
 
-import app.assistant.domain.error.Outcome
 import app.assistant.domain.career.HuntfolioError
 import app.assistant.domain.career.HuntfolioImport
+import app.assistant.domain.error.Outcome
 import app.assistant.parse.huntfolio.HuntfolioParser
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException

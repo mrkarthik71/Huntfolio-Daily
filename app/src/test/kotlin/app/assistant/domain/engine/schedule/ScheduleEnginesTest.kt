@@ -4,10 +4,10 @@ import app.assistant.domain.model.CardKind
 import app.assistant.domain.model.EnergyTag
 import app.assistant.testing.PropertyDefaults
 import io.kotest.property.Arb
+import io.kotest.property.arbitrary.bind
 import io.kotest.property.arbitrary.element
 import io.kotest.property.arbitrary.int
 import io.kotest.property.arbitrary.list
-import io.kotest.property.arbitrary.bind
 import io.kotest.property.checkAll
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionParameters
@@ -14,6 +15,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
@@ -25,6 +27,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -42,9 +45,12 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 
 /** Day/night colours via the public glance.color factory (the unit/resource overloads are restricted). */
-private val OnBg = ColorProvider(day = Color(0xFF1C1B1F), night = Color(0xFFE6E1E5))
-private val Bg = ColorProvider(day = Color(0xFFFFFBFE), night = Color(0xFF1C1B1F))
-private val Muted = ColorProvider(day = Color(0xFF6B6B70), night = Color(0xFFA8A8AD))
+private val OnBg = ColorProvider(day = Color(0xFFF4F4F6), night = Color(0xFFF4F4F6))
+private val Bg = ColorProvider(day = Color(0xFF15151C), night = Color(0xFF15151C))
+private val Muted = ColorProvider(day = Color(0xFFA7A7B2), night = Color(0xFFA7A7B2))
+private val Accent = ColorProvider(day = Color(0xFFB7A8FF), night = Color(0xFFB7A8FF))
+private val Done = ColorProvider(day = Color(0xFF8FD6BA), night = Color(0xFF8FD6BA))
+private val Pill = ColorProvider(day = Color(0xFF2A2440), night = Color(0xFF2A2440))
 
 /** Hilt entry point for the widget and its action callbacks (Glance components are not @AndroidEntryPoint). */
 @EntryPoint
@@ -95,37 +101,50 @@ class TodayWidget : GlanceAppWidget() {
 
     @androidx.compose.runtime.Composable
     private fun WidgetContent(priorities: List<WidgetModel>, nextEvent: String?, openToday: Intent, openTasks: Intent) {
+        val ctx = androidx.glance.LocalContext.current
         Column(
-            modifier = GlanceModifier.fillMaxSize().background(Bg).padding(12.dp),
+            modifier = GlanceModifier.fillMaxSize().background(Bg).cornerRadius(24.dp).padding(16.dp),
         ) {
-            Row(modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(openToday))) {
-                Text("Today", style = TextStyle(color = OnBg, fontWeight = FontWeight.Bold))
+            Row(
+                modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(openToday)),
+                verticalAlignment = androidx.glance.layout.Alignment.CenterVertically,
+            ) {
+                Text(ctx.getString(app.assistant.R.string.widget_today), style = TextStyle(color = OnBg, fontWeight = FontWeight.Bold, fontSize = 18.sp))
+                Spacer(GlanceModifier.defaultWeight())
+                Text(ctx.getString(app.assistant.R.string.widget_open), style = TextStyle(color = Accent, fontSize = 12.sp))
             }
             Spacer(modifier = GlanceModifier.height(6.dp))
             if (nextEvent != null) {
-                Text(nextEvent, style = TextStyle(color = Muted))
-                Spacer(modifier = GlanceModifier.height(6.dp))
+                Text(ctx.getString(app.assistant.R.string.widget_next, nextEvent), style = TextStyle(color = Muted, fontSize = 13.sp), maxLines = 1)
+                Spacer(modifier = GlanceModifier.height(8.dp))
             }
             if (priorities.isEmpty()) {
-                Text("No priorities set", style = TextStyle(color = Muted))
+                Text(ctx.getString(app.assistant.R.string.widget_no_priorities), style = TextStyle(color = Muted))
             } else {
                 priorities.take(3).forEach { model ->
                     Row(
-                        modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp)
+                        modifier = GlanceModifier.fillMaxWidth().padding(vertical = 4.dp)
                             .clickable(
                                 actionRunCallback<CompleteTaskAction>(
                                     actionParametersOf(CompleteTaskAction.TASK_ID to model.taskId),
                                 ),
                             ),
+                        verticalAlignment = androidx.glance.layout.Alignment.CenterVertically,
                     ) {
                         val mark = if (model.done) "\u2713" else "\u25CB"
-                        Text("$mark  ${model.title}", style = TextStyle(color = OnBg))
+                        Text(mark, style = TextStyle(color = if (model.done) Done else Accent, fontWeight = FontWeight.Bold))
+                        Spacer(GlanceModifier.width(10.dp))
+                        Text(model.title, style = TextStyle(color = if (model.done) Muted else OnBg, fontSize = 15.sp), maxLines = 1)
                     }
                 }
             }
-            Spacer(modifier = GlanceModifier.height(8.dp))
-            Row(modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(openTasks))) {
-                Text("+ Quick add", style = TextStyle(color = OnBg, fontWeight = FontWeight.Medium))
+            Spacer(modifier = GlanceModifier.defaultWeight())
+            Row(
+                modifier = GlanceModifier.fillMaxWidth().background(Pill).cornerRadius(999.dp).padding(horizontal = 14.dp, vertical = 10.dp)
+                    .clickable(actionStartActivity(openTasks)),
+                horizontalAlignment = androidx.glance.layout.Alignment.CenterHorizontally,
+            ) {
+                Text(ctx.getString(app.assistant.R.string.widget_quick_add), style = TextStyle(color = OnBg, fontWeight = FontWeight.Medium))
             }
         }
     }

@@ -6,7 +6,19 @@ import app.assistant.domain.error.fieldErrors
 import app.assistant.domain.model.AppSettings
 import java.time.Duration
 
-enum class SettingsField { LOCK_TIMEOUT, WORKING_HOURS, QUIET_HOURS, DAILY_CAP, PER_TYPE_LIMIT, MIN_FOCUS_LENGTH, EVENT_LEAD_TIME, AI_MONTHLY_CAP, MAIL_IMPORTANCE_THRESHOLD, MAIL_SNIPPET_LENGTH, MAIL_SYNC_INTERVAL }
+enum class SettingsField {
+    LOCK_TIMEOUT,
+    WORKING_HOURS,
+    QUIET_HOURS,
+    DAILY_CAP,
+    PER_TYPE_LIMIT,
+    MIN_FOCUS_LENGTH,
+    EVENT_LEAD_TIME,
+    AI_MONTHLY_CAP,
+    MAIL_IMPORTANCE_THRESHOLD,
+    MAIL_SNIPPET_LENGTH,
+    MAIL_SYNC_INTERVAL,
+}
 
 /**
  * Ranges for every setting. The settings store rejects an invalid update as a whole and keeps

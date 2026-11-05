@@ -1,9 +1,6 @@
 package app.assistant.data.mail
 
 import androidx.room.withTransaction
-import app.assistant.domain.port.Advisor
-import app.assistant.domain.port.MailAdvice
-import app.assistant.domain.port.MessageFacts
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.data.db.entity.InboxItemEntity
 import app.assistant.data.db.entity.MailCursorEntity
@@ -13,8 +10,11 @@ import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.DataSource
 import app.assistant.domain.model.MailCategory
 import app.assistant.domain.model.MailMessage
+import app.assistant.domain.port.Advisor
 import app.assistant.domain.port.AuditLog
+import app.assistant.domain.port.MailAdvice
 import app.assistant.domain.port.MailConnector
+import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.SettingsStore
 import app.assistant.domain.port.TimeSource
 import app.assistant.security.refs.SourceRefFactory
@@ -82,7 +82,13 @@ class MailSync @Inject constructor(
     }
 
     /** Returns null when the item already existed, true when stored+notified, false when stored only. */
-    private suspend fun scoreAndStore(message: MailMessage, rules: List<ShortlistRule>, threshold: Int, dao: app.assistant.data.db.dao.MailDao, db: app.assistant.data.db.AppDatabase): Boolean? {
+    private suspend fun scoreAndStore(
+        message: MailMessage,
+        rules: List<ShortlistRule>,
+        threshold: Int,
+        dao: app.assistant.data.db.dao.MailDao,
+        db: app.assistant.data.db.AppDatabase,
+    ): Boolean? {
         val h = message.header
         val ref = when (val r = refs.mail(accountId.value(), h.messageId, h.folder, h.uidValidity, h.uid)) {
             is Outcome.Ok -> r.value

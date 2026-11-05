@@ -41,12 +41,16 @@ class RoomPlannerRepository @Inject constructor(private val holder: DbProvider) 
     override fun allMilestones(): Flow<List<Milestone>> = dao.allMilestones().map { l -> l.map { it.toDomain() } }
 
     override fun goalWork(): Flow<List<app.assistant.domain.port.GoalWork>> = dao.goalWork().map { l ->
-        l.map { app.assistant.domain.port.GoalWork(TaskId(it.id), GoalId(it.goalId), it.milestoneId?.let(::MilestoneId), it.status == "DONE", it.estimateMinutes) }
+        l.map {
+            app.assistant.domain.port.GoalWork(TaskId(it.id), GoalId(it.goalId), it.milestoneId?.let(::MilestoneId), it.status == "DONE", it.estimateMinutes)
+        }
     }
 
     override suspend fun addMilestone(goal: GoalId, title: String, dueDate: LocalDate?, estimateMinutes: Int?): MilestoneId {
         val position = dao.nextPosition(goal.value)
-        return MilestoneId(dao.insertMilestone(MilestoneEntity(0, goal.value, title.trim().take(MAX_TITLE), position, dueDate?.toString(), estimateMinutes, null)))
+        return MilestoneId(
+            dao.insertMilestone(MilestoneEntity(0, goal.value, title.trim().take(MAX_TITLE), position, dueDate?.toString(), estimateMinutes, null)),
+        )
     }
 
     override suspend fun setMilestoneDone(id: MilestoneId, done: Boolean, now: Instant) {
@@ -117,7 +121,19 @@ class RoomPlannerRepository @Inject constructor(private val holder: DbProvider) 
     override suspend fun setCardStatus(id: CardId, status: CardStatus) = dao.setCardStatus(id.value, status.name)
 
     override suspend fun addProof(task: TaskId, kind: VerifyKind, link: String?, trackedSeconds: Int?, photoFile: String?, now: Instant) {
-        dao.insertVerification(TaskVerificationEntity(0, task.value, kind.name, link?.takeIf { it.startsWith("https://") }, trackedSeconds, photoFile, now.toEpochMilli()))
+        dao.insertVerification(
+            TaskVerificationEntity(
+                0,
+                task.value,
+                kind.name,
+                link?.takeIf {
+                    it.startsWith("https://")
+                },
+                trackedSeconds,
+                photoFile,
+                now.toEpochMilli(),
+            ),
+        )
     }
 
     private companion object {
@@ -130,7 +146,13 @@ class RoomPlannerRepository @Inject constructor(private val holder: DbProvider) 
 }
 
 private fun MilestoneEntity.toDomain() = Milestone(
-    MilestoneId(id), GoalId(goalId), title, position, dueDate?.let(LocalDate::parse), estimateMinutes, completedAt?.let(Instant::ofEpochMilli),
+    MilestoneId(id),
+    GoalId(goalId),
+    title,
+    position,
+    dueDate?.let(LocalDate::parse),
+    estimateMinutes,
+    completedAt?.let(Instant::ofEpochMilli),
 )
 
 private fun RoutineEntity.toDomain() = Routine(

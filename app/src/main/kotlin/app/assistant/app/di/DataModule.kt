@@ -38,6 +38,7 @@ import app.assistant.domain.port.MoneyAppStore
 import app.assistant.domain.port.NotificationLog
 import app.assistant.domain.port.NotificationScheduling
 import app.assistant.domain.port.PlanRepository
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.ReportRepository
 import app.assistant.domain.port.ReviewQueueRepository
 import app.assistant.domain.port.ReviewRepository
@@ -47,7 +48,6 @@ import app.assistant.domain.port.SourceDisconnect
 import app.assistant.domain.port.SourceStatusProvider
 import app.assistant.domain.port.TaskRepository
 import app.assistant.domain.port.TransactionRepository
-import app.assistant.domain.port.PostCommitHook
 import app.assistant.notify.AndroidNotificationScheduler
 import app.assistant.ui.permission.AndroidPermissionManager
 import app.assistant.ui.permission.PermissionManager

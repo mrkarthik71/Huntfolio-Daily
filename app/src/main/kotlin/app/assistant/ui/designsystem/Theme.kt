@@ -119,8 +119,22 @@ object AssistantType {
     )
 
     val typography = Typography(
-        displayLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-0.5).sp, lineHeightStyle = trim),
-        displayMedium = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.4).sp, lineHeightStyle = trim),
+        displayLarge = TextStyle(
+            fontFamily = display,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 44.sp,
+            lineHeight = 48.sp,
+            letterSpacing = (-0.5).sp,
+            lineHeightStyle = trim,
+        ),
+        displayMedium = TextStyle(
+            fontFamily = display,
+            fontWeight = FontWeight.ExtraBold,
+            fontSize = 34.sp,
+            lineHeight = 40.sp,
+            letterSpacing = (-0.4).sp,
+            lineHeightStyle = trim,
+        ),
         headlineLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.3).sp),
         headlineMedium = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 23.sp, lineHeight = 29.sp, letterSpacing = (-0.2).sp),
         titleLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 19.sp, lineHeight = 24.sp, letterSpacing = (-0.1).sp),

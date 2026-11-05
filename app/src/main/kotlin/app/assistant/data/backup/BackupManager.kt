@@ -1,6 +1,5 @@
 package app.assistant.data.backup
 
-import app.assistant.domain.error.Outcome
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -48,7 +47,6 @@ data class ExportHeader(
         const val SALT_BYTES = 16
     }
 }
-
 
 /**
  * Supplies and consumes the logical backup payload, so the Backup_Manager stays schema-agnostic.

@@ -1,8 +1,8 @@
 package app.assistant.ui.mail
 
-import app.assistant.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.assistant.R
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.MailError
 import app.assistant.domain.port.MailQualitySummary
@@ -41,10 +41,7 @@ data class MailUi(
 )
 
 @HiltViewModel
-class MailViewModel @Inject constructor(
-    private val mailbox: MailboxService,
-    private val settings: SettingsStore,
-) : ViewModel() {
+class MailViewModel @Inject constructor(private val mailbox: MailboxService, private val settings: SettingsStore) : ViewModel() {
 
     private val connected = MutableStateFlow(false)
     private val testing = MutableStateFlow(false)

@@ -1,12 +1,12 @@
 package app.assistant.app.di
 
-import app.assistant.domain.port.CloudKeySource
-import app.assistant.domain.port.CloudKeyWriter
-import app.assistant.domain.port.ProxyClient
 import app.assistant.data.ai.PersonalCloudKeySource
 import app.assistant.data.ai.PersonalCloudKeyWriter
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.port.AiFailure
+import app.assistant.domain.port.CloudKeySource
+import app.assistant.domain.port.CloudKeyWriter
+import app.assistant.domain.port.ProxyClient
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

@@ -19,11 +19,6 @@ interface CareerImporter {
 /** One skill the user chose to turn into a Goal, with its Goal_Period, target and unit (Requirement 59.4). */
 data class SkillChoice(val key: String, val period: GoalPeriod, val target: Quantity, val unit: String)
 
-data class ImportPreview(
-    val followUps: Int,
-    val skills: Int,
-    val followUpsAlreadyImported: Int,
-    val skillsAlreadyImported: Int,
-)
+data class ImportPreview(val followUps: Int, val skills: Int, val followUpsAlreadyImported: Int, val skillsAlreadyImported: Int)
 
 data class ImportResult(val tasksCreated: Int, val goalsCreated: Int, val skipped: Int)

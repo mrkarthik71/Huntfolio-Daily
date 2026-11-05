@@ -10,8 +10,4 @@ import androidx.room.PrimaryKey
  * settings, not here, so changing the cap never rewrites history.
  */
 @Entity(tableName = "ai_usage")
-data class AiUsageEntity(
-    @PrimaryKey val month: String,
-    val spentPaise: Long,
-    val attempts: Int,
-)
+data class AiUsageEntity(@PrimaryKey val month: String, val spentPaise: Long, val attempts: Int)

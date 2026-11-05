@@ -1,19 +1,19 @@
 package app.assistant.app.di
 
 import android.content.Context
+import app.assistant.R
 import app.assistant.data.mail.ImapMailConnector
 import app.assistant.data.mail.MailAccountId
 import app.assistant.data.mail.MailCredentialStore
 import app.assistant.data.mail.MailNotifier
 import app.assistant.data.mail.MailOtpPatterns
 import app.assistant.data.mail.SecretMailCredentialStore
-import app.assistant.domain.port.DispatcherProvider
-import app.assistant.domain.port.MailConnector
-import app.assistant.domain.port.SettingsStore
-import app.assistant.R
-import app.assistant.domain.port.ImmediateAlert
-import app.assistant.domain.port.NotificationScheduling
 import app.assistant.domain.model.NotificationType
+import app.assistant.domain.port.DispatcherProvider
+import app.assistant.domain.port.ImmediateAlert
+import app.assistant.domain.port.MailConnector
+import app.assistant.domain.port.NotificationScheduling
+import app.assistant.domain.port.SettingsStore
 import com.google.gson.JsonParser
 import dagger.Module
 import dagger.Provides

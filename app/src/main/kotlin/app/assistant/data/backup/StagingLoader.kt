@@ -39,7 +39,9 @@ object StagingLoader {
                         when {
                             el.isJsonNull -> values.putNull(name)
                             el.asJsonPrimitive.isNumber -> values.put(name, el.asLong)
-                            el.asString.endsWith(BLOB_TAG) -> values.put(name, android.util.Base64.decode(el.asString.removeSuffix(BLOB_TAG), android.util.Base64.NO_WRAP))
+                            el.asString.endsWith(
+                                BLOB_TAG,
+                            ) -> values.put(name, android.util.Base64.decode(el.asString.removeSuffix(BLOB_TAG), android.util.Base64.NO_WRAP))
                             else -> values.put(name, el.asString)
                         }
                     }

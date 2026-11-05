@@ -24,11 +24,7 @@ import app.assistant.domain.port.SmsAdvice
  * through the [AiGateway], and maps the validated output to domain advice. It never throws; any
  * failure becomes an Unavailable reason the screen turns into the "AI wording unavailable" line.
  */
-class GatewayAdvisor(
-    private val gateway: AiGateway,
-    private val builder: SummaryBuilder,
-    private val prompt: (PromptType) -> String?,
-) : Advisor {
+class GatewayAdvisor(private val gateway: AiGateway, private val builder: SummaryBuilder, private val prompt: (PromptType) -> String?) : Advisor {
 
     override suspend fun review(type: PromptType, facts: ReviewFacts): ReviewAdvice {
         val prompt = prompt(type) ?: return ReviewAdvice.Unavailable(AdviceUnavailable.NO_PROMPT)

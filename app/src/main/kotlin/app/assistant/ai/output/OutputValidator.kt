@@ -49,21 +49,26 @@ data class OutputContext(
  */
 class OutputValidator(private val restrictedAdvice: List<Regex>) {
 
-    fun validate(type: PromptType, json: String, context: OutputContext): Outcome<ValidatedOutput, OutputError> =
-        try {
-            when (type) {
-                PromptType.DAILY_PLAN -> dailyPlan(strictJson.decodeFromString(DailyPlanOutput.serializer(), json), context)
-                PromptType.EVENING_REVIEW -> strictJson.decodeFromString(EveningReviewOutput.serializer(), json).let { review(it.summary, it.suggestions, type, context) }
-                PromptType.WEEKLY_REVIEW -> strictJson.decodeFromString(WeeklyReviewOutput.serializer(), json).let { review(it.summary, it.suggestions, type, context) }
-                PromptType.MONTHLY_MONEY_REVIEW -> strictJson.decodeFromString(MonthlyMoneyReviewOutput.serializer(), json).let { review(it.summary, it.suggestions, type, context) }
-                PromptType.MAIL_CLASSIFIER -> mail(strictJson.decodeFromString(MailClassifierOutput.serializer(), json), context)
-                PromptType.SMS_FALLBACK_PARSER -> sms(strictJson.decodeFromString(SmsFallbackOutput.serializer(), json), context)
+    fun validate(type: PromptType, json: String, context: OutputContext): Outcome<ValidatedOutput, OutputError> = try {
+        when (type) {
+            PromptType.DAILY_PLAN -> dailyPlan(strictJson.decodeFromString(DailyPlanOutput.serializer(), json), context)
+            PromptType.EVENING_REVIEW -> strictJson.decodeFromString(EveningReviewOutput.serializer(), json).let {
+                review(it.summary, it.suggestions, type, context)
             }
-        } catch (_: SerializationException) {
-            Outcome.Err(OutputError.MALFORMED)
-        } catch (_: IllegalArgumentException) {
-            Outcome.Err(OutputError.MALFORMED)
+            PromptType.WEEKLY_REVIEW -> strictJson.decodeFromString(WeeklyReviewOutput.serializer(), json).let {
+                review(it.summary, it.suggestions, type, context)
+            }
+            PromptType.MONTHLY_MONEY_REVIEW -> strictJson.decodeFromString(MonthlyMoneyReviewOutput.serializer(), json).let {
+                review(it.summary, it.suggestions, type, context)
+            }
+            PromptType.MAIL_CLASSIFIER -> mail(strictJson.decodeFromString(MailClassifierOutput.serializer(), json), context)
+            PromptType.SMS_FALLBACK_PARSER -> sms(strictJson.decodeFromString(SmsFallbackOutput.serializer(), json), context)
         }
+    } catch (_: SerializationException) {
+        Outcome.Err(OutputError.MALFORMED)
+    } catch (_: IllegalArgumentException) {
+        Outcome.Err(OutputError.MALFORMED)
+    }
 
     private fun dailyPlan(dto: DailyPlanOutput, ctx: OutputContext): Outcome<ValidatedOutput, OutputError> {
         checkText(dto.summary, OutputLimits.MAX_SUMMARY, ctx)?.let { return Outcome.Err(it) }
@@ -148,7 +153,10 @@ object OutputSerializer {
         is ValidatedOutput.DailyPlan -> strictJson.encodeToString(DailyPlanOutput.serializer(), output.output)
         is ValidatedOutput.Review -> when (output.type) {
             PromptType.WEEKLY_REVIEW -> strictJson.encodeToString(WeeklyReviewOutput.serializer(), WeeklyReviewOutput(output.summary, output.suggestions))
-            PromptType.MONTHLY_MONEY_REVIEW -> strictJson.encodeToString(MonthlyMoneyReviewOutput.serializer(), MonthlyMoneyReviewOutput(output.summary, output.suggestions))
+            PromptType.MONTHLY_MONEY_REVIEW -> strictJson.encodeToString(
+                MonthlyMoneyReviewOutput.serializer(),
+                MonthlyMoneyReviewOutput(output.summary, output.suggestions),
+            )
             else -> strictJson.encodeToString(EveningReviewOutput.serializer(), EveningReviewOutput(output.summary, suggestions = output.suggestions))
         }
         is ValidatedOutput.Mail -> strictJson.encodeToString(MailClassifierOutput.serializer(), output.output)

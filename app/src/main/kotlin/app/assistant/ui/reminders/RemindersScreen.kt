@@ -93,7 +93,14 @@ fun RemindersScreen(onBack: () -> Unit, viewModel: RemindersViewModel = hiltView
                 Column(Modifier.weight(1f)) {
                     Text(
                         if (ui.quietStart != null && ui.quietEnd != null) {
-                            stringResource(R.string.reminders_summary_quiet, ui.reminders.count { it.active }, formatTime(ui.quietStart!!), formatTime(ui.quietEnd!!))
+                            stringResource(
+                                R.string.reminders_summary_quiet,
+                                ui.reminders.count {
+                                    it.active
+                                },
+                                formatTime(ui.quietStart!!),
+                                formatTime(ui.quietEnd!!),
+                            )
                         } else {
                             stringResource(R.string.reminders_summary, ui.reminders.count { it.active })
                         },
@@ -196,7 +203,14 @@ private fun ReminderRow(r: SmartReminder, subtitle: String, onToggle: (Boolean) 
             Text(r.message, style = MaterialTheme.typography.titleMedium)
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        IconButton(onClick = onDelete) { Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.reminders_delete), tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp)) }
+        IconButton(onClick = onDelete) {
+            Icon(
+                Icons.Outlined.Delete,
+                contentDescription = stringResource(R.string.reminders_delete),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
+            )
+        }
         Switch(checked = r.active, onCheckedChange = onToggle)
     }
 }
@@ -209,7 +223,9 @@ private fun sectionTitle(kind: ReminderKind): Int = when (kind) {
 
 @Composable
 private fun subtitle(r: SmartReminder, zone: java.time.ZoneId): String = when (r.kind) {
-    ReminderKind.TIME -> r.fireAt?.atZone(zone)?.let { stringResource(R.string.reminders_at_time, formatDate(it.toLocalDate()), formatTime(it.toLocalTime())) }.orEmpty()
+    ReminderKind.TIME -> r.fireAt?.atZone(zone)?.let {
+        stringResource(R.string.reminders_at_time, formatDate(it.toLocalDate()), formatTime(it.toLocalTime()))
+    }.orEmpty()
     ReminderKind.PLACE -> stringResource(
         if (r.onEnter) R.string.reminders_arriving else R.string.reminders_leaving,
         r.placeName.orEmpty(),
@@ -296,10 +312,16 @@ private fun AddReminderDialog(kind: ReminderKind, today: LocalDate, zone: java.t
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                         )
-                        Text(stringResource(R.string.reminders_location_rationale), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            stringResource(R.string.reminders_location_rationale),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                         PillButton(
                             stringResource(if (lat == null) R.string.reminders_use_here else R.string.reminders_location_set),
-                            onClick = { if (granted(Manifest.permission.ACCESS_FINE_LOCATION)) readLocation() else fine.launch(Manifest.permission.ACCESS_FINE_LOCATION) },
+                            onClick = {
+                                if (granted(Manifest.permission.ACCESS_FINE_LOCATION)) readLocation() else fine.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                            },
                             container = MaterialTheme.colorScheme.surface,
                             content = MaterialTheme.colorScheme.onSurface,
                             border = MaterialTheme.colorScheme.outline,
@@ -309,12 +331,16 @@ private fun AddReminderDialog(kind: ReminderKind, today: LocalDate, zone: java.t
                             FilterChip(selected = !onEnter, onClick = { onEnter = false }, label = { Text(stringResource(R.string.reminders_on_leave)) })
                         }
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            RADII.forEach { m -> FilterChip(selected = radius == m, onClick = { radius = m }, label = { Text(stringResource(R.string.reminders_radius, m)) }) }
+                            RADII.forEach { m ->
+                                FilterChip(selected = radius == m, onClick = { radius = m }, label = { Text(stringResource(R.string.reminders_radius, m)) })
+                            }
                         }
                     }
                     ReminderKind.DEVICE -> {
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            FilterChip(selected = device == DeviceTrigger.CHARGING, onClick = { device = DeviceTrigger.CHARGING }, label = { Text(stringResource(R.string.reminders_device_charging)) })
+                            FilterChip(selected = device == DeviceTrigger.CHARGING, onClick = {
+                                device = DeviceTrigger.CHARGING
+                            }, label = { Text(stringResource(R.string.reminders_device_charging)) })
                             FilterChip(
                                 selected = device == DeviceTrigger.CAR_BLUETOOTH,
                                 onClick = {
@@ -326,7 +352,10 @@ private fun AddReminderDialog(kind: ReminderKind, today: LocalDate, zone: java.t
                                 label = { Text(stringResource(R.string.reminders_device_car)) },
                             )
                         }
-                        if (device == DeviceTrigger.CAR_BLUETOOTH && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !granted(Manifest.permission.BLUETOOTH_CONNECT)) {
+                        if (device == DeviceTrigger.CAR_BLUETOOTH &&
+                            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                            !granted(Manifest.permission.BLUETOOTH_CONNECT)
+                        ) {
                             PillButton(
                                 stringResource(R.string.reminders_allow_bluetooth),
                                 onClick = { bluetooth.launch(Manifest.permission.BLUETOOTH_CONNECT) },
@@ -346,11 +375,12 @@ private fun AddReminderDialog(kind: ReminderKind, today: LocalDate, zone: java.t
             }
         },
         confirmButton = {
-            val valid = message.isNotBlank() && when (kind) {
-                ReminderKind.TIME -> date != null
-                ReminderKind.PLACE -> lat != null && lng != null && placeName.isNotBlank()
-                ReminderKind.DEVICE -> true
-            }
+            val valid = message.isNotBlank() &&
+                when (kind) {
+                    ReminderKind.TIME -> date != null
+                    ReminderKind.PLACE -> lat != null && lng != null && placeName.isNotBlank()
+                    ReminderKind.DEVICE -> true
+                }
             TextButton(enabled = valid, onClick = {
                 onSave(
                     SmartReminder(

@@ -2,8 +2,6 @@ package app.assistant.ui.settings.ai
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.domain.engine.settings.SettingsField
-import app.assistant.domain.error.FieldErrors
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.AiMode
 import app.assistant.domain.port.SettingsStore

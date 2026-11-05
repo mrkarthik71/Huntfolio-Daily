@@ -10,8 +10,8 @@ import app.assistant.domain.engine.settings.SettingsField
 import app.assistant.domain.engine.settings.SettingsValidator
 import app.assistant.domain.error.FieldErrors
 import app.assistant.domain.error.Outcome
-import app.assistant.domain.model.AppSettings
 import app.assistant.domain.model.AiMode
+import app.assistant.domain.model.AppSettings
 import app.assistant.domain.model.LocalTimeRange
 import app.assistant.domain.model.NotificationType
 import app.assistant.domain.model.PromptType

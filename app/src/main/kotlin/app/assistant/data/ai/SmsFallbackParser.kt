@@ -4,8 +4,8 @@ import app.assistant.domain.model.ReviewItemId
 import app.assistant.domain.port.Advisor
 import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.ReviewQueueRepository
-import app.assistant.domain.port.SmsAdvice
 import app.assistant.domain.port.SettingsStore
+import app.assistant.domain.port.SmsAdvice
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,11 +19,7 @@ import javax.inject.Singleton
  * 30.5).
  */
 @Singleton
-class SmsFallbackParser @Inject constructor(
-    private val settings: SettingsStore,
-    private val review: ReviewQueueRepository,
-    private val advisor: Advisor,
-) {
+class SmsFallbackParser @Inject constructor(private val settings: SettingsStore, private val review: ReviewQueueRepository, private val advisor: Advisor) {
     /**
      * Attempts the fallback parse for one new review item. Returns true when a proposal was stored,
      * false otherwise (disabled, already attempted, or no usable output). Always leaves the item

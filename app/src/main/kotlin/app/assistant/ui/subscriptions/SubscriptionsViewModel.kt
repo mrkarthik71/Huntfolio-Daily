@@ -32,10 +32,7 @@ data class SubscriptionsUi(
 )
 
 @HiltViewModel
-class SubscriptionsViewModel @Inject constructor(
-    private val repo: SubscriptionRepository,
-    private val time: TimeSource,
-) : ViewModel() {
+class SubscriptionsViewModel @Inject constructor(private val repo: SubscriptionRepository, private val time: TimeSource) : ViewModel() {
 
     /** Today's date from the injected clock, the default next-due date for a manual Subscription. */
     fun today(): LocalDate = time.today()
@@ -61,7 +58,13 @@ class SubscriptionsViewModel @Inject constructor(
     fun dismissSuggestion(id: Long) = viewModelScope.launch { repo.dismissSuggestion(id) }
 
     /** Save a manual Subscription; invokes [onResult] with any field errors (empty errors = success). */
-    fun addManual(merchant: String, amount: Paise, interval: SubscriptionInterval, nextDue: LocalDate, onResult: (FieldErrors<ManualSubscriptionField>) -> Unit) {
+    fun addManual(
+        merchant: String,
+        amount: Paise,
+        interval: SubscriptionInterval,
+        nextDue: LocalDate,
+        onResult: (FieldErrors<ManualSubscriptionField>) -> Unit,
+    ) {
         viewModelScope.launch {
             when (val r = repo.addManual(ManualSubscriptionInput(merchant, amount, interval, nextDue))) {
                 is Outcome.Ok -> onResult(FieldErrors.none())

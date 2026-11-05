@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -32,12 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.assistant.R
+import app.assistant.domain.engine.schedule.DayItemKind
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.error.ValidationError
 import app.assistant.domain.format.MoneyFormatter
@@ -46,15 +50,11 @@ import app.assistant.domain.model.TaskStatus
 import app.assistant.ui.common.errorText
 import app.assistant.ui.common.formatDate
 import app.assistant.ui.designsystem.CredCard
-import app.assistant.ui.designsystem.SectionHeader
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.ui.semantics.heading
-import app.assistant.domain.engine.schedule.DayItemKind
 import app.assistant.ui.designsystem.EnergyColors
 import app.assistant.ui.designsystem.FocusHero
 import app.assistant.ui.designsystem.PillButton
 import app.assistant.ui.designsystem.ProactiveCardView
+import app.assistant.ui.designsystem.SectionHeader
 import app.assistant.ui.designsystem.TimelineRow
 import app.assistant.ui.designsystem.enterAnimated
 import java.time.format.DateTimeFormatter
@@ -83,7 +83,11 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
             item {
                 Row(Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.Bottom) {
                     Column(Modifier.weight(1f)) {
-                        Text(ui.date?.let(::formatDate).orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            ui.date?.let(::formatDate).orEmpty(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                         Text(stringResource(R.string.today_title), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
                     }
                     PillButton(
@@ -100,7 +104,13 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
                 ProactiveCardView(
                     title = card.title,
                     body = card.reason,
-                    acceptLabel = if (card.kind == app.assistant.domain.model.CardKind.FREE_SLOT) stringResource(R.string.card_fill_slot) else stringResource(R.string.card_got_it),
+                    acceptLabel = if (card.kind ==
+                        app.assistant.domain.model.CardKind.FREE_SLOT
+                    ) {
+                        stringResource(R.string.card_fill_slot)
+                    } else {
+                        stringResource(R.string.card_got_it)
+                    },
                     dismissLabel = stringResource(R.string.card_dismiss),
                     whyLabel = stringResource(R.string.card_why),
                     why = stringResource(cardWhy(card.kind)),
@@ -272,8 +282,13 @@ private fun LazyListScope.timelineSection(ui: TodayUi) {
 private fun minuteText(m: Int): String = "%02d:%02d".format(m / MINUTES_PER_HOUR % HOURS_PER_DAY, m % MINUTES_PER_HOUR)
 
 @Composable
-private fun durationText(minutes: Int): String =
-    if (minutes >= MINUTES_PER_HOUR) stringResource(R.string.duration_h_m, minutes / MINUTES_PER_HOUR, minutes % MINUTES_PER_HOUR) else stringResource(R.string.duration_m, minutes)
+private fun durationText(minutes: Int): String = if (minutes >=
+    MINUTES_PER_HOUR
+) {
+    stringResource(R.string.duration_h_m, minutes / MINUTES_PER_HOUR, minutes % MINUTES_PER_HOUR)
+} else {
+    stringResource(R.string.duration_m, minutes)
+}
 
 private fun energyLabel(tag: app.assistant.domain.model.EnergyTag?, kind: DayItemKind): Int = when {
     kind == DayItemKind.MEETING -> R.string.kind_meeting

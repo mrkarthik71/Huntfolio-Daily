@@ -63,7 +63,8 @@ class GoalsViewModel @Inject constructor(
             streak = streak,
             lastWeek = report,
             plans = sorted.associate { st ->
-                st.goal.id to app.assistant.domain.engine.schedule.GoalPlanning.view(st.goal, milestones.filter { it.goalId == st.goal.id }, work, today, st.percent)
+                st.goal.id to
+                    app.assistant.domain.engine.schedule.GoalPlanning.view(st.goal, milestones.filter { it.goalId == st.goal.id }, work, today, st.percent)
             },
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GoalsUi())
@@ -96,7 +97,10 @@ class GoalsViewModel @Inject constructor(
     fun today(): LocalDate = today
 
     /** The rule-based plan proposal for [goal]; nothing is stored until [acceptPlan]. */
-    fun proposePlan(goal: GoalStatus, titles: app.assistant.domain.engine.schedule.GoalPlanning.StepTitles): List<app.assistant.domain.engine.schedule.ProposedMilestone> =
+    fun proposePlan(
+        goal: GoalStatus,
+        titles: app.assistant.domain.engine.schedule.GoalPlanning.StepTitles,
+    ): List<app.assistant.domain.engine.schedule.ProposedMilestone> =
         app.assistant.domain.engine.schedule.GoalPlanning.propose(goal.goal, today, goal.progress.hundredths, titles)
 
     /** Stores the accepted milestones in order (Requirement 2.4: nothing changes until the User accepts). */

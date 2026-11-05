@@ -12,6 +12,21 @@ init script in ~/.gradle/init.d; tests need
 Commands: `./gradlew :app:assemblePersonalWithSmsDebug`, `./gradlew :app:testPersonalWithSmsDebugUnitTest`.
 Branch: claude/add-ui-ux-pro-max-skill (push blocked until GitHub access is granted).
 
+## Status (6 Nov, after the overnight build)
+
+Built and tested on device code paths: Today dashboard (focus hero, proactive cards, energy
+timeline), Goals with milestones/forecast/plan proposals, Subscription health hub, smart
+reminders (time, place, charging, car Bluetooth), hourly proactive agent, CRED widget restyle,
+Manrope + motion system, Room v10. Blueprint: https://claude.ai/artifact/DF7u9WibhruMegAJtHrGUH
+(copy in docs/apex-blueprint.html; server/ has the PostgreSQL schema and route list).
+
+Deliberately not done (needs a decision or is out of reach here):
+- AI goal decomposer: needs the Cloud AI vendor (open decision); rule-based planner covers it.
+- Goals progress on the home-screen widget: Requirement 21.2 forbids goal progress on the widget.
+- Google/Outlook calendar writes and Gmail OAuth: need the Apex Sync service (hosting decision).
+- Kotlin Multiplatform split and the iOS app: next phase per the blueprint.
+- No emulator here (no KVM): screens verified with Robolectric screenshots (design-preview/).
+
 ## Steps (tick when done, commit after each)
 
 - [x] 1. Green tests: SMS fixtures to 200, SubscriptionsScreenTest re-run.
@@ -28,6 +43,6 @@ Branch: claude/add-ui-ux-pro-max-skill (push blocked until GitHub access is gran
 - [x] 9. Module E: hourly ProactiveWorker + cards through the Notification_Governor.
 - [x] 10. Money: Subscription health hub (monthly burn, renewing soon, second look, mail-found).
 - [x] 11. Module C: smart reminders (time, place via Geofencing, phone state: charging, car Bluetooth).
-- [ ] 12. Widgets v2: focus, quick capture, next up, goals.
+- [x] 12. Widgets v2: focus, quick capture, next up, goals.
 - [ ] 13. Polish pass: every screen on the new components, screenshots, lint/detekt/ktlint.
-- [ ] 14. Blueprint doc published (schema, API, prompt) + server/ scaffold.
+- [x] 14. Blueprint doc published (schema, API, prompt) + server/ scaffold.

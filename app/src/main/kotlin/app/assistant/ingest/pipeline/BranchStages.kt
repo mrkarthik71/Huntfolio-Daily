@@ -1,17 +1,16 @@
 package app.assistant.ingest.pipeline
 
-import app.assistant.domain.port.PostCommitHook
-import app.assistant.domain.port.PersistedMessage
 import app.assistant.domain.engine.dedupe.MessageOrigin
 import app.assistant.domain.engine.dedupe.ParsedFact
 import app.assistant.domain.engine.redact.RedactionPatterns
 import app.assistant.domain.engine.redact.Redactor
 import app.assistant.domain.error.Outcome
-import app.assistant.domain.model.TransactionId
 import app.assistant.domain.model.TxnType
 import app.assistant.domain.port.AtomicWork
 import app.assistant.domain.port.BillProposals
 import app.assistant.domain.port.IngestLedger
+import app.assistant.domain.port.PersistedMessage
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.ReviewAddResult
 import app.assistant.domain.port.ReviewQueueRepository
 import app.assistant.domain.port.TimeSource
@@ -96,8 +95,6 @@ class BillProposalStage(
         const val OUTCOME = "bill_proposed"
     }
 }
-
-
 
 /**
  * Stores a debit or credit. The Deduplicator and Categoriser run inside the repository, in one Room transaction with the

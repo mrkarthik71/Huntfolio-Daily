@@ -119,7 +119,9 @@ interface TransactionDao {
     suspend fun applyCategoryToEarlier(merchant: Long, category: Long, anchorAt: Long, anchorId: Long): Int
 
     /** Debit Transactions with a Merchant, for subscription detection (Requirement 37.1). Reversals are excluded. */
-    @Query("SELECT id, merchant_id AS merchantId, amount_paise AS amountPaise, at FROM txn WHERE type = 'DEBIT' AND is_reversal = 0 AND merchant_id IS NOT NULL ORDER BY at ASC")
+    @Query(
+        "SELECT id, merchant_id AS merchantId, amount_paise AS amountPaise, at FROM txn WHERE type = 'DEBIT' AND is_reversal = 0 AND merchant_id IS NOT NULL ORDER BY at ASC",
+    )
     suspend fun debitChargesForSubscriptions(): List<DebitChargeRow>
 }
 

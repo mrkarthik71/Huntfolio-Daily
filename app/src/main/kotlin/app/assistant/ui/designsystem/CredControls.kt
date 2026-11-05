@@ -37,12 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /** One destination in the [CredBottomBar]. */
-data class CredBarItem(
-    val key: String,
-    val label: String,
-    val selectedIcon: ImageVector,
-    val icon: ImageVector,
-)
+data class CredBarItem(val key: String, val label: String, val selectedIcon: ImageVector, val icon: ImageVector)
 
 /**
  * A floating, pill-shaped bottom bar in the Cred style: a raised dark capsule over the canvas, the
@@ -187,7 +182,12 @@ fun CredRow(
                 Modifier.size(36.dp).clip(CircleShape).background(if (destructive) scheme.errorContainer else scheme.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(icon, contentDescription = null, tint = if (destructive) scheme.onErrorContainer else scheme.onPrimaryContainer, modifier = Modifier.size(20.dp))
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = if (destructive) scheme.onErrorContainer else scheme.onPrimaryContainer,
+                    modifier = Modifier.size(20.dp),
+                )
             }
             Spacer(Modifier.width(14.dp))
         }

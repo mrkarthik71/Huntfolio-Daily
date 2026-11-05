@@ -8,7 +8,6 @@ import app.assistant.data.settings.proto.SettingsProto
 import app.assistant.domain.error.Outcome
 import app.assistant.security.keys.KeyManager
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import java.io.File
@@ -49,7 +48,10 @@ class RoomBackupDataSource @Inject constructor(
                                 android.database.Cursor.FIELD_TYPE_NULL -> add(name, null)
                                 android.database.Cursor.FIELD_TYPE_INTEGER -> addProperty(name, c.getLong(i))
                                 android.database.Cursor.FIELD_TYPE_FLOAT -> addProperty(name, c.getDouble(i))
-                                android.database.Cursor.FIELD_TYPE_BLOB -> addProperty(name, android.util.Base64.encodeToString(c.getBlob(i), android.util.Base64.NO_WRAP) + BLOB_TAG)
+                                android.database.Cursor.FIELD_TYPE_BLOB -> addProperty(
+                                    name,
+                                    android.util.Base64.encodeToString(c.getBlob(i), android.util.Base64.NO_WRAP) + BLOB_TAG,
+                                )
                                 else -> addProperty(name, c.getString(i))
                             }
                         }

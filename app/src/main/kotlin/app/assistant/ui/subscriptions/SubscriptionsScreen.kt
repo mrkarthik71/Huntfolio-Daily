@@ -1,18 +1,16 @@
 package app.assistant.ui.subscriptions
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.ui.draw.clip
-import app.assistant.ui.designsystem.enterAnimated
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -28,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -50,6 +49,7 @@ import app.assistant.ui.designsystem.CredStat
 import app.assistant.ui.designsystem.EmptyState
 import app.assistant.ui.designsystem.HeroCard
 import app.assistant.ui.designsystem.SectionHeader
+import app.assistant.ui.designsystem.enterAnimated
 import java.time.LocalDate
 
 /** Label resource for a billing interval. */
@@ -84,7 +84,10 @@ fun SubscriptionsScreen(modifier: Modifier = Modifier, viewModel: SubscriptionsV
         item { BurnHero(ui, Modifier.enterAnimated(0)) }
 
         val today = viewModel.today()
-        val soon = ui.active.filter { val d = java.time.temporal.ChronoUnit.DAYS.between(today, it.snapshot.nextDue); d in 0..RENEWING_DAYS }
+        val soon = ui.active.filter {
+            val d = java.time.temporal.ChronoUnit.DAYS.between(today, it.snapshot.nextDue)
+            d in 0..RENEWING_DAYS
+        }
             .sortedBy { it.snapshot.nextDue }
         if (soon.isNotEmpty()) {
             item { SectionHeader(stringResource(R.string.subs_renewing_soon).uppercase()) }
@@ -109,7 +112,9 @@ fun SubscriptionsScreen(modifier: Modifier = Modifier, viewModel: SubscriptionsV
         if (ui.dueUsageChecks.isNotEmpty()) {
             item { SectionHeader(stringResource(R.string.subs_usage_title).uppercase()) }
             items(ui.dueUsageChecks, key = { "use-${it.subscriptionId}" }) { check ->
-                UsageCheckCard(check, onYes = { viewModel.answerUsage(check.subscriptionId, true) }, onNo = { viewModel.answerUsage(check.subscriptionId, false) })
+                UsageCheckCard(check, onYes = {
+                    viewModel.answerUsage(check.subscriptionId, true)
+                }, onNo = { viewModel.answerUsage(check.subscriptionId, false) })
             }
         }
 
@@ -139,10 +144,20 @@ private fun BurnHero(ui: SubscriptionsUi, modifier: Modifier = Modifier) {
     val top = ui.active.sortedByDescending { it.yearlyCost.value }
     val shown = top.take(BREAKDOWN_SLOTS)
     val rest = top.drop(BREAKDOWN_SLOTS).sumOf { it.yearlyCost.value }
-    val colors = listOf(app.assistant.ui.designsystem.EnergyColors.DeepWork, app.assistant.ui.designsystem.EnergyColors.LightAdmin, app.assistant.ui.designsystem.EnergyColors.Physical, app.assistant.ui.designsystem.EnergyColors.Rest)
+    val colors =
+        listOf(
+            app.assistant.ui.designsystem.EnergyColors.DeepWork,
+            app.assistant.ui.designsystem.EnergyColors.LightAdmin,
+            app.assistant.ui.designsystem.EnergyColors.Physical,
+            app.assistant.ui.designsystem.EnergyColors.Rest,
+        )
     HeroCard(modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            CredStat(caption = stringResource(R.string.subs_monthly_burn), value = MoneyFormatter.format(monthly), valueColor = MaterialTheme.colorScheme.onPrimaryContainer)
+            CredStat(
+                caption = stringResource(R.string.subs_monthly_burn),
+                value = MoneyFormatter.format(monthly),
+                valueColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
             Text(
                 stringResource(R.string.subs_yearly_active, MoneyFormatter.format(ui.totalYearlyCost), ui.active.size),
                 style = MaterialTheme.typography.bodyMedium,
@@ -150,13 +165,19 @@ private fun BurnHero(ui: SubscriptionsUi, modifier: Modifier = Modifier) {
             )
             if (top.isNotEmpty()) {
                 val p = app.assistant.ui.designsystem.animatedProgress(1f)
-                Row(Modifier.fillMaxWidth().height(10.dp).clip(androidx.compose.foundation.shape.CircleShape), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                Row(
+                    Modifier.fillMaxWidth().height(10.dp).clip(androidx.compose.foundation.shape.CircleShape),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
                     shown.forEachIndexed { i, sub ->
                         Box(Modifier.weight(sub.yearlyCost.value.coerceAtLeast(1).toFloat() * p + 0.0001f).fillMaxHeight().background(colors[i % colors.size]))
                     }
                     if (rest > 0) Box(Modifier.weight(rest.toFloat() * p + 0.0001f).fillMaxHeight().background(MaterialTheme.colorScheme.outline))
                 }
-                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                androidx.compose.foundation.layout.FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
                     shown.forEach { sub ->
                         Text(
                             "${sub.merchant} ${MoneyFormatter.format(sub.snapshot.amount)}",
@@ -188,7 +209,11 @@ private fun RenewalRow(sub: SubscriptionView, daysLeft: Int) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text("$daysLeft", style = MaterialTheme.typography.titleLarge, color = if (warn) app.assistant.ui.designsystem.EnergyColors.Warning else MaterialTheme.colorScheme.onSurface)
+            Text(
+                "$daysLeft",
+                style = MaterialTheme.typography.titleLarge,
+                color = if (warn) app.assistant.ui.designsystem.EnergyColors.Warning else MaterialTheme.colorScheme.onSurface,
+            )
             Text(stringResource(R.string.subs_days), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Column(Modifier.weight(1f)) {

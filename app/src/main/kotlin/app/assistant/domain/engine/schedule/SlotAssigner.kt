@@ -67,7 +67,13 @@ object SlotAssigner {
         return (PRIORITY_BASE - w.priority.coerceIn(1, PRIORITY_MAX)) * PRIORITY_WEIGHT + urgency
     }
 
-    fun assign(work: List<Work>, free: List<Span>, windows: EnergyWindows = EnergyWindows.Default, minChunk: Int = MIN_CHUNK, maxChunk: Int = MAX_CHUNK): Assignment {
+    fun assign(
+        work: List<Work>,
+        free: List<Span>,
+        windows: EnergyWindows = EnergyWindows.Default,
+        minChunk: Int = MIN_CHUNK,
+        maxChunk: Int = MAX_CHUNK,
+    ): Assignment {
         val open = free.filter { it.minutes >= minChunk }.sortedBy { it.start }.toMutableList()
         val placements = mutableListOf<Placement>()
         val unplaced = linkedMapOf<Long, Int>()
@@ -141,7 +147,14 @@ data class ScheduleDiff(val moved: List<Pair<Placement, Placement>>, val unchang
  * starts at [from], with [busy] (meetings, locked blocks) left in place. Returns a minimal diff.
  */
 object Rescheduler {
-    fun reshuffle(current: List<Placement>, work: List<Work>, day: Span, busy: List<Span>, from: Int, windows: EnergyWindows = EnergyWindows.Default): ScheduleDiff {
+    fun reshuffle(
+        current: List<Placement>,
+        work: List<Work>,
+        day: Span,
+        busy: List<Span>,
+        from: Int,
+        windows: EnergyWindows = EnergyWindows.Default,
+    ): ScheduleDiff {
         val kept = current.filter { it.span.start < from }
         val movable = current.filter { it.span.start >= from }.map { it.workId }.toSet()
         val toPlace = work.filter { it.id in movable }.map { w ->

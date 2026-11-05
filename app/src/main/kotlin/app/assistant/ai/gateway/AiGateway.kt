@@ -1,7 +1,5 @@
 package app.assistant.ai.gateway
 
-import app.assistant.domain.port.Connectivity
-import app.assistant.domain.port.AiConfig
 import app.assistant.ai.output.OutputContext
 import app.assistant.ai.output.OutputValidator
 import app.assistant.ai.output.ValidatedOutput
@@ -9,16 +7,16 @@ import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.AiMode
 import app.assistant.domain.model.AuditId
 import app.assistant.domain.model.PromptType
+import app.assistant.domain.port.AiConfig
 import app.assistant.domain.port.AiFailure
 import app.assistant.domain.port.AiProvider
 import app.assistant.domain.port.AuditLog
+import app.assistant.domain.port.Connectivity
 import app.assistant.domain.port.ProviderRequest
 import app.assistant.domain.port.RedactedPayload
 import app.assistant.domain.port.TimeSource
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
-
-
 
 /**
  * The AI_Gateway (Requirement 42, 43, design: AI_Gateway). It is the ONLY place that decides whether
@@ -44,12 +42,7 @@ class AiGateway(
      * Runs one feature request. [render] turns the payload into the prompt+body text the provider
      * sends; [context] is what the Output_Validator checks the reply against.
      */
-    suspend fun run(
-        type: PromptType,
-        payload: RedactedPayload,
-        prompt: String,
-        context: OutputContext,
-    ): Outcome<Success, AiFailure> {
+    suspend fun run(type: PromptType, payload: RedactedPayload, prompt: String, context: OutputContext): Outcome<Success, AiFailure> {
         val mode = config.mode()
         if (mode == AiMode.NONE) return Outcome.Err(AiFailure.DISABLED)
         if (mode == AiMode.CLOUD && !connectivity.isOnline()) return Outcome.Err(AiFailure.OFFLINE)
@@ -132,11 +125,10 @@ class AiGateway(
             }
         }
 
-    private fun renderForAudit(payload: RedactedPayload): String =
-        buildString {
-            payload.fields.forEach { (k, v) -> append(k).append('=').append(v.value).append('\n') }
-            payload.lists.forEach { (k, v) -> append(k).append('=').append(v.joinToString("|") { it.value }).append('\n') }
-        }
+    private fun renderForAudit(payload: RedactedPayload): String = buildString {
+        payload.fields.forEach { (k, v) -> append(k).append('=').append(v.value).append('\n') }
+        payload.lists.forEach { (k, v) -> append(k).append('=').append(v.joinToString("|") { it.value }).append('\n') }
+    }
 
     companion object {
         const val MAX_ATTEMPTS = 3

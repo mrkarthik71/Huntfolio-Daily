@@ -94,24 +94,41 @@ class ProactiveWorker @AssistedInject constructor(
         val ctx = applicationContext
         val drafts = signals.map { s ->
             when (s.kind) {
-                CardKind.OVERLOAD -> CardDraft(s.kind, s.forDate, ctx.getString(R.string.card_overload_title), ctx.getString(R.string.card_overload_body, hm(s.numbers[0]), hm(s.numbers[1])))
-                CardKind.GOAL_AT_RISK -> CardDraft(s.kind, s.forDate, ctx.getString(R.string.card_goal_title, s.subject), ctx.getString(R.string.card_goal_body, hm(s.numbers[0]), hm(s.numbers[1]), s.numbers[2]))
+                CardKind.OVERLOAD -> CardDraft(
+                    s.kind,
+                    s.forDate,
+                    ctx.getString(R.string.card_overload_title),
+                    ctx.getString(R.string.card_overload_body, hm(s.numbers[0]), hm(s.numbers[1])),
+                )
+                CardKind.GOAL_AT_RISK -> CardDraft(
+                    s.kind,
+                    s.forDate,
+                    ctx.getString(R.string.card_goal_title, s.subject),
+                    ctx.getString(R.string.card_goal_body, hm(s.numbers[0]), hm(s.numbers[1]), s.numbers[2]),
+                )
                 CardKind.RENEWAL_SOON -> CardDraft(
                     s.kind,
                     s.forDate,
                     ctx.getString(R.string.card_renewal_title, s.subject),
                     if (s.numbers[0] == 0) ctx.getString(R.string.card_renewal_today) else ctx.getString(R.string.card_renewal_body, s.numbers[0]),
                 )
-                CardKind.FREE_SLOT -> CardDraft(s.kind, s.forDate, ctx.getString(R.string.card_free_title, hm(s.numbers[0])), ctx.getString(R.string.card_free_body))
+                CardKind.FREE_SLOT -> CardDraft(
+                    s.kind,
+                    s.forDate,
+                    ctx.getString(R.string.card_free_title, hm(s.numbers[0])),
+                    ctx.getString(R.string.card_free_body),
+                )
                 CardKind.ROUTINE_MISSED -> CardDraft(s.kind, s.forDate, s.subject, "")
             }
         }
         planner.offerCards(drafts, time.now())
     }
 
-    private fun hm(minutes: Int): String =
-        if (minutes >= MIN_PER_HOUR) applicationContext.getString(R.string.duration_h_m, minutes / MIN_PER_HOUR, minutes % MIN_PER_HOUR)
-        else applicationContext.getString(R.string.duration_m, minutes)
+    private fun hm(minutes: Int): String = if (minutes >= MIN_PER_HOUR) {
+        applicationContext.getString(R.string.duration_h_m, minutes / MIN_PER_HOUR, minutes % MIN_PER_HOUR)
+    } else {
+        applicationContext.getString(R.string.duration_m, minutes)
+    }
 
     companion object {
         private const val UNIQUE_NAME = "proactive-agent"

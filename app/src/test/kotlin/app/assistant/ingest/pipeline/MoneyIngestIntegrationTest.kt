@@ -1,7 +1,5 @@
 package app.assistant.ingest.pipeline
 
-import app.assistant.domain.port.PostCommitHook
-import app.assistant.domain.port.PersistedMessage
 import android.app.Application
 import app.assistant.data.db.AppDatabase
 import app.assistant.data.db.DbProvider
@@ -23,6 +21,8 @@ import app.assistant.domain.model.DataSource
 import app.assistant.domain.model.Paise
 import app.assistant.domain.model.TxnType
 import app.assistant.domain.port.DuplicateWindowProvider
+import app.assistant.domain.port.PersistedMessage
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.ReviewItem
 import app.assistant.security.keys.KeyError
 import app.assistant.security.log.DiagnosticEvent

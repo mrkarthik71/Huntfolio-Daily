@@ -5,8 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
-import app.assistant.data.db.dao.AlarmDao
 import app.assistant.data.db.dao.AiUsageDao
+import app.assistant.data.db.dao.AlarmDao
 import app.assistant.data.db.dao.AuditDao
 import app.assistant.data.db.dao.BillDao
 import app.assistant.data.db.dao.BillProposalDao
@@ -33,8 +33,8 @@ import app.assistant.data.db.dao.SenderDao
 import app.assistant.data.db.dao.SubscriptionDao
 import app.assistant.data.db.dao.TaskDao
 import app.assistant.data.db.dao.TransactionDao
-import app.assistant.data.db.entity.AlarmQueueEntity
 import app.assistant.data.db.entity.AiUsageEntity
+import app.assistant.data.db.entity.AlarmQueueEntity
 import app.assistant.data.db.entity.AuditEntryEntity
 import app.assistant.data.db.entity.BillEntity
 import app.assistant.data.db.entity.BillPaidProposalEntity
@@ -48,12 +48,12 @@ import app.assistant.data.db.entity.DailyPlanEntity
 import app.assistant.data.db.entity.DiagnosticEventEntity
 import app.assistant.data.db.entity.ForcedMergeEntity
 import app.assistant.data.db.entity.GoalEntity
-import app.assistant.data.db.entity.ImportRecordEntity
-import app.assistant.data.db.entity.JobRunEntity
-import app.assistant.data.db.entity.InboxItemEntity
 import app.assistant.data.db.entity.GoalProgressEntity
-import app.assistant.data.db.entity.MerchantAliasEntity
+import app.assistant.data.db.entity.ImportRecordEntity
+import app.assistant.data.db.entity.InboxItemEntity
+import app.assistant.data.db.entity.JobRunEntity
 import app.assistant.data.db.entity.MailCursorEntity
+import app.assistant.data.db.entity.MerchantAliasEntity
 import app.assistant.data.db.entity.MerchantEntity
 import app.assistant.data.db.entity.MoneyAppEntity
 import app.assistant.data.db.entity.NotificationLogEntity
@@ -64,8 +64,8 @@ import app.assistant.data.db.entity.QualityCounterEntity
 import app.assistant.data.db.entity.ReportEntity
 import app.assistant.data.db.entity.ReviewItemEntity
 import app.assistant.data.db.entity.SecretEntity
-import app.assistant.data.db.entity.SenderPenaltyEntity
 import app.assistant.data.db.entity.SenderEntryEntity
+import app.assistant.data.db.entity.SenderPenaltyEntity
 import app.assistant.data.db.entity.ShortlistRuleEntity
 import app.assistant.data.db.entity.SubscriptionChargeEntity
 import app.assistant.data.db.entity.SubscriptionEntity
@@ -203,7 +203,8 @@ abstract class AppDatabase : RoomDatabase() {
 }
 
 /** Every migration, in order. Version 1 is the first schema, so the list starts empty. */
-val ALL_MIGRATIONS: Array<Migration> = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
+val ALL_MIGRATIONS: Array<Migration> =
+    arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
 
 object DatabaseFactory {
     @Volatile

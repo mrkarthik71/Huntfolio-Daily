@@ -11,6 +11,7 @@ import app.assistant.domain.port.AuditLog
 import app.assistant.domain.port.BillProposals
 import app.assistant.domain.port.IngestLedger
 import app.assistant.domain.port.MoneyAppList
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.ReviewQueueRepository
 import app.assistant.domain.port.SenderList
 import app.assistant.domain.port.TimeSource
@@ -21,7 +22,6 @@ import app.assistant.ingest.pipeline.IngestPipeline
 import app.assistant.ingest.pipeline.OtpStage
 import app.assistant.ingest.pipeline.ParseStage
 import app.assistant.ingest.pipeline.PersistStage
-import app.assistant.domain.port.PostCommitHook
 import app.assistant.ingest.pipeline.ProcessedRefStage
 import app.assistant.ingest.pipeline.RedactionPatternsProvider
 import app.assistant.ingest.pipeline.ReviewQueueStage

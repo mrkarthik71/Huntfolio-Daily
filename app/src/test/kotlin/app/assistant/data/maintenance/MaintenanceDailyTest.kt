@@ -42,8 +42,15 @@ class MaintenanceDailyTest {
     private val billAlarms = FakeBillAlarmSync()
     private val spending = FakeSpendingReportRepository()
 
-    private fun maintenance(provider: DbProvider = DbProvider { db }, sync: FakeBillAlarmSync = billAlarms) =
-        MaintenanceDaily(FakeReportRepository(), spending, sync, scheduler, app.assistant.testing.FakeSubscriptionRepository(java.time.LocalDate.of(2026, 11, 3)), provider, FakeTimeSource())
+    private fun maintenance(provider: DbProvider = DbProvider { db }, sync: FakeBillAlarmSync = billAlarms) = MaintenanceDaily(
+        FakeReportRepository(),
+        spending,
+        sync,
+        scheduler,
+        app.assistant.testing.FakeSubscriptionRepository(java.time.LocalDate.of(2026, 11, 3)),
+        provider,
+        FakeTimeSource(),
+    )
 
     @Test
     fun `run catches up reports syncs bill alarms and counts audit rows`() {
