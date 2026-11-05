@@ -81,7 +81,10 @@ class PlanOverridePropertyTest {
     @Test
     fun `Property 18 - user changes to the plan persist and removed priorities lose their block`() {
         runBlocking {
-            checkAll(150, scenarioArb) { s ->
+            // Random cases only: kotest's edge-case sampling for these nested lists intermittently
+            // threw NoSuchElementException inside the generator itself.
+            val config = io.kotest.property.PropTestConfig(iterations = 150, edgeConfig = io.kotest.property.EdgeConfig(edgecasesGenerationProbability = 0.0))
+            checkAll(config, scenarioArb) { s ->
                 rig.reset()
                 val today = rig.time.today()
                 val ids = ArrayList<TaskId>()

@@ -44,5 +44,5 @@ Deliberately not done (needs a decision or is out of reach here):
 - [x] 10. Money: Subscription health hub (monthly burn, renewing soon, second look, mail-found).
 - [x] 11. Module C: smart reminders (time, place via Geofencing, phone state: charging, car Bluetooth).
 - [x] 12. Widgets v2: focus, quick capture, next up, goals.
-- [ ] 13. Polish pass: every screen on the new components, screenshots, lint/detekt/ktlint.
+- [x] 13. Polish pass: every screen on the new components, screenshots, lint/detekt/ktlint.
 - [x] 14. Blueprint doc published (schema, API, prompt) + server/ scaffold.
