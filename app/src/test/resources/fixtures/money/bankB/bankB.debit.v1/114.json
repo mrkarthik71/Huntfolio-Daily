@@ -1,0 +1,20 @@
+{
+  "origin": "VM-BANKB-T",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "INR 3,333.0 spent on your BankB Card XX4321 at Metro Fuel on 05/01/2025. Call 1800-xxx if not you.",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankB.debit.v1",
+    "type": "DEBIT",
+    "reversal": false,
+    "amount_paise": 333300,
+    "at": "2025-01-05T20:00:00",
+    "merchant_or_vpa": "Metro Fuel",
+    "account4": "4321",
+    "reference": null,
+    "balance_paise": null
+  }
+}

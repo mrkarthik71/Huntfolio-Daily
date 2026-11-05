@@ -1,0 +1,20 @@
+{
+  "origin": "VM-BANKB-T",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Refund of ₹49.99 for Green Grocer credited to a/c XX4321 on 05JAN2025. Ref RF778899",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankB.reversal.v1",
+    "type": "CREDIT",
+    "reversal": true,
+    "amount_paise": 4999,
+    "at": "2025-01-05T20:00:00",
+    "merchant_or_vpa": "Green Grocer",
+    "account4": "4321",
+    "reference": "RF778899",
+    "balance_paise": null
+  }
+}

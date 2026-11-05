@@ -1,0 +1,20 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Rs 2,500 credited to a/c XX1234 on 05-Jan-25 02:05 PM. Ref AB12CD34. Avl Bal Rs 0.00",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankA.credit.v1",
+    "type": "CREDIT",
+    "reversal": false,
+    "amount_paise": 250000,
+    "at": "2025-01-05T14:05:00",
+    "merchant_or_vpa": null,
+    "account4": "1234",
+    "reference": "AB12CD34",
+    "balance_paise": 0
+  }
+}
