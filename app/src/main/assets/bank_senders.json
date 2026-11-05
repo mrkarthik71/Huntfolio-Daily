@@ -1,0 +1,6 @@
+{
+  "senders": [
+    { "core_header": "BANKA", "prefix_pattern": "??-", "suffix_pattern": "-?" },
+    { "core_header": "BANKB", "prefix_pattern": "??-", "suffix_pattern": "-?" }
+  ]
+}

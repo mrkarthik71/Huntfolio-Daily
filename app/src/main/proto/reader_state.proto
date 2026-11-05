@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package app.assistant.data.reader;
+
+option java_package = "app.assistant.data.reader.proto";
+option java_multiple_files = true;
+
+// Non-personal reader configuration only (design: data classification). It holds switch states,
+// one timestamp (the Received_Time the Sms_Reader last processed, so catch-up resumes there) and
+// one boolean (whether the SMS_History_Import was already offered). It names no person, sender or
+// merchant and holds no Message_Text, so it belongs outside the Encrypted_Store like the other
+// settings (Requirements 26.2, 26.6, 27). A separate file from settings.pb so the money readers
+// are self-contained and the Data_Wiper clears both.
+message ReaderStateProto {
+  // 0 means "never written": the serializer applies defaults and a fresh install reads them.
+  int32 schema_version = 1;
+
+  // SMS reading switch and the instant (epoch millis) it was last switched on. Catch-up never
+  // reads before this instant, so toggling off and on does not read what arrived while off.
+  bool sms_enabled = 2;
+  int64 sms_enabled_at_millis = 3;
+
+  // The Received_Time (epoch millis) of the last SMS the Sms_Reader processed. 0 = none yet.
+  int64 sms_cursor_millis = 4;
+
+  // The one-time SMS_History_Import offer has been answered (accepted or declined) once.
+  bool history_import_offered = 5;
+
+  // Notification reading switch. Access itself is read live from Android, never stored here.
+  bool notifications_enabled = 6;
+}

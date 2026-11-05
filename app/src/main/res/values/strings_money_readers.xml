@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings for the money readers (task 21): the notification listener label and the one-time SMS history-import foreground notice. -->
+<resources>
+    <string name="notification_reader_label">Payment notification reading</string>
+    <string name="sms_import_channel_name">SMS import</string>
+    <string name="sms_import_notification_title">Reading past bank SMS…</string>
+</resources>

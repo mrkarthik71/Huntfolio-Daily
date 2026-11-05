@@ -1,0 +1,53 @@
+{
+  "otp_keywords": [],
+  "formats": [
+    {
+      "id": "bankA.debit.v1",
+      "origins": ["*BANKA*"],
+      "kind": "DEBIT",
+      "template": "Rs {amount} debited from a/c {account4} on {date} {time} at {merchant}. Avl Bal Rs {balance}",
+      "date_order": "DMY",
+      "date_separators": "-"
+    },
+    {
+      "id": "bankA.credit.v1",
+      "origins": ["*BANKA*"],
+      "kind": "CREDIT",
+      "template": "Rs {amount} credited to a/c {account4} on {date} {time}. Ref {reference}. Avl Bal Rs {balance}",
+      "date_order": "DMY",
+      "date_separators": "-"
+    },
+    {
+      "id": "bankA.bill.v1",
+      "origins": ["*BANKA*"],
+      "kind": "BILL",
+      "template": "Your BankA Credit Card bill of Rs {amount} is due on {due_date}. Pay in the BankA app.",
+      "date_order": "DMY",
+      "date_separators": "-"
+    },
+    {
+      "id": "bankA.otp.v1",
+      "origins": ["*BANKA*"],
+      "kind": "OTP",
+      "template": "{code} is your OTP for a transaction of Rs {amount} at {merchant}. Valid for 10 mins.",
+      "date_order": "DMY",
+      "date_separators": "-"
+    },
+    {
+      "id": "bankA.failed.v1",
+      "origins": ["*BANKA*"],
+      "kind": "FAILED",
+      "template": "Your transaction of Rs {amount} at {merchant} on {date} has failed/declined. Ref {reference}.",
+      "date_order": "DMY",
+      "date_separators": "-"
+    },
+    {
+      "id": "bankA.reversal.v1",
+      "origins": ["*BANKA*"],
+      "kind": "REVERSAL",
+      "template": "Rs {amount} has been reversed/refunded to your a/c {account4} on {date}. Ref {reference}.",
+      "date_order": "DMY",
+      "date_separators": "-"
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+# Project rules on top of detekt's defaults (buildUponDefaultConfig = true).
+build:
+  maxIssues: 0
+
+style:
+  # Logging goes through SafeLog only (Requirement 3.5). security/log/SafeLog.kt suppresses this
+  # rule for its debug Logcat sink, which is the one allowed use.
+  ForbiddenImport:
+    active: true
+    imports:
+      - value: 'android.util.Log'
+        reason: 'Use SafeLog with a DiagnosticEvent; plain logs can leak Message_Text.'
+      - value: 'timber.log.Timber'
+        reason: 'Use SafeLog with a DiagnosticEvent.'
+      - value: 'android.telephony.SmsManager'
+        reason: 'The app is read-only and never sends SMS (Requirement 2).'
+  ForbiddenMethodCall:
+    active: true
+    methods:
+      - value: 'kotlin.io.println'
+        reason: 'Use SafeLog.'
+      - value: 'kotlin.io.print'
+        reason: 'Use SafeLog.'
+  MagicNumber:
+    active: false
+  MaxLineLength:
+    maxLineLength: 160
+  WildcardImport:
+    active: true
+  ReturnCount:
+    max: 4
+  UnusedPrivateMember:
+    active: true
+  ThrowsCount:
+    max: 4
+
+performance:
+  # Spreading a handful of Room migrations once at startup costs nothing measurable.
+  SpreadOperator:
+    active: false
+
+naming:
+  FunctionNaming:
+    # Compose functions are PascalCase; test names use backticks.
+    ignoreAnnotated: ['Composable']
+    excludes: ['**/test/**', '**/testWithSms/**', '**/androidTest/**']
+  TopLevelPropertyNaming:
+    active: true
+  MatchingDeclarationName:
+    active: false
+
+complexity:
+  LongParameterList:
+    functionThreshold: 8
+    constructorThreshold: 12
+    ignoreDefaultParameters: true
+    ignoreAnnotated: ['Composable']
+  LongMethod:
+    threshold: 80
+    excludes: ['**/test/**', '**/testWithSms/**']
+    # Compose screen functions are declaratively long by nature, like the LongParameterList rule above.
+    ignoreAnnotated: ['Composable']
+  TooManyFunctions:
+    active: false
+  CyclomaticComplexMethod:
+    threshold: 20
+    ignoreSimpleWhenEntries: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    # Adapters catch broad exceptions at the boundary and map them to typed errors (design: Error Handling).
+    active: false
+  SwallowedException:
+    active: false

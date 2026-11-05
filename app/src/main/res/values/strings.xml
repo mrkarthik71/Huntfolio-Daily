@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Placeholder until Open decision 1 (app name) is made. -->
+    <string name="app_name">Assistant</string>
+
+    <!-- First run -->
+    <string name="first_run_title">Welcome</string>
+    <string name="first_run_body">Your plan, goals and money stay on this phone, encrypted. Nothing is read until you turn a feature on.</string>
+    <string name="first_run_open_settings">Open settings</string>
+
+    <!-- App lock -->
+    <string name="lock_title">Locked</string>
+    <string name="lock_body">Unlock with your fingerprint, face or screen lock to see your data.</string>
+    <string name="lock_unlock">Unlock</string>
+    <string name="lock_prompt_title">Unlock Assistant</string>
+    <string name="lock_prompt_subtitle">Confirm it\'s you</string>
+    <string name="lock_failed">Not unlocked. Try again.</string>
+    <string name="lock_no_device_lock_title">Set a screen lock first</string>
+    <string name="lock_no_device_lock_body">This app keeps your data behind your phone\'s screen lock. Set a PIN, pattern or password in Android settings, then come back.</string>
+    <string name="lock_open_security_settings">Open security settings</string>
+    <string name="lock_try_again">Try again</string>
+
+    <!-- Data cannot be unlocked (Requirement 1.5) -->
+    <string name="unlock_error_title">Your stored data can\'t be unlocked</string>
+    <string name="unlock_error_body">The key that protects your data is no longer available on this phone. Your data file has not been changed. You can delete everything and start again.</string>
+    <string name="unlock_error_reason">Reason: %1$s</string>
+    <string name="unlock_reason_keystore">the phone\'s key store could not be used</string>
+    <string name="unlock_reason_invalidated">the protection key was removed</string>
+    <string name="unlock_reason_damaged">the key file is damaged or missing</string>
+    <string name="unlock_reason_database">the data file could not be opened</string>
+
+    <!-- Delete everything (Requirement 8.4) -->
+    <string name="delete_everything">Delete everything</string>
+    <string name="delete_everything_title">Delete everything?</string>
+    <string name="delete_everything_body">All data in this app will be deleted: goals, tasks, money records, settings, connections and keys. Export files you saved outside the app are kept.</string>
+    <string name="delete_everything_confirm">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_sources">Connected sources</string>
+    <string name="settings_privacy">Privacy</string>
+    <string name="settings_audit_log">What the app read and sent</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version %1$s (%2$d)</string>
+    <string name="source_connected">Connected</string>
+    <string name="source_disconnected">Not connected</string>
+    <string name="source_sms">SMS</string>
+    <string name="source_app_notifications">App notifications</string>
+    <string name="source_calendar">Calendar</string>
+    <string name="source_mailbox">Mailbox</string>
+    <string name="source_ai">AI provider</string>
+    <string name="source_huntfolio">Huntfolio import</string>
+    <string name="source_manual">Entered by you</string>
+
+    <!-- Audit log (Requirement 7.4) -->
+    <string name="audit_title">Audit log</string>
+    <string name="audit_empty">Nothing has been read or sent yet.</string>
+    <string name="audit_read">Read %1$s: %2$d items, %3$s</string>
+    <string name="audit_ai_send">Sent to AI (%1$s, %2$s)</string>
+    <string name="audit_ai_result">AI result: %1$s</string>
+    <string name="audit_success">succeeded</string>
+    <string name="audit_failed">failed</string>
+    <string name="audit_payload">Exact data sent:</string>
+    <string name="loading">Loading</string>
+</resources>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nav_money">Money</string>
+    <string name="money_tab_transactions">Transactions</string>
+    <string name="money_tab_budgets">Budgets</string>
+    <string name="money_tab_bills">Bills</string>
+    <string name="money_tab_reports">Reports</string>
+    <string name="money_tab_review">Review</string>
+    <string name="money_host_open_settings">Money settings</string>
+    <string name="settings_money_entry">Money</string>
+</resources>

@@ -1,0 +1,21 @@
+{
+  "patterns": [
+    "\\bignore\\s+(?:all\\s+|any\\s+|the\\s+|your\\s+)?(?:previous|prior|above|earlier|preceding)\\s+(?:instructions?|rules?|prompts?|messages?|directions?)",
+    "\\bignore\\s+(?:all|any|every)\\s+(?:the\\s+)?(?:instructions?|rules?|prompts?)",
+    "\\bdisregard\\s+(?:all\\s+|any\\s+|the\\s+|your\\s+)?(?:previous\\s+|prior\\s+|above\\s+)?(?:instructions?|rules?|prompts?)",
+    "\\bforget\\s+(?:all\\s+|everything\\s+|your\\s+)(?:previous\\s+|prior\\s+)?(?:instructions?|rules?|context)",
+    "\\b(?:system|assistant|developer)\\s*:[^.\\n]{0,200}",
+    "\\byou\\s+are\\s+now\\s+[^.\\n]{0,200}",
+    "\\b(?:delete|remove|erase|clear)\\s+(?:all\\s+|every\\s+|my\\s+){1,2}(?:tasks?|bills?|transactions?|goals?|data|messages?)[^.\\n]{0,200}",
+    "\\b(?:mark|set)\\s+(?:all\\s+)?(?:my\\s+)?(?:bills?|tasks?)\\s+(?:as\\s+)?(?:paid|done|complete|completed)[^.\\n]{0,200}",
+    "\\b(?:change|update|disable|turn\\s+off|enable|reset)\\s+(?:my\\s+|the\\s+)?(?:settings?|app\\s+lock|pin|password|passcode)[^.\\n]{0,200}",
+    "\\b(?:forward|send|email|share|post)\\s+(?:this|the|my|all)\\s+[^.\\n]{0,100}?\\s(?:to|with)\\s+[^.\\n]{0,200}",
+    "\\b(?:create|add|schedule)\\s+(?:a|an)\\s+(?:task|bill|reminder|transaction|notification)\\b[^.\\n]{0,200}",
+    "\\b(?:open|visit|click|go\\s+to)\\s+(?:the\\s+|this\\s+)?(?:link|url|website|page)\\b[^.\\n]{0,200}",
+    "\\bact\\s+as\\s+(?:an?\\s+|the\\s+)?[^.\\n]{0,200}",
+    "\\bdo\\s+not\\s+(?:tell|inform|alert|notify)\\s+the\\s+user[^.\\n]{0,200}",
+    "\\bnew\\s+instructions?\\s*:[^.\\n]{0,200}",
+    "\\breveal\\s+(?:your\\s+)?(?:system\\s+)?(?:prompt|instructions?)[^.\\n]{0,200}",
+    "\\bpretend\\s+(?:to\\s+be|you\\s+are)[^.\\n]{0,200}"
+  ]
+}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_ai_entry">AI advice</string>
+    <string name="settings_mail_entry">Mail</string>
+    <string name="settings_transfer_entry">Import &amp; backup</string>
+    <string name="settings_health_entry">App health</string>
+</resources>

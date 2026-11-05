@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="money_txn_empty">No transactions yet. Add one, or wait for a bank message.</string>
+    <string name="money_txn_add">Add a transaction</string>
+    <string name="money_txn_add_title">New transaction</string>
+    <string name="money_txn_edit_title">Edit transaction</string>
+    <string name="money_txn_type_label">Type</string>
+    <string name="money_txn_type_debit">Debit</string>
+    <string name="money_txn_type_credit">Credit</string>
+    <string name="money_txn_amount_label">Amount (₹)</string>
+    <string name="money_txn_date_label">Date</string>
+    <string name="money_txn_merchant_label">Merchant</string>
+    <string name="money_txn_no_merchant">Unknown merchant</string>
+    <string name="money_txn_more">More actions for %1$s</string>
+    <string name="money_txn_change_category">Change category</string>
+    <string name="money_txn_category_title">Choose a category</string>
+    <string name="money_txn_select_desc">Select %1$s</string>
+    <string name="money_txn_merge_start">Merge two</string>
+    <string name="money_txn_merge_cancel">Cancel merge</string>
+    <string name="money_txn_merge_hint">Pick two transactions to merge (%1$d of 2 selected)</string>
+    <string name="money_txn_merge_selected">Merge selected</string>
+    <string name="money_txn_merge_title">Merge transactions</string>
+    <string name="money_txn_merge_body">Choose which value to keep where the two differ.</string>
+    <string name="money_txn_merge_same">The two have the same values, so they will simply become one.</string>
+    <string name="money_txn_merge_confirm">Merge</string>
+    <string name="money_txn_delete_title">Delete this transaction?</string>
+    <string name="money_txn_delete_body">The messages it came from will not create it again.</string>
+    <string name="money_txn_offer_title">Apply to earlier transactions?</string>
+    <string name="money_txn_offer_body">%1$d earlier transactions from this merchant can also be moved to %2$s.</string>
+    <string name="money_txn_offer_apply">Apply to earlier</string>
+    <string name="money_txn_offer_skip">Only this one</string>
+    <string name="money_txn_notice_dismiss">Dismiss</string>
+    <string name="money_txn_notice_added">Transaction added</string>
+    <string name="money_txn_notice_saved">Changes saved</string>
+    <string name="money_txn_notice_merged">Transactions merged</string>
+    <string name="money_txn_notice_deleted">Transaction deleted</string>
+    <string name="money_txn_notice_category_changed">Category changed</string>
+    <string name="money_txn_notice_applied">%1$d earlier transactions updated</string>
+    <string name="money_txn_notice_not_found">That transaction no longer exists</string>
+    <string name="money_txn_notice_unknown_category">That category is not available</string>
+    <string name="money_txn_notice_merge_type">A debit and a credit cannot be merged. Nothing was changed.</string>
+    <string name="money_txn_notice_merge_same">Pick two different transactions to merge.</string>
+</resources>

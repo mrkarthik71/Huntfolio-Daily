@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    No cleartext traffic anywhere. Only system certificate authorities are trusted;
+    user-installed CAs are not, so a proxy certificate on the phone cannot read AI or mail traffic.
+    Which hosts may be contacted at all is enforced separately by the egress allow-list (task 3.6).
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

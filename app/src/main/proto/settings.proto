@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package app.assistant.data.settings;
+
+option java_package = "app.assistant.data.settings.proto";
+option java_multiple_files = true;
+
+// Non-personal configuration only (design: data classification). Anything that names people,
+// senders or merchants is stored in the Encrypted_Store instead.
+//
+// proto3 has no field presence for scalars, so defaults are applied by the serializer's
+// default value and `schema_version` tells an empty file from a written one.
+message SettingsProto {
+  int32 schema_version = 1;
+
+  // App_Lock (Requirement 6.2)
+  int32 lock_timeout_seconds = 2;
+
+  // Notification times, minutes after local midnight (Requirement 20)
+  int32 morning_brief_minute = 3;
+  int32 evening_review_minute = 4;
+
+  // Working_Hours, minutes after midnight; must not span midnight
+  int32 working_start_minute = 5;
+  int32 working_end_minute = 6;
+
+  // Quiet_Hours, minutes after midnight; may span midnight (Requirement 18.2)
+  bool quiet_hours_enabled = 7;
+  int32 quiet_start_minute = 8;
+  int32 quiet_end_minute = 9;
+
+  // Notification_Governor (Requirement 18)
+  int32 daily_cap = 10;
+  map<string, int32> per_type_limit = 11;   // NotificationType name -> 1..20
+  repeated string cap_exempt_types = 12;    // NotificationType names
+  repeated string enabled_types = 13;       // NotificationType names
+
+  // 1 = Monday ... 7 = Sunday (java.time.DayOfWeek)
+  int32 last_day_of_week = 14;
+
+  // StreakRule name
+  string streak_rule = 15;
+
+  // Calendar (Requirements 24, 25). proto3 cannot tell 0 from absent, and Event_Lead_Time 0 is
+  // valid, so `calendar_settings_set` says whether the two values below were ever written.
+  bool calendar_settings_set = 16;
+  int32 min_focus_minutes = 17;     // 15..240
+  int32 event_lead_minutes = 18;    // 0..120
+
+  // AI advice (Requirements 42, 45). None at first launch; cap 0 means "no cap set" and Cloud is
+  // refused. Non-personal: a model name is vendor configuration, the key never lives here.
+  string ai_mode = 19;              // AiMode name; empty -> NONE
+  int64 ai_monthly_cap_paise = 20;  // 0 = no cap set
+  map<string, string> ai_models = 21; // PromptType name -> model name
+  bool sms_fallback_parser_enabled = 22;
+
+  // Email (Requirements 51 to 56). Non-personal config; mail credentials live in the secret table.
+  bool mail_settings_set = 23;      // tells 0 from absent for digest time (00:00 is valid)
+  int32 mail_importance_threshold = 24; // 0..10
+  int32 mail_snippet_length = 25;   // 80..1000
+  int32 mail_digest_minute = 26;    // minutes after midnight
+  int32 mail_sync_interval_minutes = 27; // 15..1440
+}

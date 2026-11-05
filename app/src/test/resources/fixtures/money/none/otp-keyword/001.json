@@ -1,0 +1,11 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Use 4821 as your one time password for Rs 500 at Shop One",
+  "expected": {
+    "result": "OTP"
+  }
+}

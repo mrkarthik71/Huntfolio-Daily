@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="money_settings_title">Money settings</string>
+
+    <string name="money_settings_state_not_available">Not available</string>
+    <string name="money_settings_state_off">Off</string>
+    <string name="money_settings_state_needs_permission">Waiting for permission</string>
+    <string name="money_settings_state_active">Reading</string>
+    <string name="money_settings_state_disconnected">Stopped by Android. Turn access back on.</string>
+
+    <string name="money_settings_sms_header">SMS reading</string>
+    <string name="money_settings_sms_unavailable">SMS reading is not part of this build</string>
+    <string name="money_settings_sms_switch">Read bank and UPI SMS</string>
+    <string name="money_settings_sms_rationale_title">Allow reading bank SMS?</string>
+    <string name="money_settings_sms_rationale">The app reads only SMS from the senders on your bank sender list, on this phone. It keeps the amounts, dates and merchants it finds, never the message text, except messages it cannot read, which wait for you in a review list with personal details hidden. Android will ask for the SMS permission next.</string>
+    <string name="money_settings_sms_rationale_continue">Continue</string>
+    <string name="money_settings_sms_rationale_cancel">Not now</string>
+
+    <string name="money_settings_import_title">Read earlier bank SMS?</string>
+    <string name="money_settings_import_body">Read the bank SMS from the last 3 months once, so your history is filled in.</string>
+    <string name="money_settings_import_start">Read last 3 months</string>
+    <string name="money_settings_import_skip">Skip</string>
+    <string name="money_settings_import_running">Reading earlier SMS…</string>
+    <string name="money_settings_import_done">Import finished: %1$d SMS read, %2$d transactions created, %3$d added to the review list.</string>
+
+    <string name="money_settings_senders_header">Bank senders</string>
+    <string name="money_settings_senders_hint">Only SMS from these sender IDs are read. Built-in senders cannot be removed.</string>
+    <string name="money_settings_sender_builtin">Built in</string>
+    <string name="money_settings_sender_custom">Added by you</string>
+    <string name="money_settings_sender_input">Sender ID, for example HDFCBK</string>
+    <string name="money_settings_sender_add">Add sender</string>
+    <string name="money_settings_sender_remove">Remove sender %1$s</string>
+    <string name="money_settings_sender_invalid">Use 2 to 20 letters or digits, with no spaces or dashes.</string>
+    <string name="money_settings_sender_duplicate">This sender is already on the list.</string>
+
+    <string name="money_settings_notifications_header">App notifications</string>
+    <string name="money_settings_notifications_explain">The app can read payment notifications from the apps you choose below. Android asks you to give notification access on its own settings screen. You can turn it off there at any time.</string>
+    <string name="money_settings_notifications_switch">Read payment app notifications</string>
+    <string name="money_settings_notifications_open">Open Android notification access</string>
+
+    <string name="money_settings_apps_header">Payment apps</string>
+    <string name="money_settings_apps_hint">Turn on the apps whose notifications may be read. Turning one off keeps the transactions already made from it.</string>
+    <string name="money_settings_apps_empty">No apps found.</string>
+    <string name="money_settings_apps_invalid">That app cannot be added.</string>
+
+    <string name="money_settings_accuracy_header">Reading accuracy, last 30 days</string>
+    <string name="money_settings_accuracy_empty">Accuracy shows once a sender or app is on a list.</string>
+    <string name="money_settings_accuracy_value">%1$s%%</string>
+    <string name="money_settings_accuracy_none">Not enough data yet</string>
+</resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="money_budget_add">Add a budget</string>
+    <string name="money_budget_empty">No budgets yet. Add one to see how much of it you have used each month.</string>
+    <string name="money_budget_prev_month">Previous month</string>
+    <string name="money_budget_next_month">Next month</string>
+    <string name="money_budget_spent_of">%1$s spent of %2$s</string>
+    <string name="money_budget_percent">%1$d%% used</string>
+    <string name="money_budget_left">%1$s left</string>
+    <string name="money_budget_over">Over budget by %1$s</string>
+    <string name="money_budget_more">More actions for the %1$s budget</string>
+    <string name="money_budget_edit">Edit budget</string>
+    <string name="money_budget_remove">Remove budget</string>
+    <string name="money_budget_remove_title">Remove this budget?</string>
+    <string name="money_budget_remove_body">The %1$s budget is removed. Your transactions are not changed.</string>
+    <string name="money_budget_editor_add">Add a budget</string>
+    <string name="money_budget_editor_edit">Edit the %1$s budget</string>
+    <string name="money_budget_category">Category</string>
+    <string name="money_budget_pick_category">Choose a category</string>
+    <string name="money_budget_no_categories">Every category already has a budget.</string>
+    <string name="money_budget_amount">Monthly limit (₹)</string>
+</resources>

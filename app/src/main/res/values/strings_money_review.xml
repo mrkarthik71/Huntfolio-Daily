@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="money_review_title">Needs review</string>
+    <string name="money_review_count">%1$d to review</string>
+    <string name="money_review_badge_cd">%1$d messages need review</string>
+    <string name="money_review_empty">Nothing to review. Messages the app cannot read will appear here.</string>
+    <string name="money_review_from">From %1$s</string>
+    <string name="money_review_received">Received %1$s</string>
+    <string name="money_review_enter">Enter details</string>
+    <string name="money_review_dismiss">Dismiss</string>
+    <string name="money_review_type">Type</string>
+    <string name="money_review_debit">Debit</string>
+    <string name="money_review_credit">Credit</string>
+    <string name="money_review_amount">Amount (₹)</string>
+    <string name="money_review_date">Date</string>
+    <string name="money_review_merchant">Merchant</string>
+    <string name="money_review_save">Save transaction</string>
+    <string name="money_review_close_form">Close form</string>
+    <string name="money_review_fix_fields">Some fields need fixing. The message stays in the list.</string>
+</resources>

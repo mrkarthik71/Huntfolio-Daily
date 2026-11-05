@@ -1,0 +1,29 @@
+{
+  "otp_keywords": [],
+  "formats": [
+    {
+      "id": "upiapp.debit.v1",
+      "origins": ["com.example.upiapp"],
+      "kind": "DEBIT",
+      "template": "Paid {amount} to {vpa} on {date} at {time}. UPI Ref {reference}.",
+      "date_order": "YMD",
+      "date_separators": "-"
+    },
+    {
+      "id": "upiapp.credit.v1",
+      "origins": ["com.example.upiapp"],
+      "kind": "CREDIT",
+      "template": "Received {amount} from {vpa} on {date} at {time}. UPI Ref {reference}.",
+      "date_order": "YMD",
+      "date_separators": "-"
+    },
+    {
+      "id": "upiapp.failed.v1",
+      "origins": ["com.example.upiapp"],
+      "kind": "FAILED",
+      "template": "Payment of {amount} to {vpa} failed. UPI Ref {reference}.",
+      "date_order": "YMD",
+      "date_separators": "-"
+    }
+  ]
+}

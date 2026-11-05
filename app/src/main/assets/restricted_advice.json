@@ -1,0 +1,17 @@
+{
+  "_comment": "Restricted_Advice_List (Requirement 47.4). Case-insensitive regexes. An AI output matching any of these is rejected: the app gives wording and planning help, never investment, medical, legal or tax advice. Patterns are bounded and anchored on whole words.",
+  "version": 1,
+  "patterns": [
+    "\\b(?:buy|sell|invest in|short|go long on)\\s+(?:stocks?|shares?|crypto|bitcoin|mutual funds?|gold|the market)\\b",
+    "\\byou should (?:invest|buy|sell|trade|put your money)\\b",
+    "\\b(?:guaranteed|assured|expected)\\s+returns?\\b",
+    "\\b(?:this|that) (?:stock|fund|coin|share) will (?:go up|rise|double|moon)\\b",
+    "\\bportfolio allocation\\b",
+    "\\b(?:take|start|stop|increase|reduce) (?:this )?(?:medication|medicine|dose|dosage|drug)\\b",
+    "\\byou (?:have|may have|might have|likely have)\\s+(?:a )?(?:diagnosis|condition|disease|cancer|diabetes|depression)\\b",
+    "\\b(?:consult|see) a (?:doctor|lawyer) because you\\b",
+    "\\b(?:legal|medical|tax|investment|financial) advice\\b",
+    "\\byou (?:should|must|can) (?:sue|file a case|claim|not pay) \\b",
+    "\\b(?:this is|that is) (?:legal|illegal|a breach|grounds for)\\b"
+  ]
+}

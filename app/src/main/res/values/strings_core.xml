@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Navigation -->
+    <string name="nav_today">Today</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_goals">Goals</string>
+    <string name="nav_settings">Settings</string>
+    <string name="close">Close</string>
+    <string name="save">Save</string>
+    <string name="done">Done</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="add">Add</string>
+    <string name="clear">Clear</string>
+    <string name="ok">OK</string>
+    <string name="not_now">Not now</string>
+    <string name="continue_action">Continue</string>
+
+    <!-- Validation errors -->
+    <string name="error_empty">This is required</string>
+    <string name="error_too_long">Too long</string>
+    <string name="error_out_of_range">Outside the allowed range</string>
+    <string name="error_not_a_number">Enter a number, for example 12 or 12.5</string>
+    <string name="error_invalid_date">Pick a date</string>
+    <string name="error_in_past">That date has passed</string>
+    <string name="error_in_future">That date is in the future</string>
+    <string name="error_duplicate">Already exists</string>
+    <string name="error_limit_reached">Limit reached</string>
+    <string name="error_not_allowed">Not allowed</string>
+
+    <!-- Today -->
+    <string name="today_title">Today</string>
+    <string name="today_priorities">Priorities</string>
+    <string name="today_no_priorities">No priorities are set. Add a task below to plan your day.</string>
+    <string name="today_other_tasks">Other tasks for today</string>
+    <string name="today_behind_goals">Goals behind</string>
+    <string name="today_bills_due">Bills due soon</string>
+    <string name="today_bill_due">%1$s: %2$s due %3$s</string>
+    <string name="today_goal_behind">%1$s: %2$d days behind</string>
+    <string name="today_streak">Streak: %1$d days</string>
+    <string name="today_quick_add_hint">Add a task for today</string>
+    <string name="today_quick_add_button">Add task</string>
+    <string name="today_events">Events</string>
+    <string name="today_calendar_not_connected">Calendar not connected. Choose calendars in Settings to see your events here.</string>
+    <string name="today_calendar_refreshed">Calendar updated %1$s</string>
+    <string name="today_event_time">%1$s to %2$s</string>
+    <string name="today_event_time_earlier">From %1$s to %2$s</string>
+    <string name="today_all_day">All day: %1$s</string>
+    <string name="today_no_events">No events today.</string>
+    <string name="today_focus_title">Focus time</string>
+    <string name="today_focus_proposal">Free %1$s to %2$s: %3$s</string>
+    <string name="today_focus_accept">Add to my day</string>
+    <string name="today_focus_dismiss">Not now</string>
+    <string name="today_conflicts">Clashes with an event</string>
+    <string name="today_conflict_row">%1$s (%2$s to %3$s)</string>
+    <string name="today_conflict_move">Move to %1$s</string>
+    <string name="today_conflict_remove">Remove block</string>
+    <string name="today_untitled_block">Time block</string>
+
+    <string name="calendar_min_focus">Shortest focus block</string>
+    <string name="calendar_event_lead">Remind me before events</string>
+    <string name="calendar_minutes">%1$d min</string>
+    <string name="calendar_minus">-</string>
+    <string name="calendar_plus">+</string>
+    <string name="event_reminder_title">Upcoming event</string>
+    <string name="event_reminder_text">%1$s at %2$s</string>
+    <string name="event_untitled">Untitled event</string>
+    <string name="today_time_block">%1$s to %2$s</string>
+    <string name="today_make_priority">Make priority</string>
+    <string name="today_remove_priority">Remove from priorities</string>
+    <string name="today_move_up">Move up</string>
+    <string name="today_move_down">Move down</string>
+    <string name="today_mark_done">Mark done</string>
+    <string name="today_task_done">Done</string>
+    <string name="today_open_review">Evening review</string>
+
+    <!-- Tasks -->
+    <string name="tasks_title">Tasks</string>
+    <string name="tasks_empty">No open tasks. Tap + to add one.</string>
+    <string name="tasks_add">Add task</string>
+    <string name="tasks_edit">Edit task</string>
+    <string name="task_title_label">Title</string>
+    <string name="task_estimate_label">Minutes needed (optional)</string>
+    <string name="task_due_label">Due date</string>
+    <string name="task_planned_label">Planned for</string>
+    <string name="task_goal_label">Goal</string>
+    <string name="task_no_goal">No goal</string>
+    <string name="task_not_set">Not set</string>
+    <string name="task_due">Due %1$s</string>
+    <string name="task_planned">Planned %1$s</string>
+    <string name="task_estimate">%1$d min</string>
+    <string name="task_move_tomorrow">Move to tomorrow</string>
+    <string name="task_drop">Drop task</string>
+    <string name="task_delete_title">Delete this task?</string>
+    <string name="task_delete_body">The task and its time block are removed. Goal progress already recorded is kept.</string>
+    <string name="task_more">More actions</string>
+
+    <!-- Goals -->
+    <string name="goals_title">Goals</string>
+    <string name="goals_empty">No goals yet. Tap + to add one.</string>
+    <string name="goals_add">Add goal</string>
+    <string name="goals_edit">Edit goal</string>
+    <string name="goal_name_label">Name</string>
+    <string name="goal_target_label">Target</string>
+    <string name="goal_unit_label">Unit (for example hours or tasks)</string>
+    <string name="goal_period_label">Repeats every</string>
+    <string name="goal_start_label">Start date</string>
+    <string name="goal_parent_label">Part of</string>
+    <string name="goal_no_parent">Nothing</string>
+    <string name="period_year">Year</string>
+    <string name="period_month">Month</string>
+    <string name="period_week">Week</string>
+    <string name="goal_progress_line">%1$s of %2$s %3$s (%4$d%%)</string>
+    <string name="goal_status_on_track">On track</string>
+    <string name="goal_status_behind">Behind by %1$d days</string>
+    <string name="goal_log_progress">Log progress</string>
+    <string name="goal_log_title">Log progress</string>
+    <string name="goal_log_amount">Amount</string>
+    <string name="goal_archive">Archive</string>
+    <string name="goal_archive_title">Archive this goal?</string>
+    <string name="goal_archive_body">It leaves your list and stops accepting progress. Past progress is kept.</string>
+    <string name="goal_link_not_allowed">A week goal can be part of a month goal, and a month goal part of a year goal.</string>
+    <string name="goal_linked_under">Part of %1$s</string>
+    <string name="goals_streak">Streak: %1$d days</string>
+    <string name="goals_last_week">Last week</string>
+    <string name="goals_slipped">Moved more than once</string>
+    <string name="goals_moves">%1$s (moved %2$d times)</string>
+
+    <!-- Evening review -->
+    <string name="review_screen_title">Evening review</string>
+    <string name="review_empty">No tasks were planned for this day.</string>
+    <string name="review_choice_done">Done</string>
+    <string name="review_choice_move">Tomorrow</string>
+    <string name="review_choice_drop">Drop</string>
+    <string name="review_finish">Finish review</string>
+    <string name="review_summary">Done %1$d, moved %2$d, dropped %3$d, left open %4$d</string>
+    <string name="review_status_done">Done</string>
+    <string name="review_status_dropped">Dropped</string>
+    <string name="review_for_date">For %1$s</string>
+
+    <!-- Notification settings -->
+    <string name="notif_settings_title">Notifications</string>
+    <string name="notif_settings_entry">Notifications and reminders</string>
+    <string name="notif_inbox_entry">Held notifications (inbox)</string>
+    <string name="notif_section_types">Reminders</string>
+    <string name="notif_section_times">Times</string>
+    <string name="notif_section_limits">Limits</string>
+    <string name="notif_morning_time">Morning brief time</string>
+    <string name="notif_evening_time">Evening review time</string>
+    <string name="notif_working_hours">Working hours</string>
+    <string name="notif_quiet_hours">Quiet hours</string>
+    <string name="notif_quiet_hours_off">Quiet hours off</string>
+    <string name="notif_time_range">%1$s to %2$s</string>
+    <string name="notif_daily_cap">Daily cap: %1$d</string>
+    <string name="notif_daily_cap_help">The most notifications shown in one day. The rest wait in the inbox.</string>
+    <string name="notif_lock_timeout">Lock after %1$d minutes in the background</string>
+    <string name="notif_week_ends">Week ends on</string>
+    <string name="notif_exact_alarm_notice">Exact alarms are off, so reminders can arrive late.</string>
+    <string name="notif_exact_alarm_action">Allow exact alarms</string>
+    <string name="notif_permission_title">Allow notifications?</string>
+    <string name="notif_permission_body">The app needs permission to show your morning brief, evening review and reminders. It reads nothing from your phone for this.</string>
+    <string name="notif_inbox_title">Held notifications</string>
+    <string name="notif_inbox_empty">Nothing is waiting. Notifications that hit your daily cap or limits appear here.</string>
+    <string name="notif_inbox_reason_cap">Daily cap reached</string>
+    <string name="notif_inbox_reason_limit">Limit for this type reached</string>
+    <string name="notif_inbox_reason_stale">No longer current</string>
+    <string name="notif_inbox_reason_blocked">Notifications are off in Android settings</string>
+    <string name="time_pick_title">Choose a time</string>
+
+    <!-- Why am I seeing this -->
+    <string name="action_why">Why am I seeing this?</string>
+    <string name="action_snooze">Snooze 1 hour</string>
+    <string name="why_title">Why am I seeing this?</string>
+    <string name="why_type">Reminder: %1$s</string>
+    <string name="why_rule">Reason: %1$s</string>
+    <string name="why_setting">You can change when and how often these appear in Settings, Notifications and reminders.</string>
+    <string name="why_turn_off">Turn this reminder off</string>
+    <string name="why_unknown">This notification is no longer in the log.</string>
+    <string name="rule_morning_brief">It is your daily morning brief at the time you chose.</string>
+    <string name="rule_evening_review">It is your daily evening review prompt at the time you chose.</string>
+    <string name="rule_goal_nudge">A weekly goal is 2 or more days behind. This is checked at the morning brief time, at most once a day.</string>
+    <string name="rule_snooze">You snoozed this reminder earlier.</string>
+    <string name="rule_unknown">It was scheduled by the app.</string>
+
+    <!-- Channels -->
+    <string name="channel_morning_brief">Morning brief</string>
+    <string name="channel_evening_review">Evening review</string>
+    <string name="channel_event_reminder">Event reminders</string>
+    <string name="channel_bill_due">Bills due</string>
+    <string name="channel_goal_nudge">Goal nudges</string>
+    <string name="channel_important_mail">Important mail</string>
+    <string name="channel_mail_digest">Mail digest</string>
+    <string name="channel_subscription_renewal">Subscription renewals</string>
+    <string name="channel_subscription_usage_check">Subscription usage checks</string>
+    <string name="channel_health_warning">Health warnings</string>
+    <string name="channel_important_date">Important dates</string>
+
+    <!-- Notification text -->
+    <string name="brief_title">Your plan for today</string>
+    <string name="brief_none">No priorities are set. Add a task to plan your day.</string>
+    <plurals name="brief_text">
+        <item quantity="one">%1$d priority today: %2$s</item>
+        <item quantity="other">%1$d priorities today. First: %2$s</item>
+    </plurals>
+    <string name="nudge_title">A goal is falling behind</string>
+    <string name="bill_due_title">A bill is due soon</string>
+    <string name="bill_due_text">%1$s: %2$s due %3$s</string>
+    <plurals name="nudge_text">
+        <item quantity="one">%1$s is %2$d day behind.</item>
+        <item quantity="other">%1$s is %2$d days behind.</item>
+    </plurals>
+    <string name="review_title">Evening review</string>
+    <string name="review_text">Take 30 seconds to close the day.</string>
+
+    <!-- Day names (week ends on) -->
+    <string name="day_monday">Monday</string>
+    <string name="day_tuesday">Tuesday</string>
+    <string name="day_wednesday">Wednesday</string>
+    <string name="day_thursday">Thursday</string>
+    <string name="day_friday">Friday</string>
+    <string name="day_saturday">Saturday</string>
+    <string name="day_sunday">Sunday</string>
+
+    <!-- Notification type labels (shown in Why screen and Notification settings) -->
+    <string name="notif_type_morning_brief">Morning brief</string>
+    <string name="notif_type_evening_review">Evening review</string>
+    <string name="notif_type_event_reminder">Event reminder</string>
+    <string name="notif_type_bill_due">Bill due</string>
+    <string name="notif_type_goal_nudge">Goal nudge</string>
+    <string name="notif_type_important_mail">Important mail</string>
+    <string name="notif_type_mail_digest">Mail digest</string>
+    <string name="notif_type_subscription_renewal">Subscription renewal</string>
+    <string name="notif_type_subscription_usage_check">Subscription usage check</string>
+    <string name="notif_type_health_warning">Spending warning</string>
+    <string name="notif_type_important_date">Important date</string>
+    <!-- Calendar settings (Phase 2) -->
+    <string name="calendar_settings_title">Calendars</string>
+    <string name="settings_calendar_entry">Calendars</string>
+    <string name="calendar_rationale">The app reads your calendars to show today\'s events and plan around them. It only reads — it never changes your calendar. Choose which calendars to read next.</string>
+    <string name="calendar_grant">Choose calendars</string>
+    <string name="calendar_none">No calendars found on this device.</string>
+</resources>

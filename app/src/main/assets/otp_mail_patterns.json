@@ -1,0 +1,16 @@
+{
+  "_comment": "OTP / verification mail patterns (Requirement 54.1). Case-insensitive, matched against subject and From. A match discards the email with no snippet and no AI exposure. Bounded, whole-word where sensible.",
+  "version": 1,
+  "patterns": [
+    "\\bOTP\\b",
+    "\\bone[- ]time (?:password|passcode|code|pin)\\b",
+    "\\bverification code\\b",
+    "\\bverify your (?:email|account|login|sign[- ]?in)\\b",
+    "\\byour (?:login|sign[- ]?in|security) code\\b",
+    "\\b2fa\\b|\\btwo[- ]factor\\b",
+    "\\bconfirm your email\\b",
+    "\\bpasscode\\b",
+    "\\bauthentication code\\b",
+    "\\b(?:no[- ]?reply|noreply|verify|security)@"
+  ]
+}

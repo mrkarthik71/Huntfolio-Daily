@@ -1,0 +1,26 @@
+{
+  "merchants": [
+    { "name": "Swiggy", "aliases": ["SWIGGY", "Swiggy Instamart"], "category": "Food" },
+    { "name": "Zomato", "aliases": ["ZOMATO"], "category": "Food" },
+    { "name": "BigBasket", "aliases": ["Big Basket", "BIGBASKET"], "category": "Groceries" },
+    { "name": "Blinkit", "aliases": ["BLINKIT", "Grofers"], "category": "Groceries" },
+    { "name": "Amazon", "aliases": ["Amazon.in", "AMAZON"], "category": "Shopping" },
+    { "name": "Flipkart", "aliases": ["FLIPKART"], "category": "Shopping" },
+    { "name": "Myntra", "aliases": ["MYNTRA"], "category": "Shopping" },
+    { "name": "Uber", "aliases": ["UBER"], "category": "Transport" },
+    { "name": "Ola", "aliases": ["OLA", "Ola Cabs"], "category": "Transport" },
+    { "name": "Rapido", "aliases": ["RAPIDO"], "category": "Transport" },
+    { "name": "IRCTC", "aliases": ["Indian Railways"], "category": "Travel" },
+    { "name": "MakeMyTrip", "aliases": ["Make My Trip", "MMT"], "category": "Travel" },
+    { "name": "Indian Oil", "aliases": ["IOCL", "Indian Oil Corporation"], "category": "Fuel" },
+    { "name": "HP Petrol Pump", "aliases": ["HPCL", "Hindustan Petroleum"], "category": "Fuel" },
+    { "name": "Netflix", "aliases": ["NETFLIX"], "category": "Subscriptions" },
+    { "name": "Spotify", "aliases": ["SPOTIFY"], "category": "Subscriptions" },
+    { "name": "Hotstar", "aliases": ["Disney+ Hotstar", "HOTSTAR"], "category": "Entertainment" },
+    { "name": "BookMyShow", "aliases": ["Book My Show", "BOOKMYSHOW"], "category": "Entertainment" },
+    { "name": "Airtel", "aliases": ["Bharti Airtel", "AIRTEL"], "category": "Bills" },
+    { "name": "Jio", "aliases": ["Reliance Jio", "JIO"], "category": "Bills" },
+    { "name": "Apollo Pharmacy", "aliases": ["APOLLO PHARMACY", "apollo247"], "category": "Health" },
+    { "name": "PharmEasy", "aliases": ["PHARMEASY"], "category": "Health" }
+  ]
+}

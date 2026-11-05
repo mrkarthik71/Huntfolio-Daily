@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+        Read-only by design (Requirement 2.1): this manifest must never declare SEND_SMS,
+        CALL_PHONE or WRITE_CALENDAR. Feature permissions are added by the phase that needs
+        them and are requested only when the User enables that feature (Requirement 5.1).
+    -->
+
+    <!-- Phase 1 notification delivery (Requirements 5.1, 18, 19). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
+    <!-- Phase 2 calendar reading (Requirement 22.1); requested at runtime only when the User
+         opens calendar settings. Read-only — the app never writes to the calendar. -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+
+    <application
+        android:name=".app.AssistantApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:hasFragileUserData="false"
+        android:icon="@drawable/ic_launcher"
+        android:roundIcon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Assistant"
+        tools:targetApi="35">
+
+        <!-- On-demand WorkManager init: the Application supplies a Hilt WorkerFactory, so the
+             default initializer is removed (Configuration.Provider). -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- "Why am I seeing this?" shows no user content, so it needs no App_Lock (Requirement 18.6). -->
+        <activity
+            android:name=".ui.why.WhyActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Assistant" />
+
+        <!-- The single exact alarm fires here (Requirement 19.2). -->
+        <receiver
+            android:name=".notify.AlarmReceiver"
+            android:exported="false" />
+
+        <!-- The Snooze notification action (Requirement 18.5). -->
+        <receiver
+            android:name=".notify.NotificationActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="app.assistant.action.SNOOZE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Boot, time, zone, update and exact-alarm changes reschedule everything (Requirements 19.1, 19.4, 65.5). -->
+        <receiver
+            android:name=".notify.SystemEventReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Home-screen widget (design: Today_Widget). -->
+        <receiver
+            android:name=".widget.TodayWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/today_widget_info" />
+        </receiver>
+
+        <!--
+            Notification_Reader (Requirement 27): reads only the title and text of Money_App_List apps, never
+            cancels or triggers their actions (Requirement 2.3). Disabled behind @bool/phase_money so it ships
+            off until the money phase is on. Present in BOTH flavours (notification reading is not SMS).
+            android:exported must be true for a NotificationListenerService, and it is protected by the system
+            BIND_NOTIFICATION_LISTENER_SERVICE permission so only Android may bind it.
+        -->
+        <service
+            android:name=".ingest.notifications.MoneyNotificationListenerService"
+            android:enabled="@bool/phase_money"
+            android:exported="true"
+            android:label="@string/notification_reader_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+    </application>
+
+</manifest>

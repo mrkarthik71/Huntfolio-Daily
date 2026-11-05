@@ -1,0 +1,37 @@
+{
+  "otp_keywords": [],
+  "formats": [
+    {
+      "id": "bankB.debit.v1",
+      "origins": ["*BANKB*"],
+      "kind": "DEBIT",
+      "template": "INR {amount} spent on your BankB Card XX{account4} at {merchant} on {date}. Call 1800-xxx if not you.",
+      "date_order": "DMY",
+      "date_separators": "/"
+    },
+    {
+      "id": "bankB.credit.v1",
+      "origins": ["*BANKB*"],
+      "kind": "CREDIT",
+      "template": "INR {amount} credited to a/c XX{account4} on {date} {time} by {merchant}. Info: {reference}",
+      "date_order": "MDY",
+      "date_separators": "/"
+    },
+    {
+      "id": "bankB.bill.v1",
+      "origins": ["*BANKB*"],
+      "kind": "BILL",
+      "template": "BankB: Your card ending {account4} has a bill of INR {amount} due by {due_date}.",
+      "date_order": "MDY",
+      "date_separators": "/"
+    },
+    {
+      "id": "bankB.reversal.v1",
+      "origins": ["*BANKB*"],
+      "kind": "REVERSAL",
+      "template": "Refund of {amount} for {merchant} credited to a/c XX{account4} on {date}. Ref {reference}",
+      "date_order": "DMY",
+      "date_separators": ""
+    }
+  ]
+}

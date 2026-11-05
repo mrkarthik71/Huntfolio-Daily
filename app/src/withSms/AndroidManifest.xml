@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Added only to withSms builds. The smsFree flavour (Sms_Free_Build) declares no SMS permission and
+    contains no Sms_Reader (Requirements 67.2 to 67.4).
+    Read-only: SEND_SMS is never declared (Requirement 2.1).
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- SMS reading is optional, so the app still installs on devices without telephony. -->
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+
+    <!-- The one-time SMS_History_Import runs as a short dataSync foreground worker (Requirement 26.2). -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
+    <application>
+
+        <!--
+            SMS_RECEIVED receiver (Requirement 26.1): reads bank/UPI SMS from listed senders only. Disabled
+            behind @bool/phase_money so it ships off until the money phase is on. It is exported and protected
+            by the system BROADCAST_SMS permission, as the platform requires for an SMS_RECEIVED receiver.
+        -->
+        <receiver
+            android:name="app.assistant.ingest.sms.SmsReceiver"
+            android:enabled="@bool/phase_money"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- After a reboot, catch up on SMS missed while stopped (Requirement 26.6). Disabled behind @bool/phase_money. -->
+        <receiver
+            android:name="app.assistant.ingest.sms.SmsBootReceiver"
+            android:enabled="@bool/phase_money"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

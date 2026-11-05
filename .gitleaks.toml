@@ -1,0 +1,9 @@
+# gitleaks configuration (Requirement 64.6). Uses the default rule set.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synthetic test data and generated schemas"
+paths = [
+  '''app/schemas/.*\.json''',
+]

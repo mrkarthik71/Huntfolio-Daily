@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="money_bill_add">Add a bill</string>
+    <string name="money_bill_empty">No bills yet. Add one and you will be reminded before it is due.</string>
+    <string name="money_bill_section_proposals">Bills found in messages</string>
+    <string name="money_bill_section_paid_proposals">Was this bill paid?</string>
+    <string name="money_bill_section_unpaid">Unpaid</string>
+    <string name="money_bill_section_paid">Paid</string>
+    <string name="money_bill_proposal_line">%1$s, %2$s</string>
+    <string name="money_bill_proposal_name_missing">A bill</string>
+    <string name="money_bill_due_on">Due %1$s</string>
+    <string name="money_bill_no_due_date">No due date found</string>
+    <string name="money_bill_proposal_review">Review and add</string>
+    <string name="money_bill_proposal_dismiss">Dismiss</string>
+    <string name="money_bill_paid_proposal_line">A payment looks like it paid %1$s (%2$s, %3$s). Mark it paid?</string>
+    <string name="money_bill_paid_proposal_yes">Yes, mark paid</string>
+    <string name="money_bill_paid_proposal_no">No, it was not</string>
+    <string name="money_bill_overdue">Overdue</string>
+    <string name="money_bill_is_paid">Paid</string>
+    <string name="money_bill_recurrence_none">Does not repeat</string>
+    <string name="money_bill_recurrence_monthly">Repeats every month</string>
+    <string name="money_bill_recurrence_yearly">Repeats every year</string>
+    <string name="money_bill_more">More actions for %1$s</string>
+    <string name="money_bill_mark_paid">Mark paid</string>
+    <string name="money_bill_edit">Edit</string>
+    <string name="money_bill_delete">Delete</string>
+    <string name="money_bill_delete_title">Delete this bill?</string>
+    <string name="money_bill_delete_body">%1$s is removed and its reminder is cancelled.</string>
+    <string name="money_bill_notice_paid_next">%1$s is marked paid. The next one is due %2$s.</string>
+    <string name="money_bill_notice_paid">%1$s is marked paid.</string>
+    <string name="money_bill_notice_failed">That bill could not be marked paid. It may already be paid or removed.</string>
+    <string name="money_bill_notice_dismiss">Got it</string>
+    <string name="money_bill_editor_add">Add a bill</string>
+    <string name="money_bill_editor_edit">Edit bill</string>
+    <string name="money_bill_editor_review">Review the bill</string>
+    <string name="money_bill_name_label">Name</string>
+    <string name="money_bill_amount_label">Amount (₹)</string>
+    <string name="money_bill_due_label">Due date</string>
+    <string name="money_bill_repeat_label">Repeat</string>
+</resources>

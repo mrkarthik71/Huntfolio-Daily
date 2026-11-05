@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="consent_title">Before you start</string>
+    <string name="consent_accept">I understand and agree</string>
+    <!-- Privacy_Policy (Requirement 66.7), bundled so it is readable offline and never fetched. -->
+    <string name="privacy_policy">This app keeps your data on your device in an encrypted store. It reads only the sources you connect (calendar, SMS, notifications, mailbox) and only to help you plan your day, track money and triage mail.\n\nWhen you turn Cloud AI on, redacted summaries — never raw messages, names, phone numbers or account numbers — are sent through a proxy to an AI provider, within the monthly cap you set. Nothing is sent while AI is off.\n\nYou can export an encrypted backup, delete everything at any time, and disconnect any source. The app never sends messages, writes to your calendar, or acts on other apps\u2019 notifications.</string>
+</resources>
