@@ -31,7 +31,6 @@ fun CredCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
  */
 @Composable
 fun HeroCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
     Box(
         modifier
             .fillMaxWidth()
