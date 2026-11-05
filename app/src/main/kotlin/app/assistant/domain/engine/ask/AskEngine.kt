@@ -143,6 +143,7 @@ object AskParser {
         }
     }
 
+    @Suppress("ReturnCount") // one early return per time form ("in", "at", "tomorrow") reads clearer than nesting
     private fun parseRemind(body: String, now: LocalDateTime): AskQuery {
         inTime.find(body)?.let { m ->
             val n = m.groupValues[1].toLong()
