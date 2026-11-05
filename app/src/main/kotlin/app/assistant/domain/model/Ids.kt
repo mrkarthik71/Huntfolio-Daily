@@ -41,3 +41,11 @@ package app.assistant.domain.model
 @JvmInline value class AuditId(val value: Long)
 
 @JvmInline value class ReportId(val value: Long)
+
+@JvmInline value class MilestoneId(val value: Long)
+
+@JvmInline value class RoutineId(val value: Long)
+
+@JvmInline value class ReminderId(val value: Long)
+
+@JvmInline value class CardId(val value: Long)

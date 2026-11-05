@@ -15,13 +15,13 @@ Branch: claude/add-ui-ux-pro-max-skill (push blocked until GitHub access is gran
 ## Steps (tick when done, commit after each)
 
 - [x] 1. Green tests: SMS fixtures to 200, SubscriptionsScreenTest re-run.
-- [ ] 2. Rename to Apex Assistant (app_name, launcher label).
+- [x] 2. Rename to Apex Assistant (app_name, launcher label).
 - [ ] 3. Design system v2: Manrope via downloadable Google Fonts, energy colour tokens, motion
         primitives (press-scale, staggered entrance, animated counters/rings, shared nav transitions),
         reduced-motion switch.
-- [ ] 4. Module A domain: milestones, task priority, energy tag, verification (Room v10 migration),
+- [x] 4. Module A domain: milestones, task priority, energy tag, verification (Room v10 migration),
         SlotAssigner + estimator engine with tests.
-- [ ] 5. Module B: routines (daily/weekday rules), Rescheduler engine with tests.
+- [x] 5. Module B: routines (daily/weekday rules), Rescheduler engine with tests.
 - [ ] 6. Today dashboard: focus hero, load meter, proactive card, energy timeline, free-slot fill.
 - [ ] 7. Goals screen v2: progress ring, hours, forecast, milestones; goal detail.
 - [ ] 8. Plan-with-AI proposal sheet (rule-based fallback when AI is off; GatewayAdvisor when on).

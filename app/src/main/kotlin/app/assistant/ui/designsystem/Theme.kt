@@ -98,17 +98,32 @@ object AssistantColors {
  * calm and readable. A shared line-height trim keeps big headings from floating.
  */
 object AssistantType {
+    /** Manrope (variable, bundled, SIL OFL) for display, headline and title roles; body stays the system face. */
+    @OptIn(androidx.compose.ui.text.ExperimentalTextApi::class)
+    private fun manrope(weight: FontWeight) = androidx.compose.ui.text.font.Font(
+        app.assistant.R.font.manrope,
+        weight = weight,
+        variationSettings = androidx.compose.ui.text.font.FontVariation.Settings(androidx.compose.ui.text.font.FontVariation.weight(weight.weight)),
+    )
+
+    val display = androidx.compose.ui.text.font.FontFamily(
+        manrope(FontWeight.Medium),
+        manrope(FontWeight.SemiBold),
+        manrope(FontWeight.Bold),
+        manrope(FontWeight.ExtraBold),
+    )
+
     private val trim = LineHeightStyle(
         alignment = LineHeightStyle.Alignment.Center,
         trim = LineHeightStyle.Trim.None,
     )
 
     val typography = Typography(
-        displayLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-0.5).sp, lineHeightStyle = trim),
-        displayMedium = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.4).sp, lineHeightStyle = trim),
-        headlineLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.3).sp),
-        headlineMedium = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 23.sp, lineHeight = 29.sp, letterSpacing = (-0.2).sp),
-        titleLarge = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 19.sp, lineHeight = 24.sp, letterSpacing = (-0.1).sp),
+        displayLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 44.sp, lineHeight = 48.sp, letterSpacing = (-0.5).sp, lineHeightStyle = trim),
+        displayMedium = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 34.sp, lineHeight = 40.sp, letterSpacing = (-0.4).sp, lineHeightStyle = trim),
+        headlineLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.3).sp),
+        headlineMedium = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 23.sp, lineHeight = 29.sp, letterSpacing = (-0.2).sp),
+        titleLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 19.sp, lineHeight = 24.sp, letterSpacing = (-0.1).sp),
         titleMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp),
         bodyLarge = TextStyle(fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 23.sp),
         bodyMedium = TextStyle(fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
@@ -138,6 +153,5 @@ fun AssistantTheme(
         colorScheme = if (darkTheme) AssistantColors.dark else AssistantColors.light,
         typography = AssistantType.typography,
         shapes = AssistantShapes,
-        content = content,
-    )
+    ) { ProvideMotion(content) }
 }

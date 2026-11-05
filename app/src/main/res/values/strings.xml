@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Placeholder until Open decision 1 (app name) is made. -->
-    <string name="app_name">Assistant</string>
+    <string name="app_name">Apex Assistant</string>
 
     <!-- First run -->
     <string name="first_run_title">Welcome</string>

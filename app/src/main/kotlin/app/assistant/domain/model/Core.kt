@@ -14,6 +14,9 @@ data class Goal(
     val parentId: GoalId?,
     val createdAt: Instant,
     val archivedAt: Instant?,
+    /** Apex: optional finish-by date and 1 (highest) to 5 priority for the planner. */
+    val deadline: LocalDate? = null,
+    val priority: Int = DEFAULT_PRIORITY,
 ) {
     val isActive: Boolean get() = archivedAt == null
 
@@ -36,7 +39,15 @@ data class Task(
     val goalId: GoalId?,
     val createdAt: Instant,
     val completedAt: Instant?,
+    /** Apex planning fields: 1 (highest) to 5, the kind of energy it needs, its milestone and how it is verified. */
+    val priority: Int = DEFAULT_PRIORITY,
+    val energy: EnergyTag = EnergyTag.LIGHT_ADMIN,
+    val milestoneId: MilestoneId? = null,
+    val verify: VerifyKind = VerifyKind.NONE,
 )
+
+/** The middle of the 1–5 priority scale, used when nothing else is chosen. */
+const val DEFAULT_PRIORITY = 3
 
 enum class TimeBlockKind { PRIORITY, FOCUS, LEARNING }
 

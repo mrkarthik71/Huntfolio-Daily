@@ -1,4 +1,4 @@
-# Personal Assistant (Android)
+# Apex Assistant (Android)
 
 Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tasks.md). Read the design before changing architecture.
 
@@ -21,7 +21,7 @@ Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tas
 - Parsers must have unit tests with anonymised (synthetic) sample messages.
 
 ## Code conventions
-- Package root `app.assistant`; application ID comes from the `app.id` Gradle property (placeholder until the app is named).
+- Package root `app.assistant`; application ID comes from the `app.id` Gradle property (`app.apex.assistant`).
 - Money is `Paise` (Long). Never Double/Float for amounts.
 - Time only through `TimeSource`; only `data.time.SystemTimeSource` calls `Instant.now()` / `ZoneId.systemDefault()`.
 - Logging only through `SafeLog` with `DiagnosticEvent`s (enums and counts, no strings). Never `android.util.Log`, `println` or Timber elsewhere.
@@ -39,7 +39,7 @@ Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tas
 - Release verification: `.\gradlew.bat :app:verifyReadOnlyPermissions :app:verifyVersionCode`
 
 ## Open decisions (do not guess; ask)
-App name, Cloud AI vendor and cap, mail access method (IMAP app password vs Google sign-in), first banks/UPI apps, APK vs Play, Hindi/Tamil.
+Cloud AI vendor and cap, mail access method (IMAP app password vs Google sign-in), first banks/UPI apps, APK vs Play, Hindi/Tamil.
 
 ## graphify
 

@@ -229,3 +229,35 @@ val MIGRATION_8_9: Migration = object : Migration(8, 9) {
         )
     }
 }
+
+/** Apex planner (v10): task and goal planning columns, and the milestone, routine, reminder, card and proof tables. */
+val MIGRATION_9_10: Migration = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `priority` INTEGER NOT NULL DEFAULT 3")
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `energy` TEXT NOT NULL DEFAULT 'LIGHT_ADMIN'")
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `milestone_id` INTEGER")
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `verify` TEXT NOT NULL DEFAULT 'NONE'")
+        db.execSQL("ALTER TABLE `goal` ADD COLUMN `deadline` TEXT")
+        db.execSQL("ALTER TABLE `goal` ADD COLUMN `priority` INTEGER NOT NULL DEFAULT 3")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `milestone` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `goal_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `position` INTEGER NOT NULL, `due_date` TEXT, `estimate_min` INTEGER, `completed_at` INTEGER, FOREIGN KEY(`goal_id`) REFERENCES `goal`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_milestone_goal_id` ON `milestone` (`goal_id`)")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `routine` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `energy` TEXT NOT NULL, `days_mask` INTEGER NOT NULL, `start_minute` INTEGER NOT NULL, `duration_min` INTEGER NOT NULL, `flexible_min` INTEGER NOT NULL, `active` INTEGER NOT NULL)",
+        )
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `smart_reminder` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `message` TEXT NOT NULL, `kind` TEXT NOT NULL, `fire_at` INTEGER, `place_name` TEXT, `latitude` REAL, `longitude` REAL, `radius_m` INTEGER, `on_enter` INTEGER NOT NULL, `device` TEXT, `not_before_minute` INTEGER, `active` INTEGER NOT NULL, `task_id` INTEGER, `last_fired_at` INTEGER)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_smart_reminder_kind_active` ON `smart_reminder` (`kind`, `active`)")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `proactive_card` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kind` TEXT NOT NULL, `for_date` TEXT NOT NULL, `title` TEXT NOT NULL, `reason` TEXT NOT NULL, `status` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_proactive_card_kind_for_date` ON `proactive_card` (`kind`, `for_date`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_proactive_card_for_date` ON `proactive_card` (`for_date`)")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `task_verification` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `task_id` INTEGER NOT NULL, `kind` TEXT NOT NULL, `link_url` TEXT, `tracked_seconds` INTEGER, `photo_file` TEXT, `created_at` INTEGER NOT NULL, FOREIGN KEY(`task_id`) REFERENCES `task`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_task_verification_task_id` ON `task_verification` (`task_id`)")
+    }
+}
