@@ -78,6 +78,10 @@ data class TodayUi(
     val aiSummary: String? = null,
     val aiSuggestions: List<AiSuggestionRow> = emptyList(),
     val aiUnavailable: Boolean = false,
+    /** Apex: the combined timeline (meetings, task blocks, routines, free time), focus-now and day load. */
+    val day: app.assistant.domain.engine.schedule.DayView? = null,
+    /** Apex: proactive heads-up cards for today and later, newest first. */
+    val cards: List<app.assistant.domain.model.ProactiveCard> = emptyList(),
 )
 
 /** An AI-proposed change the user can accept or dismiss (Requirement 48.2). */
@@ -99,6 +103,7 @@ class TodayViewModel @Inject constructor(
     private val calendar: CalendarRepository,
     private val settings: SettingsStore,
     private val advisor: Advisor,
+    private val planner: app.assistant.domain.port.PlannerRepository,
 ) : ViewModel() {
 
     /** Proposals the User dismissed, keyed by their gap: a changed gap is a new proposal (Requirement 25.5). */
@@ -110,6 +115,15 @@ class TodayViewModel @Inject constructor(
             timed = day.timed.mapNotNull { f -> f.timed?.let { TimedEvent(it, f.title) } },
             refreshedAt = refreshedAt,
         )
+    }
+
+    /** Re-evaluates "focus now" and the minutes left once a minute. */
+    private val minuteTicker = flow {
+        var n = 0L
+        while (true) {
+            emit(n++)
+            delay(MINUTE_MS)
+        }
     }
 
     /** Follows the device date: a new day shows its own plan within a minute (Requirement 15.3). */
@@ -147,9 +161,12 @@ class TodayViewModel @Inject constructor(
                         streak = streak,
                     ) to allBlocks
                 }
+            val withCal = combine(base, calendarSlice(date), settings.settings, dismissed) { (ui, allBlocks), cal, s, skipped ->
+                Triple(withCalendar(ui, allBlocks, cal, s, skipped), allBlocks, cal to s)
+            }
             emitAll(
-                combine(base, calendarSlice(date), settings.settings, dismissed) { (ui, allBlocks), cal, s, skipped ->
-                    withCalendar(ui, allBlocks, cal, s, skipped)
+                combine(withCal, planner.routines(), planner.openCards(date), minuteTicker) { (ui, allBlocks, calSettings), routines, cards, _ ->
+                    ui.copy(day = dayView(ui, allBlocks, calSettings.first, calSettings.second, routines), cards = cards)
                 },
             )
         }
@@ -219,6 +236,63 @@ class TodayViewModel @Inject constructor(
             },
             proposals = proposalsFor(gaps.filterNot { it in skipped }, blocks, ui),
         )
+    }
+
+    /** The Apex day view, rebuilt whenever the plan, calendar or routines change. */
+    private fun dayView(
+        ui: TodayUi,
+        blocks: List<TimeBlock>,
+        cal: CalendarSlice,
+        settings: app.assistant.domain.model.AppSettings,
+        routines: List<app.assistant.domain.model.Routine>,
+    ): app.assistant.domain.engine.schedule.DayView? {
+        val date = ui.date ?: return null
+        val zone = ui.zone
+        fun minuteOf(i: Instant): Int {
+            val z = i.atZone(zone)
+            return when {
+                z.toLocalDate().isBefore(date) -> 0
+                z.toLocalDate().isAfter(date) -> app.assistant.domain.engine.schedule.MINUTES_PER_DAY
+                else -> z.toLocalTime().toSecondOfDay() / SECONDS_PER_MINUTE
+            }
+        }
+        fun span(r: InstantRange) = app.assistant.domain.engine.schedule.Span(minuteOf(r.start), maxOf(minuteOf(r.start), minuteOf(r.end)))
+        val tasksById = (ui.priorities.map { it.task } + ui.otherTasks).associateBy { it.id }
+        val blockFacts = blocks.mapNotNull { b ->
+            val task = b.taskId?.let(tasksById::get)
+            app.assistant.domain.engine.schedule.BlockFacts(
+                taskId = b.taskId?.value ?: return@mapNotNull null,
+                title = task?.title ?: return@mapNotNull null,
+                span = span(b.range),
+                energy = task.energy,
+                done = task.status == TaskStatus.DONE,
+            )
+        }
+        val all = ui.priorities.map { it.task } + ui.otherTasks
+        val wh = settings.workingHours
+        val working = if (wh.spansMidnight) {
+            app.assistant.domain.engine.schedule.Span(wh.start.toSecondOfDay() / SECONDS_PER_MINUTE, app.assistant.domain.engine.schedule.MINUTES_PER_DAY)
+        } else {
+            app.assistant.domain.engine.schedule.Span.of(wh.start, wh.end)
+        }
+        return app.assistant.domain.engine.schedule.DayTimeline.build(
+            weekday = date.dayOfWeek,
+            nowMinute = minuteOf(time.now()),
+            working = working,
+            meetings = cal.timed.map { it.title to span(it.range) }.filter { it.second.minutes > 0 },
+            blocks = blockFacts,
+            routines = routines,
+            tasksDone = all.count { it.status == TaskStatus.DONE },
+            tasksTotal = all.size,
+        )
+    }
+
+    fun acceptCard(id: app.assistant.domain.model.CardId) {
+        viewModelScope.launch { planner.setCardStatus(id, app.assistant.domain.model.CardStatus.ACCEPTED) }
+    }
+
+    fun dismissCard(id: app.assistant.domain.model.CardId) {
+        viewModelScope.launch { planner.setCardStatus(id, app.assistant.domain.model.CardStatus.DISMISSED) }
     }
 
     /** Ranked open Tasks (Priorities first) that have an estimate and no Time_Block yet, fitted into each gap once. */
@@ -297,6 +371,8 @@ class TodayViewModel @Inject constructor(
 
     private companion object {
         const val DATE_CHECK_MS = 30_000L
+        const val SECONDS_PER_MINUTE = 60
+        const val MINUTE_MS = 60_000L
         const val BILL_LEAD_DAYS = 2L
         const val MAX_PRIORITIES = 3
     }

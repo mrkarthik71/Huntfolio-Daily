@@ -62,6 +62,7 @@ class AppStartup @Inject constructor(
                     runCatching { billAlarms.sync() }
                     app.assistant.data.maintenance.MaintenanceDailyWorker.schedule(context)
                     app.assistant.data.health.HealthCheckWorker.schedule(context)
+                    app.assistant.data.planner.ProactiveWorker.schedule(context)
                     observeWidgetData()
                     observeReviewQueueForFallback()
                     if (FeatureFlags.CALENDAR) startCalendarRefresh()

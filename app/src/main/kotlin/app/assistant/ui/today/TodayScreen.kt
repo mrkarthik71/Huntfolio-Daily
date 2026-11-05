@@ -17,15 +17,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,15 +46,23 @@ import app.assistant.domain.model.TaskStatus
 import app.assistant.ui.common.errorText
 import app.assistant.ui.common.formatDate
 import app.assistant.ui.designsystem.CredCard
-import app.assistant.ui.designsystem.HeroCard
 import app.assistant.ui.designsystem.SectionHeader
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.ui.semantics.heading
+import app.assistant.domain.engine.schedule.DayItemKind
+import app.assistant.ui.designsystem.EnergyColors
+import app.assistant.ui.designsystem.FocusHero
+import app.assistant.ui.designsystem.PillButton
+import app.assistant.ui.designsystem.ProactiveCardView
+import app.assistant.ui.designsystem.TimelineRow
+import app.assistant.ui.designsystem.enterAnimated
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 private val clock: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
 private const val MAX_QUICK_ADD = 200
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hiltViewModel()) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
@@ -69,38 +74,40 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
         if (ui.date != null) viewModel.requestAiWording()
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.today_title), style = MaterialTheme.typography.titleLarge) },
-                actions = {
-                    TextButton(onClick = { ui.date?.let { onOpenReview(it.toString()) } }) { Text(stringResource(R.string.today_open_review)) }
-                },
-                colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
-            )
-        },
-    ) { padding ->
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             item {
-                HeroCard {
-                    Text(
-                        ui.date?.let(::formatDate) ?: stringResource(R.string.today_title),
-                        style = MaterialTheme.typography.displayMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                    if (ui.streak > 0) {
-                        Text(
-                            stringResource(R.string.today_streak, ui.streak),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
+                Row(Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.Bottom) {
+                    Column(Modifier.weight(1f)) {
+                        Text(ui.date?.let(::formatDate).orEmpty(), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.today_title), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
                     }
+                    PillButton(
+                        stringResource(R.string.today_open_review),
+                        onClick = { ui.date?.let { onOpenReview(it.toString()) } },
+                        container = MaterialTheme.colorScheme.surface,
+                        content = MaterialTheme.colorScheme.onSurface,
+                        border = MaterialTheme.colorScheme.outlineVariant,
+                    )
                 }
+            }
+            item { TodayHero(ui, Modifier.enterAnimated(0)) }
+            itemsIndexed(ui.cards, key = { _, c -> "card${c.id.value}" }) { i, card ->
+                ProactiveCardView(
+                    title = card.title,
+                    body = card.reason,
+                    acceptLabel = if (card.kind == app.assistant.domain.model.CardKind.FREE_SLOT) stringResource(R.string.card_fill_slot) else stringResource(R.string.card_got_it),
+                    dismissLabel = stringResource(R.string.card_dismiss),
+                    whyLabel = stringResource(R.string.card_why),
+                    why = stringResource(cardWhy(card.kind)),
+                    onAccept = { viewModel.acceptCard(card.id) },
+                    onDismiss = { viewModel.dismissCard(card.id) },
+                    modifier = Modifier.enterAnimated(i + 1),
+                )
             }
             item {
                 QuickAdd(
@@ -124,8 +131,9 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
                 )
             }
             aiWordingSection(ui)
+            timelineSection(ui)
             calendarSection(ui, viewModel)
-            item { SectionHeader(stringResource(R.string.today_priorities)) }
+            item { SectionHeader(stringResource(R.string.today_priorities).uppercase()) }
             if (!ui.loading && ui.priorities.isEmpty()) {
                 item { EmptyLine(stringResource(R.string.today_no_priorities)) }
             }
@@ -154,7 +162,7 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
                 )
             }
             if (ui.otherTasks.isNotEmpty()) {
-                item { SectionHeader(stringResource(R.string.today_other_tasks)) }
+                item { SectionHeader(stringResource(R.string.today_other_tasks).uppercase()) }
                 items(ui.otherTasks, key = { "o${it.id.value}" }) { task ->
                     TaskRow(
                         task = task,
@@ -172,19 +180,19 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
                 }
             }
             if (ui.behindGoals.isNotEmpty()) {
-                item { SectionHeader(stringResource(R.string.today_behind_goals)) }
+                item { SectionHeader(stringResource(R.string.today_behind_goals).uppercase()) }
                 items(ui.behindGoals, key = { "g${it.goal.id.value}" }) { g ->
                     CredCard {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             // Status shown with an icon and text, not colour alone (Requirement 63.6).
-                            Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                            Icon(Icons.Filled.Warning, contentDescription = null, tint = EnergyColors.Warning)
                             Text(stringResource(R.string.today_goal_behind, g.goal.name, g.daysBehind), style = MaterialTheme.typography.bodyLarge)
                         }
                     }
                 }
             }
             if (ui.dueBills.isNotEmpty()) {
-                item { SectionHeader(stringResource(R.string.today_bills_due)) }
+                item { SectionHeader(stringResource(R.string.today_bills_due).uppercase()) }
                 items(ui.dueBills, key = { "b${it.id.value}" }) { bill ->
                     CredCard {
                         Text(
@@ -197,6 +205,100 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
         }
     }
 }
+
+/** The focus-now hero: the block covering now, else what is next, with load, streak and done counts. */
+@Composable
+private fun TodayHero(ui: TodayUi, modifier: Modifier = Modifier) {
+    val day = ui.day
+    val focus = day?.focusNow
+    val facts = buildList {
+        if (day != null) add(stringResource(R.string.today_load_chip, day.loadPercent))
+        if (ui.streak > 0) add(stringResource(R.string.today_streak_chip, ui.streak))
+        if (day != null && day.tasksTotal > 0) add(stringResource(R.string.today_done_chip, day.tasksDone, day.tasksTotal))
+    }
+    if (focus != null) {
+        FocusHero(
+            eyebrow = stringResource(R.string.today_focus_now, stringResource(energyLabel(focus.energy, focus.kind))),
+            title = focus.title,
+            subtitle = stringResource(R.string.today_focus_left, minuteText(focus.span.start), minuteText(focus.span.end), day.focusMinutesLeft),
+            progress = day.focusProgress,
+            facts = facts,
+            accent = EnergyColors.of(focus.energy).takeIf { focus.kind != DayItemKind.MEETING } ?: MaterialTheme.colorScheme.primary,
+            modifier = modifier,
+        )
+    } else {
+        val next = day?.items?.firstOrNull { it.kind != DayItemKind.FREE && !it.done && it.span.start >= (day.items.firstOrNull()?.span?.start ?: 0) }
+        FocusHero(
+            eyebrow = stringResource(R.string.today_free_now),
+            title = ui.date?.let(::formatDate) ?: stringResource(R.string.today_title),
+            subtitle = next?.let { stringResource(R.string.today_next_up, it.title, minuteText(it.span.start)) },
+            progress = null,
+            facts = facts,
+            modifier = modifier,
+        )
+    }
+}
+
+/** The day's timeline: meetings, task blocks, routines and free stretches in time order. */
+private fun LazyListScope.timelineSection(ui: TodayUi) {
+    val day = ui.day ?: return
+    if (day.items.isEmpty()) return
+    item {
+        Row(Modifier.fillMaxWidth().padding(start = 4.dp, end = 4.dp, top = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            SectionHeader(stringResource(R.string.today_timeline).uppercase(), Modifier.weight(1f))
+            Text(
+                stringResource(R.string.today_booked, durationText(day.bookedMinutes), durationText(day.freeMinutes)),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+    itemsIndexed(day.items, key = { _, it -> it.key }) { i, item ->
+        val free = item.kind == DayItemKind.FREE
+        TimelineRow(
+            start = minuteText(item.span.start),
+            end = minuteText(item.span.end),
+            title = if (free) stringResource(R.string.today_free_slot, item.span.minutes) else item.title,
+            subtitle = if (free) stringResource(R.string.today_free_slot_hint) else stringResource(kindLabel(item)),
+            energy = if (free) null else EnergyColors.of(item.energy),
+            isNow = item.key == day.focusNow?.key,
+            done = item.done,
+            dashed = free,
+            modifier = Modifier.enterAnimated(i),
+        )
+    }
+}
+
+private fun minuteText(m: Int): String = "%02d:%02d".format(m / MINUTES_PER_HOUR % HOURS_PER_DAY, m % MINUTES_PER_HOUR)
+
+@Composable
+private fun durationText(minutes: Int): String =
+    if (minutes >= MINUTES_PER_HOUR) stringResource(R.string.duration_h_m, minutes / MINUTES_PER_HOUR, minutes % MINUTES_PER_HOUR) else stringResource(R.string.duration_m, minutes)
+
+private fun energyLabel(tag: app.assistant.domain.model.EnergyTag?, kind: DayItemKind): Int = when {
+    kind == DayItemKind.MEETING -> R.string.kind_meeting
+    tag == app.assistant.domain.model.EnergyTag.DEEP_WORK -> R.string.energy_deep_work
+    tag == app.assistant.domain.model.EnergyTag.PHYSICAL_ROUTINE -> R.string.energy_physical
+    tag == app.assistant.domain.model.EnergyTag.REST -> R.string.energy_rest
+    else -> R.string.energy_light_admin
+}
+
+private fun kindLabel(item: app.assistant.domain.engine.schedule.DayItem): Int = when (item.kind) {
+    DayItemKind.MEETING -> R.string.kind_meeting
+    DayItemKind.ROUTINE -> R.string.kind_routine
+    else -> energyLabel(item.energy, item.kind)
+}
+
+private fun cardWhy(kind: app.assistant.domain.model.CardKind): Int = when (kind) {
+    app.assistant.domain.model.CardKind.OVERLOAD -> R.string.card_why_overload
+    app.assistant.domain.model.CardKind.GOAL_AT_RISK -> R.string.card_why_goal
+    app.assistant.domain.model.CardKind.RENEWAL_SOON -> R.string.card_why_renewal
+    app.assistant.domain.model.CardKind.FREE_SLOT -> R.string.card_why_free
+    app.assistant.domain.model.CardKind.ROUTINE_MISSED -> R.string.card_why_routine
+}
+
+private const val MINUTES_PER_HOUR = 60
+private const val HOURS_PER_DAY = 24
 
 @Composable
 private fun EmptyLine(text: String) {

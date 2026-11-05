@@ -23,7 +23,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 private val clock: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-private val dateTime: DateTimeFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
 
 private fun InstantRange.startText(zone: ZoneId) = start.atZone(zone).format(clock)
 
@@ -35,30 +34,12 @@ private fun InstantRange.endText(zone: ZoneId) = end.atZone(zone).format(clock)
  */
 internal fun LazyListScope.calendarSection(ui: TodayUi, viewModel: TodayViewModel) {
     if (ui.loading) return
-    item { SectionHeader(stringResource(R.string.today_events)) }
-    val refreshed = ui.calendarRefreshedAt
-    if (refreshed == null) {
+    // Events are drawn in the Apex timeline; this section keeps the connection note, conflicts and focus proposals.
+    if (ui.calendarRefreshedAt == null) {
         item { CalendarNote(stringResource(R.string.today_calendar_not_connected)) }
-    } else {
-        item {
-            CalendarNote(stringResource(R.string.today_calendar_refreshed, refreshed.atZone(ui.zone).format(dateTime)))
-        }
-        if (ui.allDay.isEmpty() && ui.timeline.isEmpty()) item { CalendarNote(stringResource(R.string.today_no_events)) }
-        items(ui.allDay, key = { "ad$it" }) { title ->
-            CredCard { Text(stringResource(R.string.today_all_day, title), style = MaterialTheme.typography.bodyLarge) }
-        }
-        items(ui.timeline, key = { "ev${it.event.range.start}${it.event.title}" }) { entry ->
-            val range = entry.event.range
-            val whenText = if (entry.startsEarlier) {
-                stringResource(R.string.today_event_time_earlier, range.start.atZone(ui.zone).format(dateTime), range.endText(ui.zone))
-            } else {
-                stringResource(R.string.today_event_time, range.startText(ui.zone), range.endText(ui.zone))
-            }
-            CredCard {
-                Text(entry.event.title, style = MaterialTheme.typography.bodyLarge)
-                Text(whenText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
+    }
+    items(ui.allDay, key = { "ad$it" }) { title ->
+        CredCard { Text(stringResource(R.string.today_all_day, title), style = MaterialTheme.typography.bodyLarge) }
     }
     if (ui.conflicts.isNotEmpty()) {
         item { SectionHeader(stringResource(R.string.today_conflicts)) }

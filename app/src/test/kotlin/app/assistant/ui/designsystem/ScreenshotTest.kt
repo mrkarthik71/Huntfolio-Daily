@@ -111,6 +111,19 @@ class ScreenshotTest {
             calendar = FakeCalendarRepository(),
             settings = FakeSettingsStore(),
             advisor = app.assistant.domain.port.Advisor.Disabled,
+            planner = app.assistant.testing.FakePlannerRepository(
+                routines = listOf(
+                    app.assistant.domain.model.Routine(app.assistant.domain.model.RoutineId(1), "Morning run", app.assistant.domain.model.EnergyTag.PHYSICAL_ROUTINE, java.time.DayOfWeek.entries.toSet(), java.time.LocalTime.of(7, 0), 45, 30, true),
+                    app.assistant.domain.model.Routine(app.assistant.domain.model.RoutineId(2), "Draft the Q4 roadmap", app.assistant.domain.model.EnergyTag.DEEP_WORK, java.time.DayOfWeek.entries.toSet(), java.time.LocalTime.of(8, 30), 90, 0, true),
+                    app.assistant.domain.model.Routine(app.assistant.domain.model.RoutineId(3), "Inbox and admin", app.assistant.domain.model.EnergyTag.LIGHT_ADMIN, java.time.DayOfWeek.entries.toSet(), java.time.LocalTime.of(13, 30), 45, 15, true),
+                ),
+                cards = listOf(
+                    app.assistant.domain.model.ProactiveCard(
+                        app.assistant.domain.model.CardId(1), app.assistant.domain.model.CardKind.OVERLOAD, today.plusDays(1),
+                        "Tomorrow is overbooked", "9 h 20 m planned in 7 h 0 m of free time. Move something to a lighter day?", app.assistant.domain.model.CardStatus.NEW,
+                    ),
+                ),
+            ),
         )
         capture("01-today") { Shell("today") { TodayScreen(onOpenReview = {}, viewModel = vm) } }
     }
