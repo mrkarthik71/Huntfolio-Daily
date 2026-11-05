@@ -31,6 +31,7 @@ object HuntfolioParser {
         return Outcome.Ok(HuntfolioImport(formatVersion, records))
     }
 
+    @Suppress("ReturnCount") // each early return is one invalid-record reason
     private fun record(row: Row): Outcome<HuntfolioRecord?, String> {
         val key = row.fields["key"]?.trim().orEmpty()
         if (key.isBlank()) return Outcome.Err("missing key")

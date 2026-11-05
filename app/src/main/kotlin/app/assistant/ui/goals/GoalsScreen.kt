@@ -135,7 +135,7 @@ fun GoalsScreen(viewModel: GoalsViewModel = hiltViewModel()) {
                 }
             }
         }
-        itemsIndexed(ui.goals.drop(1), key = { _, it -> it.goal.id.value }) { i, status ->
+        itemsIndexed(ui.goals.drop(1), key = { _, status -> status.goal.id.value }) { i, status ->
             GoalCard(
                 status = status,
                 plan = ui.plans[status.goal.id],
@@ -510,7 +510,7 @@ private fun GoalPlanningDialog(status: GoalStatus, onSave: (java.time.LocalDate?
                 DateField(label = stringResource(R.string.goal_deadline), value = deadline, onChange = { deadline = it })
                 Text(stringResource(R.string.goal_priority_label), style = MaterialTheme.typography.labelLarge)
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    (1..5).forEach { p -> FilterChip(selected = p == priority, onClick = { priority = p }, label = { Text("$p") }) }
+                    for (p in 1..5) FilterChip(selected = p == priority, onClick = { priority = p }, label = { Text("$p") })
                 }
                 Text(
                     stringResource(R.string.goal_priority_hint),

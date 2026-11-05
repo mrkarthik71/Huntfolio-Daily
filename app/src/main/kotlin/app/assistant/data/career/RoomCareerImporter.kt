@@ -39,6 +39,7 @@ class RoomCareerImporter @Inject constructor(private val holder: DatabaseHolder,
         )
     }
 
+    @Suppress("LoopWithTooManyJumpStatements") // one pass over records: skip known, skip invalid, then insert
     override suspend fun commit(import: HuntfolioImport, skills: List<SkillChoice>): ImportResult {
         val db = holder.database()
         val importDao = db.importRecordDao()

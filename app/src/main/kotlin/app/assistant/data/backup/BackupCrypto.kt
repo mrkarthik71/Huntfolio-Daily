@@ -42,18 +42,17 @@ object BackupCrypto {
         return out
     }
 
-    private fun streaming(key: ByteArray, associatedData: ByteArray): AesGcmHkdfStreaming =
-        AesGcmHkdfStreaming(key, HKDF_ALG, KEY_BYTES, SEGMENT_BYTES, FIRST_SEGMENT_OFFSET)
+    private fun streaming(key: ByteArray): AesGcmHkdfStreaming = AesGcmHkdfStreaming(key, HKDF_ALG, KEY_BYTES, SEGMENT_BYTES, FIRST_SEGMENT_OFFSET)
 
     /** Encrypts [plaintext] into [out]; [associatedData] is the header, so tampering fails decrypt. */
     fun encrypt(key: ByteArray, associatedData: ByteArray, plaintext: InputStream, out: OutputStream) {
-        val channel = streaming(key, associatedData).newEncryptingChannel(Channels.newChannel(out), associatedData)
+        val channel = streaming(key).newEncryptingChannel(Channels.newChannel(out), associatedData)
         Channels.newOutputStream(channel).use { plaintext.copyTo(it) }
     }
 
     /** Decrypts [ciphertext] into [out]; throws if the key is wrong or the header/body was tampered with. */
     fun decrypt(key: ByteArray, associatedData: ByteArray, ciphertext: InputStream, out: OutputStream) {
-        val channel = streaming(key, associatedData).newDecryptingChannel(Channels.newChannel(ciphertext), associatedData)
+        val channel = streaming(key).newDecryptingChannel(Channels.newChannel(ciphertext), associatedData)
         Channels.newInputStream(channel).use { it.copyTo(out) }
     }
 

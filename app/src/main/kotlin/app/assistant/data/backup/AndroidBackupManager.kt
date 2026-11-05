@@ -114,6 +114,7 @@ class AndroidBackupManager @Inject constructor(
         out.write(bytes)
     }
 
+    @Suppress("ReturnCount") // each early return rejects one malformed header field
     private fun readHeader(input: InputStream): ExportHeader? {
         val len = ByteArray(4).let {
             if (input.read(it) !=

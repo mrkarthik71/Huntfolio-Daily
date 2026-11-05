@@ -44,6 +44,7 @@ class MailSync @Inject constructor(
 ) {
     data class SyncResult(val fetched: Int, val stored: Int, val notified: Int, val error: Boolean)
 
+    @Suppress("NestedBlockDepth", "LoopWithTooManyJumpStatements") // batched IMAP loop with resume and skip points
     suspend fun sync(): SyncResult {
         val db = holder.database()
         val dao = db.mailDao()

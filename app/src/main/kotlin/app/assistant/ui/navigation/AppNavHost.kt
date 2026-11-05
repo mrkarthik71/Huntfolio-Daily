@@ -130,7 +130,6 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             composable(Routes.GOALS) { GoalsScreen() }
             composable(Routes.SETTINGS) {
                 SettingsScreen(
-                    onBack = { nav.navigate(Routes.TODAY) { launchSingleTop = true } },
                     onOpenAuditLog = { nav.navigate(Routes.AUDIT_LOG) },
                     onOpenNotifications = { nav.navigate(Routes.NOTIFICATIONS) },
                     onOpenCalendars = { nav.navigate(Routes.CALENDAR_SETTINGS) },

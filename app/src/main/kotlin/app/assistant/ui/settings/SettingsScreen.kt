@@ -44,7 +44,6 @@ import app.assistant.ui.designsystem.ScreenTitle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBack: () -> Unit,
     onOpenAuditLog: () -> Unit,
     onOpenNotifications: () -> Unit,
     onOpenCalendars: () -> Unit,

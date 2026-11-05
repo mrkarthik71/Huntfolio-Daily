@@ -51,6 +51,7 @@ object NumberTokens {
     }.toSet()
 
     /** Spelled-out cardinals 0-9999 (e.g. "one thousand two hundred" -> "1200"). Best effort, no decimals. */
+    @Suppress("NestedBlockDepth", "ComplexCondition") // a small hand-written number-word scanner
     private fun englishNumbers(text: String): Set<String> {
         val words = text.lowercase().split(Regex("[^a-z]+")).filter { it.isNotBlank() }
         val out = mutableSetOf<String>()

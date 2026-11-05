@@ -31,6 +31,7 @@ import javax.inject.Singleton
  * (Requirements 17.6, 18.9, 20.7). It runs off the main thread and never blocks the first frame.
  */
 @Singleton
+@Suppress("LongParameterList") // the app start-up root wires every background job
 class AppStartup @Inject constructor(
     private val notifier: Notifier,
     private val scheduler: NotificationScheduling,

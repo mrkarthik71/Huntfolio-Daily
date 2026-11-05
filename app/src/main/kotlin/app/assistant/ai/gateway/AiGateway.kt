@@ -42,6 +42,7 @@ class AiGateway(
      * Runs one feature request. [render] turns the payload into the prompt+body text the provider
      * sends; [context] is what the Output_Validator checks the reply against.
      */
+    @Suppress("ReturnCount") // each guard is one documented refusal (Requirement 42, 43)
     suspend fun run(type: PromptType, payload: RedactedPayload, prompt: String, context: OutputContext): Outcome<Success, AiFailure> {
         val mode = config.mode()
         if (mode == AiMode.NONE) return Outcome.Err(AiFailure.DISABLED)
@@ -53,7 +54,7 @@ class AiGateway(
         val startEpoch = config.epoch()
         var lastFailure: AiFailure = AiFailure.TRANSPORT
 
-        for (attempt in 1..MAX_ATTEMPTS) {
+        repeat(MAX_ATTEMPTS) {
             if (mode == AiMode.CLOUD) {
                 if (cap.isCapReached(capPaise)) return Outcome.Err(AiFailure.CAP_REACHED)
                 if (!cap.tryReserve(capPaise)) return Outcome.Err(AiFailure.CAP_REACHED)

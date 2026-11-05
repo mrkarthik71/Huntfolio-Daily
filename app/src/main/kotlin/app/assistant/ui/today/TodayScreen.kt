@@ -263,7 +263,7 @@ private fun LazyListScope.timelineSection(ui: TodayUi) {
             )
         }
     }
-    itemsIndexed(day.items, key = { _, it -> it.key }) { i, item ->
+    itemsIndexed(day.items, key = { _, row -> row.key }) { i, item ->
         val free = item.kind == DayItemKind.FREE
         TimelineRow(
             start = minuteText(item.span.start),

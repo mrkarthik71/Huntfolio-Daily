@@ -34,6 +34,7 @@ class RoomBackupDataSource @Inject constructor(
     private val settings: DataStore<SettingsProto>,
 ) : BackupDataSource {
 
+    @Suppress("NestedBlockDepth") // streams every table row by row
     override suspend fun dumpData(out: OutputStream) {
         val db = holder.database().openHelper.readableDatabase
         val writer = out.bufferedWriter()
@@ -111,12 +112,14 @@ class RoomBackupDataSource @Inject constructor(
         marker.delete()
     }
 
+    private fun isUserTable(name: String): Boolean = name !in EXCLUDED && SYSTEM_PREFIXES.none { name.startsWith(it) }
+
     private fun userTables(db: androidx.sqlite.db.SupportSQLiteDatabase): List<String> {
         val tables = mutableListOf<String>()
         db.query("SELECT name FROM sqlite_master WHERE type='table'").use { c ->
             while (c.moveToNext()) {
                 val name = c.getString(0)
-                if (name !in EXCLUDED && !name.startsWith("sqlite_") && !name.startsWith("android_") && !name.startsWith("room_")) tables += name
+                if (isUserTable(name)) tables += name
             }
         }
         return tables
@@ -126,6 +129,7 @@ class RoomBackupDataSource @Inject constructor(
         const val STAGING = "assistant-staging.db"
         const val RESTORE_MARKER = "restore.marker"
         const val BLOB_TAG = "::b64blob"
+        private val SYSTEM_PREFIXES = listOf("sqlite_", "android_", "room_")
         val EXCLUDED = setOf("secret", "sqlite_sequence", "room_master_table")
     }
 }

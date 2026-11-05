@@ -240,6 +240,7 @@ private fun subtitle(r: SmartReminder, zone: java.time.ZoneId): String = when (r
 /** Adds one reminder; asks for location or Bluetooth only here, with the reason shown first. */
 @SuppressLint("MissingPermission")
 @Composable
+@Suppress("CyclomaticComplexMethod") // one form, three reminder kinds; branches are per field
 private fun AddReminderDialog(kind: ReminderKind, today: LocalDate, zone: java.time.ZoneId, onSave: (SmartReminder) -> Unit, onDismiss: () -> Unit) {
     val context = LocalContext.current
     var message by rememberSaveable { mutableStateOf("") }

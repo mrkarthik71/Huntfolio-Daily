@@ -191,7 +191,6 @@ class ScreenshotTest {
         capture("03-settings") {
             Shell("settings") {
                 SettingsScreen(
-                    onBack = {},
                     onOpenAuditLog = {},
                     onOpenNotifications = {},
                     onOpenCalendars = {},

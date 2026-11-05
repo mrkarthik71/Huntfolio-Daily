@@ -43,6 +43,7 @@ data class BlockFacts(val taskId: Long, val title: String, val span: Span, val e
 object DayTimeline {
     const val MIN_FREE = 30
 
+    @Suppress("LongParameterList") // pure function; every input is a fact about the day
     fun build(
         weekday: DayOfWeek,
         nowMinute: Int,

@@ -133,6 +133,7 @@ abstract class AiModule {
 
         @Provides
         @Singleton
+        @Suppress("LongParameterList") // DI provider: the gateway needs each collaborator
         fun aiGateway(
             config: AiConfig,
             connectivity: Connectivity,

@@ -70,6 +70,7 @@ class OutputValidator(private val restrictedAdvice: List<Regex>) {
         Outcome.Err(OutputError.MALFORMED)
     }
 
+    @Suppress("ReturnCount") // a validator rejects at the first failing rule
     private fun dailyPlan(dto: DailyPlanOutput, ctx: OutputContext): Outcome<ValidatedOutput, OutputError> {
         checkText(dto.summary, OutputLimits.MAX_SUMMARY, ctx)?.let { return Outcome.Err(it) }
         suggestionError(dto.suggestions, ctx)?.let { return Outcome.Err(it) }
@@ -88,6 +89,7 @@ class OutputValidator(private val restrictedAdvice: List<Regex>) {
         return Outcome.Ok(ValidatedOutput.Review(type, summary, suggestions))
     }
 
+    @Suppress("ReturnCount") // a validator rejects at the first failing rule
     private fun mail(dto: MailClassifierOutput, ctx: OutputContext): Outcome<ValidatedOutput, OutputError> {
         if (dto.itemHandle !in ctx.knownHandles) return Outcome.Err(OutputError.UNKNOWN_HANDLE)
         if (dto.score < OutputLimits.MAIL_SCORE_MIN || dto.score > OutputLimits.MAIL_SCORE_MAX) return Outcome.Err(OutputError.OUT_OF_RANGE)
@@ -114,6 +116,7 @@ class OutputValidator(private val restrictedAdvice: List<Regex>) {
     }
 
     /** Length, number-provenance, restricted-advice and contact checks every free-text field must pass. */
+    @Suppress("ReturnCount") // a validator rejects at the first failing rule
     private fun checkText(text: String, max: Int, ctx: OutputContext): OutputError? {
         if (text.length > max) return OutputError.TOO_LONG
         if (!NumberTokens.allPresent(text, ctx.payloadText)) return OutputError.NUMBER_NOT_IN_PAYLOAD

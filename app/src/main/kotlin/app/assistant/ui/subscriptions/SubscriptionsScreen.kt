@@ -381,6 +381,7 @@ private const val RENEWING_DAYS = 7L
 private const val MAX_AMOUNT = 12
 
 /** Parses a rupee string (e.g. "149" or "149.50") to Paise, or null when it is not a valid non-negative amount. */
+@Suppress("ReturnCount") // each early return rejects one malformed shape
 internal fun parseRupees(text: String): Paise? {
     val trimmed = text.trim()
     if (trimmed.isEmpty()) return null
