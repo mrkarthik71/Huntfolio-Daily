@@ -38,6 +38,7 @@ private enum class MoneyTab(val labelRes: Int) {
     SUBSCRIPTIONS(R.string.money_tab_subscriptions),
     REPORTS(R.string.money_tab_reports),
     REVIEW(R.string.money_tab_review),
+    SAVINGS(R.string.savings_tab),
 }
 
 private val tabs: List<MoneyTab> = MoneyTab.entries.filter { it != MoneyTab.SUBSCRIPTIONS || FeatureFlags.SUBSCRIPTIONS }
@@ -74,6 +75,7 @@ fun MoneyScreen(onOpenSettings: () -> Unit) {
             MoneyTab.SUBSCRIPTIONS -> SubscriptionsScreen(content)
             MoneyTab.REPORTS -> SpendingReportsScreen(content)
             MoneyTab.REVIEW -> ReviewQueueScreen(content)
+            MoneyTab.SAVINGS -> app.assistant.ui.life.SavingsScreen(content)
         }
     }
 }

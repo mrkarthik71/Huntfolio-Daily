@@ -79,6 +79,10 @@ class AskViewModel @Inject constructor(
     private val scheduler: ReminderScheduler,
     private val settings: SettingsStore,
     private val advisor: Advisor,
+    private val dates: app.assistant.domain.port.DateStore,
+    private val habitStore: app.assistant.domain.port.HabitStore,
+    private val followUps: app.assistant.domain.port.FollowUpStore,
+    private val notify: app.assistant.ui.life.NotifySwitch,
 ) : ViewModel() {
     private val _ui = MutableStateFlow(AskUi())
     val ui: StateFlow<AskUi> = _ui.asStateFlow()
@@ -104,6 +108,11 @@ class AskViewModel @Inject constructor(
                     planner.saveReminder(SmartReminder(ReminderId(0), answer.text, ReminderKind.TIME, fireAt = answer.at.atZone(zone).toInstant()))
                     settings.update { it.copy(enabledTypes = it.enabledTypes + NotificationType.SMART_REMINDER) }
                     scheduler.sync()
+                    saved = true
+                }
+                is AskAnswer.FollowUp -> if (answer.person.isNotBlank()) {
+                    followUps.save(app.assistant.domain.model.FollowUp(0, answer.person, answer.about, answer.nudgeOn, done = false, createdOn = time.today()))
+                    if (NotificationType.FOLLOW_UP !in settings.current().enabledTypes) notify.set(NotificationType.FOLLOW_UP, true) else notify.replan()
                     saved = true
                 }
                 else -> Unit
@@ -171,10 +180,25 @@ class AskViewModel @Inject constructor(
         val notes = runCatching {
             memory.notes().first().map { NoteFact(it.id, it.text, it.createdAt.atZone(zone).toLocalDate()) }
         }.getOrDefault(emptyList())
-        return AskSnapshot(today, spends, subs, billFacts, goalFacts, taskFacts, notes)
+        val dateFacts = runCatching {
+            dates.datesNow().mapNotNull { d ->
+                val next = app.assistant.domain.engine.life.DateRules.nextOccurrence(d, today) ?: return@mapNotNull null
+                app.assistant.domain.engine.ask.DateFact(d.title, d.kind, next, java.time.temporal.ChronoUnit.DAYS.between(today, next))
+            }
+        }.getOrDefault(emptyList())
+        val habitFacts = runCatching {
+            val hs = habitStore.habitsNow().filter { it.active }
+            val checks = habitStore.checks(today.minusDays(HABIT_LOOKBACK), today).first()
+            hs.map { h ->
+                val (d, t) = app.assistant.domain.engine.life.HabitRules.dayProgress(listOf(h), checks, today)
+                app.assistant.domain.engine.ask.HabitFact(h.name, d, t, app.assistant.domain.engine.life.HabitRules.streak(h, checks, today))
+            }
+        }.getOrDefault(emptyList())
+        return AskSnapshot(today, spends, subs, billFacts, goalFacts, taskFacts, notes, dateFacts, habitFacts)
     }
 
     private companion object {
         const val MONTHS = 12
+        const val HABIT_LOOKBACK = 120L
     }
 }

@@ -11,7 +11,7 @@ import java.time.temporal.TemporalAdjusters
 import java.util.Locale
 
 /** What the User is asking "Ask Apex". Rules answer every intent except [UNKNOWN], which goes to the AI for wording. */
-enum class AskIntent { SPEND, SUBSCRIPTIONS, BILLS, GOALS, TODAY, SAVE_TIPS, REMEMBER, RECALL, REMIND, UNKNOWN }
+enum class AskIntent { SPEND, SUBSCRIPTIONS, BILLS, GOALS, TODAY, SAVE_TIPS, REMEMBER, RECALL, REMIND, FOLLOW_UP, DATES, HABITS, UNKNOWN }
 
 enum class AskPeriod { TODAY, WEEK, MONTH, LAST_MONTH, YEAR }
 
@@ -23,6 +23,9 @@ data class AskQuery(
     val text: String = "",
     /** For REMIND: when, if the User said one. */
     val remindAt: LocalDateTime? = null,
+    /** For FOLLOW_UP: who, and the day to nudge. */
+    val person: String = "",
+    val onDate: LocalDate? = null,
 )
 
 /** One debit as Ask needs it: already converted to a local date by the caller. */
@@ -38,6 +41,10 @@ data class TaskFact(val title: String, val done: Boolean)
 
 data class NoteFact(val id: Long, val text: String, val createdOn: LocalDate)
 
+data class DateFact(val title: String, val kind: app.assistant.domain.model.DateKind, val next: LocalDate, val daysLeft: Long)
+
+data class HabitFact(val name: String, val done: Int, val total: Int, val streak: Int)
+
 /** Everything Ask may look at, gathered once per question. All local; nothing here leaves the phone by itself. */
 data class AskSnapshot(
     val today: LocalDate,
@@ -47,6 +54,8 @@ data class AskSnapshot(
     val goals: List<GoalFact> = emptyList(),
     val todayTasks: List<TaskFact> = emptyList(),
     val notes: List<NoteFact> = emptyList(),
+    val dates: List<DateFact> = emptyList(),
+    val habits: List<HabitFact> = emptyList(),
 )
 
 data class Amount(val label: String, val amount: Paise)
@@ -107,6 +116,12 @@ sealed interface AskAnswer {
 
     data class Remind(val text: String, val at: LocalDateTime?) : AskAnswer
 
+    data class FollowUp(val person: String, val about: String, val nudgeOn: LocalDate) : AskAnswer
+
+    data class Dates(val items: List<DateFact>) : AskAnswer
+
+    data class Habits(val items: List<HabitFact>) : AskAnswer
+
     /** Rules have no answer; the caller may ask the AI with redacted facts. */
     data class Unknown(val text: String) : AskAnswer
 }
@@ -127,8 +142,12 @@ object AskParser {
         remember.find(text)?.let { return AskQuery(AskIntent.REMEMBER, text = it.groupValues[4].trim()) }
         remind.find(text)?.let { return parseRemind(it.groupValues[2].trim(), now) }
         recall.find(text)?.let { return AskQuery(AskIntent.RECALL, text = it.groupValues[4].trim().trimEnd('?')) }
+        followUp.find(text)?.let { m -> return parseFollowUp(m.groupValues[3].trim(), m.groupValues[5].trim(), now.toLocalDate()) }
         val period = periodOf(q)
         return when {
+            has(q, "birthday", "birthdays", "anniversary", "anniversaries", "expire", "expires", "expiry", "passport", "licence", "license", "insurance", "warranty") ->
+                AskQuery(AskIntent.DATES)
+            has(q, "habit", "habits", "medicine", "medicines", "tablet", "tablets", "pill", "pills", "streak", "streaks", "check-ins") -> AskQuery(AskIntent.HABITS)
             has(q, "save", "save money", "saving", "savings", "spend less", "suggest", "improve", "tips", "advice", "cut", "reduce", "bachat") -> AskQuery(
                 AskIntent.SAVE_TIPS,
             )
@@ -144,6 +163,29 @@ object AskParser {
     }
 
     @Suppress("ReturnCount") // one early return per time form ("in", "at", "tomorrow") reads clearer than nesting
+    private val followUp = Regex("^(waiting (for|on)|follow up with|chase)\\s+(.+?)\\s+(about|to|on|for|re|regarding)\\s+(.+)$", RegexOption.IGNORE_CASE)
+    private val nudgeTail = Regex("\\s+(by|on|in|next|tomorrow|this)\\b.*$", RegexOption.IGNORE_CASE)
+
+    /** "waiting for Ravi about the invoice by Friday": the nudge day defaults to three days out. */
+    private fun parseFollowUp(person: String, rest: String, today: LocalDate): AskQuery {
+        val tail = nudgeTail.find(rest)
+        val about = (if (tail != null) rest.substring(0, tail.range.first) else rest).trim().trimEnd('.', '?')
+        val day = tail?.value?.let { dayFrom(it.trim().lowercase(Locale.ROOT), today) } ?: today.plusDays(DEFAULT_NUDGE_DAYS)
+        return AskQuery(AskIntent.FOLLOW_UP, text = about, person = person, onDate = day)
+    }
+
+    /** "tomorrow", "in 3 days", "next week", "on friday", "by monday". */
+    fun dayFrom(phrase: String, today: LocalDate): LocalDate? {
+        val p = phrase.removePrefix("by ").removePrefix("on ").removePrefix("this ").trim()
+        if (p == "tomorrow") return today.plusDays(1)
+        if (p == "next week") return today.plusWeeks(1)
+        Regex("^in (\\d{1,3}) days?$").find(p)?.let { return today.plusDays(it.groupValues[1].toLong()) }
+        java.time.DayOfWeek.entries.firstOrNull { p.startsWith(it.name.lowercase(Locale.ROOT)) || p.startsWith(it.name.lowercase(Locale.ROOT).take(3)) }?.let {
+            return today.with(TemporalAdjusters.next(it))
+        }
+        return null
+    }
+
     private fun parseRemind(body: String, now: LocalDateTime): AskQuery {
         inTime.find(body)?.let { m ->
             val n = m.groupValues[1].toLong()
@@ -195,6 +237,7 @@ object AskParser {
         return null
     }
 
+    private const val DEFAULT_NUDGE_DAYS = 3L
     private const val NOON = 12
     private const val LAST_HOUR = 23
     private const val LAST_MINUTE = 59
@@ -213,6 +256,8 @@ object AskEngine {
     private const val HUNDRED = 100
     private const val BILL_WINDOW_DAYS = 7L
     private const val MAX_TIPS = 5
+    private const val DEFAULT_NUDGE = 3L
+    private const val DATE_WINDOW = 60L
 
     fun answer(query: AskQuery, s: AskSnapshot): AskAnswer = when (query.intent) {
         AskIntent.SPEND -> spend(query.period, query.category, s)
@@ -224,6 +269,9 @@ object AskEngine {
         AskIntent.REMEMBER -> AskAnswer.Remember(query.text)
         AskIntent.RECALL -> AskAnswer.Recall(query.text, recall(query.text, s.notes))
         AskIntent.REMIND -> AskAnswer.Remind(query.text, query.remindAt)
+        AskIntent.FOLLOW_UP -> AskAnswer.FollowUp(query.person, query.text, query.onDate ?: s.today.plusDays(DEFAULT_NUDGE))
+        AskIntent.DATES -> AskAnswer.Dates(s.dates.filter { it.daysLeft <= DATE_WINDOW }.sortedBy { it.daysLeft })
+        AskIntent.HABITS -> AskAnswer.Habits(s.habits)
         AskIntent.UNKNOWN -> AskAnswer.Unknown(query.text)
     }
 

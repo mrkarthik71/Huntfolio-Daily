@@ -1,5 +1,6 @@
 package app.assistant.ui.today
 
+import app.assistant.ui.designsystem.ApexIcons
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,10 +13,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -69,7 +68,7 @@ private val clock: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatS
 private const val MAX_QUICK_ADD = 200
 
 @Composable
-fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
+fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {}, onOpenFocus: () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
     var text by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<ValidationError?>(null) }
@@ -95,11 +94,13 @@ fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {},
                             color = MaterialTheme.colorScheme.onBackground,
                         )
                     }
-                    KeyButton(Icons.AutoMirrored.Filled.List, stringResource(R.string.today_open_review), onClick = {
+                    KeyButton(ApexIcons.Today, stringResource(R.string.focus_open), onClick = onOpenFocus, tint = MaterialTheme.colorScheme.primary)
+                    androidx.compose.foundation.layout.Spacer(Modifier.size(10.dp))
+                    KeyButton(ApexIcons.Review, stringResource(R.string.today_open_review), onClick = {
                         ui.date?.let { onOpenReview(it.toString()) }
                     })
                     androidx.compose.foundation.layout.Spacer(Modifier.size(10.dp))
-                    KeyButton(Icons.Filled.Settings, stringResource(R.string.nav_settings), onClick = onOpenSettings)
+                    KeyButton(ApexIcons.Settings, stringResource(R.string.nav_settings), onClick = onOpenSettings)
                 }
             }
             item { TodayHero(ui, Modifier.enterAnimated(0)) }

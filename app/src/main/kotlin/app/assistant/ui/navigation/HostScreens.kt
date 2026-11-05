@@ -35,19 +35,26 @@ private fun SegmentedHost(labels: List<String>, content: @Composable (Int) -> Un
 /** Plan: goals and their milestones, and the task list, in one tab. */
 @Composable
 fun PlanHost() {
-    SegmentedHost(listOf(stringResource(R.string.nav_goals), stringResource(R.string.nav_tasks))) { i ->
-        if (i == 0) app.assistant.ui.goals.GoalsScreen() else app.assistant.ui.tasks.TasksScreen()
+    SegmentedHost(listOf(stringResource(R.string.nav_goals), stringResource(R.string.nav_tasks), stringResource(R.string.habits_tab))) { i ->
+        when (i) {
+            0 -> app.assistant.ui.goals.GoalsScreen()
+            1 -> app.assistant.ui.tasks.TasksScreen()
+            else -> app.assistant.ui.life.HabitsScreen()
+        }
     }
 }
 
 /** Inbox: smart reminders and the mail that needs action, in one tab. */
 @Composable
 fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit) {
-    SegmentedHost(listOf(stringResource(R.string.reminders_title), stringResource(R.string.mail_title))) { i ->
-        if (i == 0) {
-            app.assistant.ui.reminders.RemindersScreen(onBack = null)
-        } else {
-            app.assistant.ui.mail.MailScreen(onBack = null, onCreateTask = onCreateTask, onCreateBill = onCreateBill)
+    SegmentedHost(
+        listOf(stringResource(R.string.reminders_title), stringResource(R.string.dates_tab), stringResource(R.string.waiting_tab), stringResource(R.string.mail_title)),
+    ) { i ->
+        when (i) {
+            0 -> app.assistant.ui.reminders.RemindersScreen(onBack = null)
+            1 -> app.assistant.ui.life.DatesScreen()
+            2 -> app.assistant.ui.life.WaitingScreen()
+            else -> app.assistant.ui.mail.MailScreen(onBack = null, onCreateTask = onCreateTask, onCreateBill = onCreateBill)
         }
     }
 }

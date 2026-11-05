@@ -3,7 +3,9 @@ package app.assistant.ui.settings
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
@@ -56,6 +58,8 @@ fun SettingsScreen(
     onOpenTransfer: (() -> Unit)? = null,
     onOpenHealth: (() -> Unit)? = null,
     onOpenReminders: (() -> Unit)? = null,
+    onOpenYear: (() -> Unit)? = null,
+    onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
@@ -64,7 +68,21 @@ fun SettingsScreen(
         Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 24.dp),
     ) {
-        item { ScreenTitle(stringResource(R.string.settings_title)) }
+        item {
+            androidx.compose.foundation.layout.Row(Modifier.padding(start = 16.dp, top = 12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                if (onBack != null) {
+                    app.assistant.ui.designsystem.KeyButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), onClick = onBack)
+                }
+                ScreenTitle(stringResource(R.string.settings_title))
+            }
+        }
+        onOpenYear?.let { open ->
+            item {
+                CredGroup(null) {
+                    CredRow(stringResource(R.string.year_entry), Icons.Outlined.Star, supporting = stringResource(R.string.year_entry_sub), onClick = open)
+                }
+            }
+        }
         item {
             CredGroup(stringResource(R.string.settings_sources)) {
                 state.sources.forEachIndexed { index, row ->

@@ -101,15 +101,24 @@ private val GROUPS = listOf(
 
 /** Ask Apex: a CRED-style conversation over the User's own data, rule answers first. */
 @Composable
-fun AskScreen(onBack: () -> Unit, initialQuestion: String? = null, viewModel: AskViewModel = hiltViewModel()) {
+fun AskScreen(onBack: () -> Unit, initialQuestion: String? = null, startVoice: Boolean = false, viewModel: AskViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsStateWithLifecycle()
-    AskContent(ui, onBack = onBack, onAsk = viewModel::ask, onClear = viewModel::clear)
+    val voice = rememberVoiceInput { viewModel.ask(it) }
+    AskContent(ui, onBack = onBack, onAsk = viewModel::ask, onClear = viewModel::clear, onVoice = voice)
     LaunchedEffect(initialQuestion) { if (!initialQuestion.isNullOrBlank()) viewModel.ask(initialQuestion) }
+    // The centre mic key opens Ask listening; only once, not again after rotation.
+    var listened by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(startVoice) {
+        if (startVoice && !listened) {
+            listened = true
+            voice()
+        }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun AskContent(ui: AskUi, onBack: () -> Unit, onAsk: (String) -> Unit, onClear: () -> Unit) {
+fun AskContent(ui: AskUi, onBack: () -> Unit, onAsk: (String) -> Unit, onClear: () -> Unit, onVoice: (() -> Unit)? = null) {
     val scheme = MaterialTheme.colorScheme
     var draft by rememberSaveable { mutableStateOf("") }
     val list = rememberLazyListState()
@@ -167,7 +176,7 @@ fun AskContent(ui: AskUi, onBack: () -> Unit, onAsk: (String) -> Unit, onClear: 
                 }
             }
         }
-        Composer(draft, onChange = { draft = it }, onSend = send, enabled = !ui.busy)
+        Composer(draft, onChange = { draft = it }, onSend = send, enabled = !ui.busy, onVoice = onVoice)
     }
 }
 
@@ -209,7 +218,7 @@ private fun QuestionBubble(text: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun Composer(text: String, onChange: (String) -> Unit, onSend: () -> Unit, enabled: Boolean) {
+private fun Composer(text: String, onChange: (String) -> Unit, onSend: () -> Unit, enabled: Boolean, onVoice: (() -> Unit)?) {
     val scheme = MaterialTheme.colorScheme
     val interaction = remember { MutableInteractionSource() }
     val haptics = LocalHapticFeedback.current
@@ -232,15 +241,20 @@ private fun Composer(text: String, onChange: (String) -> Unit, onSend: () -> Uni
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        Box(
-            Modifier.size(44.dp).pressScale(interaction).clip(CircleShape).background(if (canSend) scheme.onBackground else scheme.surfaceVariant)
-                .clickable(interaction, ripple(), enabled = canSend, role = Role.Button) {
-                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-                    onSend()
-                },
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(Icons.AutoMirrored.Filled.Send, stringResource(R.string.ask_send), tint = if (canSend) scheme.background else scheme.onSurfaceVariant)
+        if (text.isBlank() && onVoice != null) {
+            // Nothing typed: the key listens instead of sending.
+            app.assistant.ui.designsystem.SignalButton(app.assistant.ui.designsystem.ApexIcons.Mic, stringResource(R.string.voice_speak), onClick = onVoice, size = 44.dp)
+        } else {
+            Box(
+                Modifier.size(44.dp).pressScale(interaction).clip(CircleShape).background(if (canSend) scheme.primary else scheme.surfaceVariant)
+                    .clickable(interaction, ripple(), enabled = canSend, role = Role.Button) {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onSend()
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(Icons.AutoMirrored.Filled.Send, stringResource(R.string.ask_send), tint = if (canSend) scheme.onPrimary else scheme.onSurfaceVariant)
+            }
         }
     }
 }
@@ -274,6 +288,45 @@ private fun AnswerCard(turn: AskTurn, modifier: Modifier = Modifier, onAsk: (Str
                 Body(stringResource(R.string.ask_remind_need_time))
             }
             is AskAnswer.Unknown -> AiAnswer(turn.ai, onAsk)
+            is AskAnswer.FollowUp -> {
+                SavedHeader(stringResource(R.string.ask_follow_saved))
+                Text(a.person, style = MaterialTheme.typography.titleLarge, color = scheme.onSurface)
+                if (a.about.isNotBlank()) Body(a.about)
+                Text(stringResource(R.string.ask_follow_nudge, formatShortDate(a.nudgeOn)), style = MaterialTheme.typography.bodyMedium, color = scheme.primary)
+            }
+            is AskAnswer.Dates -> {
+                Eyebrow(stringResource(R.string.ask_dates_eyebrow, a.items.size), color = scheme.primary)
+                if (a.items.isEmpty()) {
+                    Body(stringResource(R.string.ask_dates_none))
+                } else {
+                    Column {
+                        a.items.take(MAX_LIST).forEach { d ->
+                            ValueRow(
+                                d.title,
+                                if (d.daysLeft == 0L) stringResource(R.string.dates_today_short) else stringResource(R.string.ask_in_days, d.daysLeft),
+                                app.assistant.ui.life.kindLabel(d.kind) + " · " + formatShortDate(d.next),
+                            )
+                        }
+                    }
+                }
+            }
+            is AskAnswer.Habits -> {
+                Eyebrow(stringResource(R.string.ask_habits_eyebrow), color = scheme.primary)
+                if (a.items.isEmpty()) {
+                    Body(stringResource(R.string.ask_habits_none))
+                } else {
+                    Column {
+                        a.items.forEach { h ->
+                            ValueRow(
+                                h.name,
+                                "${h.done}/${h.total}",
+                                stringResource(R.string.habits_streak_short, h.streak),
+                                if (h.total > 0 && h.done == h.total) EnergyColors.Physical else null,
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

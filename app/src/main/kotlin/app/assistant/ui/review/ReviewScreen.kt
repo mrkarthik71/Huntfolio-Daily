@@ -59,6 +59,8 @@ fun ReviewScreen(dateText: String, onBack: () -> Unit, viewModel: ReviewViewMode
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            // The one-tap mood and energy check comes first: it takes a second and feeds the year view.
+            ui.date?.let { app.assistant.ui.life.MoodCheck(it, Modifier.padding(horizontal = 16.dp)) }
             if (!ui.loading && ui.tasks.isEmpty()) {
                 app.assistant.ui.designsystem.EmptyState(stringResource(R.string.review_empty))
                 return@Column

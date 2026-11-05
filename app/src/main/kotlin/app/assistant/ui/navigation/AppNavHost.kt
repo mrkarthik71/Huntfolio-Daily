@@ -51,6 +51,10 @@ object Routes {
     const val ASK = "ask"
     const val PLAN = "plan"
     const val INBOX = "inbox"
+    const val FOCUS = "focus"
+    const val YEAR = "year"
+    const val SHARE = "share?text={text}"
+    const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
 
     fun taskPrefill(title: String) = "tasks/new?title=" + android.net.Uri.encode(title)
@@ -82,6 +86,9 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
     val reduced = app.assistant.ui.designsystem.LocalReducedMotion.current
     val transitions = androidx.compose.runtime.remember(reduced) { CredTransitions(TABS.map { it.route }.toSet(), reduced) }
 
+    androidx.compose.runtime.LaunchedEffect(startRoute) {
+        if (startRoute != null && startRoute.startsWith("share?")) runCatching { nav.navigate(startRoute) }
+    }
     Scaffold(
         containerColor = app.assistant.ui.designsystem.AssistantColors.Ground,
         bottomBar = {
@@ -95,7 +102,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     items = TABS.map { CredBarItem(it.route, stringResource(it.labelRes), it.selected, it.unselected) },
                     selectedKey = selectedKey,
                     center = {
-                        app.assistant.ui.designsystem.SignalButton(ApexIcons.Mic, stringResource(R.string.ask_entry), onClick = { nav.navigate(Routes.ASK) })
+                        app.assistant.ui.designsystem.SignalButton(ApexIcons.Mic, stringResource(R.string.ask_entry), onClick = { nav.navigate("ask?voice=true") })
                     },
                     onSelect = { route ->
                         haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
@@ -122,10 +129,24 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             popExitTransition = { transitions.popExit(this) },
         ) {
             composable(Routes.TODAY) {
-                TodayScreen(onOpenReview = { date -> nav.navigate(Routes.review(date)) }, onOpenSettings = { nav.navigate(Routes.SETTINGS) })
+                TodayScreen(onOpenReview = { date -> nav.navigate(Routes.review(date)) }, onOpenSettings = { nav.navigate(Routes.SETTINGS) }, onOpenFocus = { nav.navigate(Routes.FOCUS) })
             }
             composable(Routes.TASKS) { TasksScreen() }
             composable(Routes.PLAN) { PlanHost() }
+            composable(Routes.FOCUS) { app.assistant.ui.life.FocusScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.YEAR) { app.assistant.ui.life.YearScreen(onBack = { nav.popBackStack() }) }
+            composable(
+                Routes.SHARE,
+                arguments = listOf(androidx.navigation.navArgument("text") { type = androidx.navigation.NavType.StringType; defaultValue = "" }),
+            ) { entry ->
+                app.assistant.ui.share.ShareScreen(entry.arguments?.getString("text").orEmpty(), onDone = { if (!nav.popBackStack()) nav.navigate(Routes.TODAY) })
+            }
+            composable(
+                Routes.ASK_VOICE,
+                arguments = listOf(androidx.navigation.navArgument("voice") { type = androidx.navigation.NavType.BoolType; defaultValue = false }),
+            ) { entry ->
+                app.assistant.ui.ask.AskScreen(onBack = { nav.popBackStack() }, startVoice = entry.arguments?.getBoolean("voice") == true)
+            }
             composable(Routes.INBOX) {
                 InboxHost(
                     onCreateTask = { subject -> nav.navigate(Routes.taskPrefill(subject)) },
@@ -167,6 +188,8 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenTransfer = { nav.navigate(Routes.TRANSFER) },
                     onOpenHealth = { nav.navigate(Routes.HEALTH) },
                     onOpenReminders = { nav.navigate(Routes.REMINDERS) },
+                    onOpenYear = { nav.navigate(Routes.YEAR) },
+                    onBack = { nav.popBackStack() },
                     onDeleteEverything = onDeleteEverything,
                 )
             }
