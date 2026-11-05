@@ -61,6 +61,9 @@ class OutputValidator(private val restrictedAdvice: List<Regex>) {
             PromptType.MONTHLY_MONEY_REVIEW -> strictJson.decodeFromString(MonthlyMoneyReviewOutput.serializer(), json).let {
                 review(it.summary, it.suggestions, type, context)
             }
+            PromptType.ASSISTANT_ANSWER -> strictJson.decodeFromString(AssistantAnswerOutput.serializer(), json).let {
+                review(it.summary, it.suggestions, type, context)
+            }
             PromptType.MAIL_CLASSIFIER -> mail(strictJson.decodeFromString(MailClassifierOutput.serializer(), json), context)
             PromptType.SMS_FALLBACK_PARSER -> sms(strictJson.decodeFromString(SmsFallbackOutput.serializer(), json), context)
         }
@@ -159,6 +162,10 @@ object OutputSerializer {
             PromptType.MONTHLY_MONEY_REVIEW -> strictJson.encodeToString(
                 MonthlyMoneyReviewOutput.serializer(),
                 MonthlyMoneyReviewOutput(output.summary, output.suggestions),
+            )
+            PromptType.ASSISTANT_ANSWER -> strictJson.encodeToString(
+                AssistantAnswerOutput.serializer(),
+                AssistantAnswerOutput(output.summary, output.suggestions),
             )
             else -> strictJson.encodeToString(EveningReviewOutput.serializer(), EveningReviewOutput(output.summary, suggestions = output.suggestions))
         }

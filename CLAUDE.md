@@ -20,6 +20,13 @@ Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tas
 - Every notification goes through the Notification_Governor (quiet hours, daily cap, per-type limits) and has a "Why am I seeing this?" action.
 - Parsers must have unit tests with anonymised (synthetic) sample messages.
 
+## Design language (CRED-style; applies to every screen)
+- Look: near-black canvas, raised dark surfaces with 1dp hairline borders, one accent, large confident numbers (Manrope), uppercase micro-captions, generous spacing. One strong call to action per screen (`CredPrimaryButton`).
+- Components: build screens from `ui/designsystem` (HeroCard, CredGroup/CredRow, CredPillTabs, CredBottomBar, CredStat, ApexComponents). No stock Material list/tab/app-bar look; no raw hex in screens.
+- Motion: every screen enters with a staggered lift (`enterAnimated`), every tappable surface has `pressScale` and haptic feedback, numbers and rings count up (`animatedProgress`), heroes carry the sheen. Pushed screens slide in from the right over a dimmed, slightly receding parent; tab switches fade-through; sheets rise with a spring. Exits are faster than entrances. Reduced-motion (`LocalReducedMotion`) turns all of it into plain fades or jumps.
+- Navigation: floating capsule bottom bar (max 5 tabs), hidden on pushed screens; predictable back; secondary features open as pushed screens or bottom sheets.
+- Check new screens with the Robolectric ScreenshotTest before shipping.
+
 ## Code conventions
 - Package root `app.assistant`; application ID comes from the `app.id` Gradle property (`app.apex.assistant`).
 - Money is `Paise` (Long). Never Double/Float for amounts.

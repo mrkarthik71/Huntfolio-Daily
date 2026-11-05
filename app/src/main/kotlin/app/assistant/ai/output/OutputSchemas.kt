@@ -33,6 +33,9 @@ data class WeeklyReviewOutput(val summary: String, val suggestions: List<Suggest
 data class MonthlyMoneyReviewOutput(val summary: String, val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
+data class AssistantAnswerOutput(val summary: String, val suggestions: List<SuggestionDto> = emptyList())
+
+@Serializable
 data class MailClassifierOutput(
     @SerialName("item") val itemHandle: String,
     val score: Int,

@@ -86,15 +86,23 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
     val showBar = currentRoute in TABS.map { it.route }
+    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val reduced = app.assistant.ui.designsystem.LocalReducedMotion.current
+    val transitions = androidx.compose.runtime.remember(reduced) { CredTransitions(TABS.map { it.route }.toSet(), reduced) }
 
     Scaffold(
         bottomBar = {
-            if (showBar) {
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showBar,
+                enter = androidx.compose.animation.slideInVertically { it } + androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.slideOutVertically { it } + androidx.compose.animation.fadeOut(),
+            ) {
                 val selectedKey = TABS.firstOrNull { tab -> backStack?.destination?.hierarchy?.any { it.route == tab.route } == true }?.route
                 CredBottomBar(
                     items = TABS.map { CredBarItem(it.route, stringResource(it.labelRes), it.selected, it.unselected) },
                     selectedKey = selectedKey,
                     onSelect = { route ->
+                        haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
                         nav.navigate(route) {
                             popUpTo(nav.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
@@ -111,6 +119,10 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                 it.startsWith("review/") || it == Routes.GOALS || it == Routes.TASKS || (FeatureFlags.MONEY && it == Routes.MONEY)
             } ?: Routes.TODAY,
             modifier = Modifier.fillMaxSize().padding(padding),
+            enterTransition = { transitions.enter(this) },
+            exitTransition = { transitions.exit(this) },
+            popEnterTransition = { transitions.popEnter(this) },
+            popExitTransition = { transitions.popExit(this) },
         ) {
             composable(Routes.TODAY) {
                 TodayScreen(onOpenReview = { date -> nav.navigate(Routes.review(date)) })

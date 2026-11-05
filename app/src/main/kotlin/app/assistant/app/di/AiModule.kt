@@ -65,10 +65,13 @@ abstract class AiModule {
     abstract fun connectivity(impl: AndroidConnectivity): Connectivity
 
     companion object {
-        /** Configured OpenAI-compatible host (e.g. "api.openai.com"); blank = no Cloud egress allowed. */
-        const val AI_VENDOR_HOST = ""
-        const val AI_ENDPOINT = "" // e.g. "https://api.openai.com/v1/chat/completions"
-        const val DEFAULT_MODEL = "gpt-4o-mini"
+        /**
+         * Cloud vendor: Google Gemini through its OpenAI-compatible endpoint (Open decision 2: Gemini for now).
+         * Only this host is on the AI egress allow-list; the key is entered on the device (personal flavour).
+         */
+        const val AI_VENDOR_HOST = "generativelanguage.googleapis.com"
+        const val AI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        const val DEFAULT_MODEL = "gemini-2.5-flash"
 
         @Provides
         @Singleton

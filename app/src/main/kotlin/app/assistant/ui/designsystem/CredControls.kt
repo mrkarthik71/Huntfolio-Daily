@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,13 +26,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -169,10 +174,21 @@ fun CredRow(
     onClick: (() -> Unit)? = null,
 ) {
     val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val haptics = LocalHapticFeedback.current
     Row(
         modifier
             .fillMaxWidth()
-            .let { if (onClick != null) it.clickable(onClick = onClick) else it }
+            .let {
+                if (onClick != null) {
+                    it.pressScale(interaction).clickable(interaction, ripple()) {
+                        haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        onClick()
+                    }
+                } else {
+                    it
+                }
+            }
             .heightIn(min = 60.dp)
             .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -217,13 +233,19 @@ fun CredRow(
 @Composable
 fun CredPrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val haptics = LocalHapticFeedback.current
     Box(
         modifier
             .fillMaxWidth()
             .heightIn(min = 52.dp)
+            .pressScale(interaction)
             .clip(CircleShape)
             .background(if (enabled) scheme.onBackground else scheme.surfaceVariant)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .clickable(interaction, ripple(), enabled = enabled, role = Role.Button) {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                onClick()
+            }
             .padding(horizontal = 20.dp, vertical = 14.dp),
         contentAlignment = Alignment.Center,
     ) {

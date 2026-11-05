@@ -124,6 +124,7 @@ object DerivationRules {
         PromptType.EVENING_REVIEW,
         PromptType.WEEKLY_REVIEW,
         PromptType.MONTHLY_MONEY_REVIEW,
+        PromptType.ASSISTANT_ANSWER,
         -> Rule(mayRephraseText = true, numbersFromPayloadOnly = true, handlesFromPayloadOnly = true, placementsWithinFreeGaps = false)
         PromptType.MAIL_CLASSIFIER -> Rule(
             mayRephraseText = true,

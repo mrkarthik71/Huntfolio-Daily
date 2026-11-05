@@ -61,6 +61,9 @@ enum class PromptType {
     MONTHLY_MONEY_REVIEW,
     MAIL_CLASSIFIER,
     SMS_FALLBACK_PARSER,
+
+    /** Ask Apex: a short answer to a question, grounded in facts the app computed. */
+    ASSISTANT_ANSWER,
 }
 
 enum class SuggestionResponse { ACCEPTED, DISMISSED, IGNORED }
