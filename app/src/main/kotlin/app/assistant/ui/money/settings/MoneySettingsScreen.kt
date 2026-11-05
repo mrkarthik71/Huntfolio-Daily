@@ -29,7 +29,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +52,7 @@ import app.assistant.domain.port.HistoryImportState
 import app.assistant.domain.port.MoneyReaderState
 import app.assistant.domain.port.SenderRules
 import app.assistant.ui.designsystem.CredCard
+import app.assistant.ui.designsystem.CredTopBar
 import app.assistant.ui.designsystem.SectionHeader
 
 private const val MIN_TOUCH_DP = 48
@@ -74,7 +74,7 @@ fun MoneySettingsScreen(onBack: () -> Unit, viewModel: MoneySettingsViewModel = 
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CredTopBar(
                 title = { Text(stringResource(R.string.money_settings_title), style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

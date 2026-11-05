@@ -12,6 +12,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.Composable
@@ -138,3 +139,19 @@ private fun Color.compositeOverLight(): Color = Color(
     blue = blue + (1f - blue) * 0.06f,
     alpha = alpha,
 )
+
+/**
+ * The CRED "embossed" edge: a 1dp hairline lit from above (brighter on the top edge, fading towards
+ * the bottom), so dark cards read as raised metal rather than flat boxes. [strong] for heroes.
+ */
+fun Modifier.credEdge(shape: androidx.compose.ui.graphics.Shape, strong: Boolean = false): Modifier = this.border(
+    width = 1.dp,
+    brush = Brush.verticalGradient(
+        listOf(Color.White.copy(alpha = if (strong) EDGE_TOP_STRONG else EDGE_TOP), Color.White.copy(alpha = EDGE_BOTTOM)),
+    ),
+    shape = shape,
+)
+
+private const val EDGE_TOP = 0.13f
+private const val EDGE_TOP_STRONG = 0.22f
+private const val EDGE_BOTTOM = 0.03f

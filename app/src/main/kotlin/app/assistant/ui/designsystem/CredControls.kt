@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -38,6 +39,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -65,15 +68,15 @@ fun CredBottomBar(items: List<CredBarItem>, selectedKey: String?, onSelect: (Str
                 .fillMaxWidth()
                 .clip(CircleShape)
                 .background(scheme.surfaceContainerHigh)
-                .border(1.dp, scheme.outlineVariant, CircleShape)
+                .credEdge(CircleShape)
                 .padding(6.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             items.forEach { item ->
                 val selected = item.key == selectedKey
-                val bg by animateColorAsState(if (selected) scheme.primary else Color.Transparent, label = "barBg")
-                val fg by animateColorAsState(if (selected) scheme.onPrimary else scheme.onSurfaceVariant, label = "barFg")
+                val bg by animateColorAsState(if (selected) scheme.onBackground else Color.Transparent, label = "barBg")
+                val fg by animateColorAsState(if (selected) scheme.background else scheme.onSurfaceVariant, label = "barFg")
                 Row(
                     Modifier
                         .clip(CircleShape)
@@ -119,7 +122,7 @@ fun CredPillTabs(
                 Modifier
                     .clip(CircleShape)
                     .background(if (selected) scheme.onBackground else scheme.surface)
-                    .border(1.dp, if (selected) scheme.onBackground else scheme.outlineVariant, CircleShape)
+                    .let { if (selected) it else it.credEdge(CircleShape) }
                     .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(index) })
                     .heightIn(min = 40.dp)
                     .padding(horizontal = 16.dp),
@@ -147,7 +150,7 @@ fun CredGroup(title: String?, modifier: Modifier = Modifier, content: @Composabl
                 .fillMaxWidth()
                 .clip(MaterialTheme.shapes.large)
                 .background(MaterialTheme.colorScheme.surface)
-                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large),
+                .credEdge(MaterialTheme.shapes.large),
         ) { content() }
     }
 }
@@ -273,5 +276,80 @@ fun CredStat(caption: String, value: String, modifier: Modifier = Modifier, valu
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+    }
+}
+
+/**
+ * The CRED top bar for pushed screens: the back control sits in a raised circle and the title is a
+ * large, tight headline on the canvas (no tinted app-bar band). Same slots as Material's TopAppBar.
+ */
+@Composable
+fun CredTopBar(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable androidx.compose.foundation.layout.RowScope.() -> Unit = {},
+) {
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier.fillMaxWidth().background(scheme.background).statusBarsPadding().padding(start = 12.dp, end = 8.dp, top = 8.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.clip(CircleShape).background(scheme.surface).credEdge(CircleShape)) { navigationIcon() }
+        Spacer(Modifier.width(14.dp))
+        Box(Modifier.weight(1f)) {
+            androidx.compose.material3.ProvideTextStyle(MaterialTheme.typography.headlineMedium.copy(color = scheme.onBackground)) { title() }
+        }
+        actions()
+    }
+}
+
+/**
+ * The CRED single-line input: a raised capsule with the hint inside and a round ink action button
+ * at its end (white on black, the screen's strong element). Used for quick add and Ask.
+ */
+@Composable
+@Suppress("LongParameterList") // mirrors a text field's slots plus its action
+fun CredInputBar(
+    value: String,
+    onValueChange: (String) -> Unit,
+    hint: String,
+    actionLabel: String,
+    actionIcon: ImageVector,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+    isError: Boolean = false,
+) {
+    val scheme = MaterialTheme.colorScheme
+    val interaction = remember { MutableInteractionSource() }
+    val haptics = LocalHapticFeedback.current
+    val canAct = value.isNotBlank()
+    Row(
+        modifier.fillMaxWidth().clip(CircleShape).background(scheme.surface)
+            .let { if (isError) it.border(1.dp, scheme.error, CircleShape) else it.credEdge(CircleShape) }
+            .padding(start = 20.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(Modifier.weight(1f).padding(vertical = 8.dp)) {
+            if (value.isEmpty()) Text(hint, style = MaterialTheme.typography.bodyLarge, color = scheme.onSurfaceVariant, maxLines = 1)
+            androidx.compose.foundation.text.BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = scheme.onSurface),
+                cursorBrush = androidx.compose.ui.graphics.SolidColor(scheme.primary),
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(imeAction = androidx.compose.ui.text.input.ImeAction.Done),
+                keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { if (canAct) onAction() }),
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = hint },
+            )
+        }
+        Box(
+            Modifier.size(44.dp).pressScale(interaction).clip(CircleShape).background(if (canAct) scheme.onBackground else scheme.surfaceVariant)
+                .clickable(interaction, ripple(), enabled = canAct, role = Role.Button) {
+                    haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onAction()
+                },
+            contentAlignment = Alignment.Center,
+        ) { Icon(actionIcon, contentDescription = actionLabel, tint = if (canAct) scheme.background else scheme.onSurfaceVariant) }
     }
 }

@@ -318,4 +318,36 @@ class ScreenshotTest {
         val vm = app.assistant.ui.reminders.RemindersViewModel(planner, scheduler, app.assistant.testing.FakeSettingsStore(), FakeTimeSource())
         capture("05-reminders") { Shell("settings") { app.assistant.ui.reminders.RemindersScreen(onBack = {}, viewModel = vm) } }
     }
+
+    @Test
+    fun askEmpty() {
+        capture("06-ask") { app.assistant.ui.ask.AskContent(app.assistant.ui.ask.AskUi(), onBack = {}, onAsk = {}, onClear = {}) }
+    }
+
+    @Test
+    fun askConversation() {
+        val cat = { n: String -> app.assistant.domain.model.BuiltinCategories.idOf(n)!! }
+        val spends = buildList {
+            repeat(6) { add(app.assistant.domain.engine.ask.SpendFact(today.minusDays(it.toLong() % 3), Paise(42_000L + it * 3_500), cat("Food"), "Swiggy")) }
+            add(app.assistant.domain.engine.ask.SpendFact(today.minusDays(1), Paise(2_150_00), cat("Shopping"), "Amazon"))
+            add(app.assistant.domain.engine.ask.SpendFact(today.minusDays(2), Paise(64_900), cat("Subscriptions"), "StreamFlix"))
+            add(app.assistant.domain.engine.ask.SpendFact(today, Paise(38_000), cat("Transport"), "Uber"))
+            add(app.assistant.domain.engine.ask.SpendFact(today.minusMonths(1).minusDays(1), Paise(1_200_00), cat("Food"), "Swiggy"))
+            add(app.assistant.domain.engine.ask.SpendFact(today.minusMonths(1).minusDays(2), Paise(2_900_00), cat("Shopping"), "Amazon"))
+        }
+        val snap = app.assistant.domain.engine.ask.AskSnapshot(
+            today = today,
+            spends = spends,
+            subscriptions = listOf(
+                app.assistant.domain.engine.ask.SubscriptionFact("StreamFlix", Paise(64_900), Paise(7_788_00), today.plusDays(2), false),
+                app.assistant.domain.engine.ask.SubscriptionFact("MusicBox", Paise(11_900), Paise(1_428_00), today.plusDays(9), true),
+            ),
+            goals = listOf(app.assistant.domain.engine.ask.GoalFact("Read 12 books", 58, 4, null)),
+        )
+        val now = today.atTime(18, 30)
+        val turns = listOf("Where did my money go this month?", "How can I save more?").mapIndexed { i, q ->
+            app.assistant.ui.ask.AskTurn(i, q, app.assistant.domain.engine.ask.AskEngine.answer(app.assistant.domain.engine.ask.AskParser.parse(q, now), snap))
+        }
+        capture("07-ask-answers") { app.assistant.ui.ask.AskContent(app.assistant.ui.ask.AskUi(turns), onBack = {}, onAsk = {}, onClear = {}) }
+    }
 }

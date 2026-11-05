@@ -79,3 +79,12 @@ data class TaskVerificationEntity(
     @ColumnInfo(name = "photo_file") val photoFile: String?,
     @ColumnInfo(name = "created_at") val createdAt: Long,
 )
+
+/** Room v11: something the User asked Apex to remember, in their own words. Never message text from another app. */
+@Entity(tableName = "memory_note", indices = [Index("created_at")])
+data class MemoryNoteEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val text: String,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+    @ColumnInfo(name = "pinned") val pinned: Boolean = false,
+)

@@ -19,7 +19,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +36,7 @@ import app.assistant.domain.career.SkillChoice
 import app.assistant.domain.model.GoalPeriod
 import app.assistant.domain.model.Quantity
 import app.assistant.ui.designsystem.CredCard
+import app.assistant.ui.designsystem.CredTopBar
 import app.assistant.ui.designsystem.SectionHeader
 
 /**
@@ -62,7 +62,7 @@ fun DataTransferScreen(onBack: () -> Unit, viewModel: DataTransferViewModel = hi
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
+            CredTopBar(title = {
                 Text(stringResource(R.string.transfer_title))
             }, navigationIcon = {
                 IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }

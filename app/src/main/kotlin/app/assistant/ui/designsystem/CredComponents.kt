@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,14 +21,10 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun CredCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-    ) {
-        Column(Modifier.padding(18.dp)) { content() }
-    }
+    Column(
+        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface)
+            .credEdge(MaterialTheme.shapes.large).padding(18.dp),
+    ) { content() }
 }
 
 /**
@@ -46,6 +40,7 @@ fun HeroCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.extraLarge)
             .background(heroSheen(base = scheme.surfaceVariant, highlight = scheme.primaryContainer))
+            .credEdge(MaterialTheme.shapes.extraLarge, strong = true)
             .padding(20.dp),
     ) {
         Column { content() }
@@ -90,4 +85,13 @@ fun EmptyState(text: String, modifier: Modifier = Modifier) {
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
     }
+}
+
+/** A raised CRED surface with no inner padding: a drop-in for Material's Card where rows bring their own padding. */
+@Composable
+fun CredSurface(modifier: Modifier = Modifier, content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
+    Column(
+        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface).credEdge(MaterialTheme.shapes.large),
+        content = content,
+    )
 }

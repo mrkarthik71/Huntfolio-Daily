@@ -76,6 +76,9 @@ abstract class DataModule {
     abstract fun plannerRepository(impl: app.assistant.data.repo.RoomPlannerRepository): app.assistant.domain.port.PlannerRepository
 
     @Binds
+    abstract fun memoryRepository(impl: app.assistant.data.repo.RoomMemoryRepository): app.assistant.domain.port.MemoryRepository
+
+    @Binds
     abstract fun transactionRepository(impl: TrackedTransactionRepository): TransactionRepository
 
     @Binds

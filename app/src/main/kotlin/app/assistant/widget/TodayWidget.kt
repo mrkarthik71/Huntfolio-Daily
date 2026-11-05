@@ -45,12 +45,15 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 
 /** Day/night colours via the public glance.color factory (the unit/resource overloads are restricted). */
-private val OnBg = ColorProvider(day = Color(0xFFF4F4F6), night = Color(0xFFF4F4F6))
-private val Bg = ColorProvider(day = Color(0xFF15151C), night = Color(0xFF15151C))
-private val Muted = ColorProvider(day = Color(0xFFA7A7B2), night = Color(0xFFA7A7B2))
-private val Accent = ColorProvider(day = Color(0xFFB7A8FF), night = Color(0xFFB7A8FF))
-private val Done = ColorProvider(day = Color(0xFF8FD6BA), night = Color(0xFF8FD6BA))
-private val Pill = ColorProvider(day = Color(0xFF2A2440), night = Color(0xFF2A2440))
+private val OnBg = ColorProvider(day = Color(0xFFF5F4F0), night = Color(0xFFF5F4F0))
+private val Bg = ColorProvider(day = Color(0xFF0B0B0C), night = Color(0xFF0B0B0C))
+private val Muted = ColorProvider(day = Color(0xFF9F9EA4), night = Color(0xFF9F9EA4))
+private val Accent = ColorProvider(day = Color(0xFFE6C58F), night = Color(0xFFE6C58F))
+private val Done = ColorProvider(day = Color(0xFF7ED7AE), night = Color(0xFF7ED7AE))
+private val Pill = ColorProvider(day = Color(0xFF1A1A1D), night = Color(0xFF1A1A1D))
+private val Track = ColorProvider(day = Color(0xFF26262A), night = Color(0xFF26262A))
+private val Ink = ColorProvider(day = Color(0xFF050505), night = Color(0xFF050505))
+private val White = ColorProvider(day = Color(0xFFF5F4F0), night = Color(0xFFF5F4F0))
 
 /** Hilt entry point for the widget and its action callbacks (Glance components are not @AndroidEntryPoint). */
 @EntryPoint
@@ -87,7 +90,10 @@ class TodayWidget : GlanceAppWidget() {
         val openTasks = Intent(context, app.assistant.ui.MainActivity::class.java)
             .putExtra("route", "tasks")
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        provideContent { WidgetContent(priorities, nextEvent, openToday, openTasks) }
+        val openAsk = Intent(context, app.assistant.ui.MainActivity::class.java)
+            .putExtra("route", "ask")
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        provideContent { WidgetContent(priorities, nextEvent, openToday, openTasks, openAsk) }
     }
 
     /** The next timed event today as "HH:mm Title", or null when none is left (Requirement 21.5). */
@@ -100,7 +106,7 @@ class TodayWidget : GlanceAppWidget() {
     }
 
     @androidx.compose.runtime.Composable
-    private fun WidgetContent(priorities: List<WidgetModel>, nextEvent: String?, openToday: Intent, openTasks: Intent) {
+    private fun WidgetContent(priorities: List<WidgetModel>, nextEvent: String?, openToday: Intent, openTasks: Intent, openAsk: Intent) {
         val ctx = androidx.glance.LocalContext.current
         Column(
             modifier = GlanceModifier.fillMaxSize().background(Bg).cornerRadius(24.dp).padding(16.dp),
@@ -113,7 +119,27 @@ class TodayWidget : GlanceAppWidget() {
                 Spacer(GlanceModifier.defaultWeight())
                 Text(ctx.getString(app.assistant.R.string.widget_open), style = TextStyle(color = Accent, fontSize = 12.sp))
             }
-            Spacer(modifier = GlanceModifier.height(6.dp))
+            Spacer(modifier = GlanceModifier.height(8.dp))
+            // Day progress from the allow-listed fields only (done/total of today's priorities; Requirement 21.2).
+            if (priorities.isNotEmpty()) {
+                val done = priorities.count { it.done }
+                Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = androidx.glance.layout.Alignment.Bottom) {
+                    Text("$done", style = TextStyle(color = OnBg, fontWeight = FontWeight.Bold, fontSize = 28.sp))
+                    Text(
+                        ctx.getString(app.assistant.R.string.widget_progress, priorities.size),
+                        style = TextStyle(color = Muted, fontSize = 13.sp),
+                        modifier = GlanceModifier.padding(start = 6.dp, bottom = 4.dp),
+                    )
+                }
+                Spacer(modifier = GlanceModifier.height(6.dp))
+                androidx.glance.appwidget.LinearProgressIndicator(
+                    progress = done.toFloat() / priorities.size,
+                    modifier = GlanceModifier.fillMaxWidth().height(6.dp).cornerRadius(3.dp),
+                    color = Accent,
+                    backgroundColor = Track,
+                )
+                Spacer(modifier = GlanceModifier.height(10.dp))
+            }
             if (nextEvent != null) {
                 Text(ctx.getString(app.assistant.R.string.widget_next, nextEvent), style = TextStyle(color = Muted, fontSize = 13.sp), maxLines = 1)
                 Spacer(modifier = GlanceModifier.height(8.dp))
@@ -139,12 +165,22 @@ class TodayWidget : GlanceAppWidget() {
                 }
             }
             Spacer(modifier = GlanceModifier.defaultWeight())
-            Row(
-                modifier = GlanceModifier.fillMaxWidth().background(Pill).cornerRadius(999.dp).padding(horizontal = 14.dp, vertical = 10.dp)
-                    .clickable(actionStartActivity(openTasks)),
-                horizontalAlignment = androidx.glance.layout.Alignment.CenterHorizontally,
-            ) {
-                Text(ctx.getString(app.assistant.R.string.widget_quick_add), style = TextStyle(color = OnBg, fontWeight = FontWeight.Medium))
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                Row(
+                    modifier = GlanceModifier.defaultWeight().background(Pill).cornerRadius(999.dp).padding(horizontal = 14.dp, vertical = 10.dp)
+                        .clickable(actionStartActivity(openTasks)),
+                    horizontalAlignment = androidx.glance.layout.Alignment.CenterHorizontally,
+                ) {
+                    Text(ctx.getString(app.assistant.R.string.widget_quick_add), style = TextStyle(color = OnBg, fontWeight = FontWeight.Medium))
+                }
+                Spacer(GlanceModifier.width(8.dp))
+                Row(
+                    modifier = GlanceModifier.defaultWeight().background(White).cornerRadius(999.dp).padding(horizontal = 14.dp, vertical = 10.dp)
+                        .clickable(actionStartActivity(openAsk)),
+                    horizontalAlignment = androidx.glance.layout.Alignment.CenterHorizontally,
+                ) {
+                    Text(ctx.getString(app.assistant.R.string.widget_ask), style = TextStyle(color = Ink, fontWeight = FontWeight.Bold))
+                }
             }
         }
     }

@@ -14,15 +14,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,7 +61,7 @@ private val clock: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatS
 private const val MAX_QUICK_ADD = 200
 
 @Composable
-fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hiltViewModel()) {
+fun TodayScreen(onOpenReview: (String) -> Unit, onOpenAsk: () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
     var text by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<ValidationError?>(null) }
@@ -100,6 +97,7 @@ fun TodayScreen(onOpenReview: (String) -> Unit, viewModel: TodayViewModel = hilt
                 }
             }
             item { TodayHero(ui, Modifier.enterAnimated(0)) }
+            item { app.assistant.ui.ask.AskEntryCard(onOpenAsk, Modifier.enterAnimated(1)) }
             itemsIndexed(ui.cards, key = { _, c -> "card${c.id.value}" }) { i, card ->
                 ProactiveCardView(
                     title = card.title,
@@ -328,20 +326,23 @@ private fun EmptyLine(text: String) {
 @Composable
 private fun QuickAdd(text: String, error: ValidationError?, onTextChange: (String) -> Unit, onAdd: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top, modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = text,
-                onValueChange = onTextChange,
-                label = { Text(stringResource(R.string.today_quick_add_hint)) },
-                singleLine = true,
-                isError = error != null,
-                modifier = Modifier.weight(1f),
+        app.assistant.ui.designsystem.CredInputBar(
+            value = text,
+            onValueChange = onTextChange,
+            hint = stringResource(R.string.today_quick_add_hint),
+            actionLabel = stringResource(R.string.today_quick_add_button),
+            actionIcon = Icons.Filled.Add,
+            onAction = onAdd,
+            isError = error != null,
+        )
+        if (error != null) {
+            Text(
+                stringResource(errorText(error)),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 20.dp),
             )
-            Button(onClick = onAdd, modifier = Modifier.padding(top = 8.dp)) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.today_quick_add_button))
-            }
         }
-        if (error != null) Text(stringResource(errorText(error)), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -349,12 +350,7 @@ private fun QuickAdd(text: String, error: ValidationError?, onTextChange: (Strin
 private fun TaskRow(task: Task, subtitle: String?, onDone: () -> Unit, menu: @Composable (close: () -> Unit) -> Unit) {
     var open by rememberSaveable { mutableStateOf(false) }
     val done = task.status == TaskStatus.DONE
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = androidx.compose.material3.CardDefaults.cardElevation(defaultElevation = 1.dp),
-    ) {
+    app.assistant.ui.designsystem.CredSurface {
         Row(Modifier.padding(start = 6.dp, end = 6.dp, top = 4.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = done,

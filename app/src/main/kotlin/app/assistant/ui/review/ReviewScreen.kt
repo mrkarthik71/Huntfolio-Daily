@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -18,7 +17,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -32,6 +30,7 @@ import app.assistant.domain.engine.review.ReviewChoice
 import app.assistant.domain.model.Task
 import app.assistant.domain.model.TaskStatus
 import app.assistant.ui.common.formatDate
+import app.assistant.ui.designsystem.CredTopBar
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,7 +43,7 @@ fun ReviewScreen(dateText: String, onBack: () -> Unit, viewModel: ReviewViewMode
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CredTopBar(
                 title = {
                     Column {
                         Text(stringResource(R.string.review_screen_title))
@@ -93,7 +92,7 @@ fun ReviewScreen(dateText: String, onBack: () -> Unit, viewModel: ReviewViewMode
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReviewRow(task: Task, choice: ReviewChoice?, onChoose: (ReviewChoice?) -> Unit) {
-    Card(Modifier.fillMaxWidth()) {
+    app.assistant.ui.designsystem.CredSurface(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(task.title, style = MaterialTheme.typography.bodyLarge)
             when (task.status) {

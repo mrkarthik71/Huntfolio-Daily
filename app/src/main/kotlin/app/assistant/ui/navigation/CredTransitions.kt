@@ -41,13 +41,15 @@ internal class CredTransitions(private val tabRoutes: Set<String>, private val r
     fun exit(scope: AnimatedContentTransitionScope<NavBackStackEntry>): ExitTransition = when {
         reduced -> fadeOut(tween(PLAIN_MS))
         scope.isTabSwitch() -> fadeOut(fastFade)
-        else -> slideOutHorizontally(slide) { -it / PARALLAX } + scaleOut(tween(ENTER_MS), targetScale = RECEDE_SCALE) + fadeOut(tween(ENTER_MS), targetAlpha = RECEDE_ALPHA)
+        else -> slideOutHorizontally(slide) { -it / PARALLAX } + scaleOut(tween(ENTER_MS), targetScale = RECEDE_SCALE) +
+            fadeOut(tween(ENTER_MS), targetAlpha = RECEDE_ALPHA)
     }
 
     fun popEnter(scope: AnimatedContentTransitionScope<NavBackStackEntry>): EnterTransition = when {
         reduced -> fadeIn(tween(PLAIN_MS))
         scope.isTabSwitch() -> fadeIn(slowFade) + scaleIn(slowFade, initialScale = TAB_SCALE)
-        else -> slideInHorizontally(slide) { -it / PARALLAX } + scaleIn(tween(EXIT_MS), initialScale = RECEDE_SCALE) + fadeIn(tween(EXIT_MS), initialAlpha = RECEDE_ALPHA)
+        else -> slideInHorizontally(slide) { -it / PARALLAX } + scaleIn(tween(EXIT_MS), initialScale = RECEDE_SCALE) +
+            fadeIn(tween(EXIT_MS), initialAlpha = RECEDE_ALPHA)
     }
 
     fun popExit(scope: AnimatedContentTransitionScope<NavBackStackEntry>): ExitTransition = when {

@@ -90,6 +90,7 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         app.assistant.data.db.entity.SmartReminderEntity::class,
         app.assistant.data.db.entity.ProactiveCardEntity::class,
         app.assistant.data.db.entity.TaskVerificationEntity::class,
+        app.assistant.data.db.entity.MemoryNoteEntity::class,
         AuditEntryEntity::class,
         SecretEntity::class,
         DiagnosticEventEntity::class,
@@ -197,14 +198,17 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun apexDao(): app.assistant.data.db.dao.ApexDao
 
     companion object {
-        const val VERSION = 10
+        const val VERSION = 11
         const val FILE_NAME = "assistant.db"
     }
 }
 
 /** Every migration, in order. Version 1 is the first schema, so the list starts empty. */
 val ALL_MIGRATIONS: Array<Migration> =
-    arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
+    arrayOf(
+        MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6,
+        MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11,
+    )
 
 object DatabaseFactory {
     @Volatile

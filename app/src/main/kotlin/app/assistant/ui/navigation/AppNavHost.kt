@@ -58,6 +58,7 @@ object Routes {
     const val TRANSFER = "settings/transfer"
     const val HEALTH = "settings/health"
     const val REMINDERS = "settings/reminders"
+    const val ASK = "ask"
     const val TASK_PREFILL = "tasks/new?title={title}"
 
     fun taskPrefill(title: String) = "tasks/new?title=" + android.net.Uri.encode(title)
@@ -116,7 +117,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
         NavHost(
             navController = nav,
             startDestination = startRoute?.takeIf {
-                it.startsWith("review/") || it == Routes.GOALS || it == Routes.TASKS || (FeatureFlags.MONEY && it == Routes.MONEY)
+                it.startsWith("review/") || it == Routes.ASK || it == Routes.GOALS || it == Routes.TASKS || (FeatureFlags.MONEY && it == Routes.MONEY)
             } ?: Routes.TODAY,
             modifier = Modifier.fillMaxSize().padding(padding),
             enterTransition = { transitions.enter(this) },
@@ -125,9 +126,21 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             popExitTransition = { transitions.popExit(this) },
         ) {
             composable(Routes.TODAY) {
-                TodayScreen(onOpenReview = { date -> nav.navigate(Routes.review(date)) })
+                TodayScreen(onOpenReview = { date -> nav.navigate(Routes.review(date)) }, onOpenAsk = { nav.navigate(Routes.ASK) })
             }
             composable(Routes.TASKS) { TasksScreen() }
+            composable(Routes.ASK) {
+                app.assistant.ui.ask.AskScreen(
+                    onBack = {
+                        // Opened from the widget, Ask is the first screen: back goes to Today instead of closing the app.
+                        if (nav.previousBackStackEntry == null) {
+                            nav.navigate(Routes.TODAY) { popUpTo(Routes.ASK) { inclusive = true } }
+                        } else {
+                            nav.popBackStack()
+                        }
+                    },
+                )
+            }
             composable(
                 Routes.TASK_PREFILL,
                 arguments = listOf(

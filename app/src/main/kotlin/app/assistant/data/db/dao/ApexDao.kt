@@ -99,4 +99,16 @@ interface ApexDao {
 
     @Query("SELECT * FROM task_verification WHERE task_id = :taskId ORDER BY created_at")
     suspend fun verifications(taskId: Long): List<TaskVerificationEntity>
+
+    @Query("SELECT * FROM memory_note ORDER BY pinned DESC, created_at DESC")
+    fun notes(): Flow<List<app.assistant.data.db.entity.MemoryNoteEntity>>
+
+    @Insert
+    suspend fun insertNote(note: app.assistant.data.db.entity.MemoryNoteEntity): Long
+
+    @Query("UPDATE memory_note SET pinned = :pinned WHERE id = :id")
+    suspend fun setNotePinned(id: Long, pinned: Boolean)
+
+    @Query("DELETE FROM memory_note WHERE id = :id")
+    suspend fun deleteNote(id: Long)
 }

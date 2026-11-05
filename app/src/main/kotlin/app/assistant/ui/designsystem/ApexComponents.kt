@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -52,11 +54,11 @@ import app.assistant.domain.model.EnergyTag
 
 /** Energy colours: each differs in lightness as well as hue, and is always paired with a text label. */
 object EnergyColors {
-    val DeepWork = Color(0xFFB7A8FF)
-    val LightAdmin = Color(0xFF8FC7FF)
-    val Physical = Color(0xFF8FD6BA)
-    val Rest = Color(0xFFF5D08A)
-    val Meeting = Color(0xFFD9D7E3)
+    val DeepWork = Color(0xFFE6C58F)
+    val LightAdmin = Color(0xFF9CC3F5)
+    val Physical = Color(0xFF7ED7AE)
+    val Rest = Color(0xFFF0A58F)
+    val Meeting = Color(0xFFD8D6CF)
     val Warning = Color(0xFFFFC27A)
     val WarningSurface = Color(0xFF1E1A14)
     val WarningOutline = Color(0xFF4A3A1E)
@@ -172,24 +174,26 @@ fun ProactiveCardView(
     modifier: Modifier = Modifier,
 ) {
     val showWhy = androidx.compose.runtime.saveable.rememberSaveable { androidx.compose.runtime.mutableStateOf(false) }
-    Column(
-        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(EnergyColors.WarningSurface)
-            .border(1.dp, EnergyColors.WarningOutline, MaterialTheme.shapes.large).padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+    val scheme = MaterialTheme.colorScheme
+    Row(
+        modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(scheme.surface)
+            .credEdge(MaterialTheme.shapes.large).height(IntrinsicSize.Min),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(Icons.Filled.Warning, contentDescription = null, tint = EnergyColors.Warning, modifier = Modifier.size(18.dp))
-            Text(title, style = MaterialTheme.typography.titleMedium, color = Color(0xFFFFE2BC))
-        }
-        Text(body, style = MaterialTheme.typography.bodyMedium, color = EnergyColors.WarningText)
-        if (showWhy.value) Text(why, style = MaterialTheme.typography.bodySmall, color = EnergyColors.WarningText.copy(alpha = 0.8f))
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (acceptLabel != null) {
-                PillButton(acceptLabel, onAccept, container = EnergyColors.Warning, content = Color(0xFF2A1A04))
+        // A thin warm rail marks a heads-up without painting the whole card amber.
+        Box(Modifier.width(3.dp).fillMaxHeight().background(EnergyColors.Warning))
+        Column(Modifier.weight(1f).padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Filled.Warning, contentDescription = null, tint = EnergyColors.Warning, modifier = Modifier.size(18.dp))
+                Text(title, style = MaterialTheme.typography.titleMedium, color = scheme.onSurface)
             }
-            PillButton(dismissLabel, onDismiss, container = Color.Transparent, content = EnergyColors.WarningText, border = EnergyColors.WarningOutline)
-            Spacer(Modifier.weight(1f))
-            TextButton(onClick = { showWhy.value = !showWhy.value }) { Text(whyLabel, color = EnergyColors.WarningText) }
+            Text(body, style = MaterialTheme.typography.bodyMedium, color = scheme.onSurfaceVariant)
+            if (showWhy.value) Text(why, style = MaterialTheme.typography.bodySmall, color = scheme.onSurfaceVariant.copy(alpha = 0.85f))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (acceptLabel != null) PillButton(acceptLabel, onAccept)
+                PillButton(dismissLabel, onDismiss, container = Color.Transparent, content = scheme.onSurface, border = scheme.outline)
+                Spacer(Modifier.weight(1f))
+                TextButton(onClick = { showWhy.value = !showWhy.value }) { Text(whyLabel, color = scheme.primary) }
+            }
         }
     }
 }
@@ -236,7 +240,7 @@ fun TimelineRow(
     val interaction = remember { MutableInteractionSource() }
     val shape = RoundedCornerShape(18.dp)
     Row(
-        modifier.fillMaxWidth().pressScale(interaction).clip(shape)
+        modifier.fillMaxWidth().pressScale(interaction).alpha(if (done) DONE_ALPHA else 1f).clip(shape)
             .background(
                 if (isNow) {
                     scheme.primaryContainer
@@ -246,17 +250,13 @@ fun TimelineRow(
                     scheme.surface
                 },
             )
-            .border(
-                1.dp,
-                if (isNow) {
-                    scheme.primary.copy(alpha = 0.35f)
-                } else if (dashed) {
-                    scheme.outline
-                } else {
-                    Color.Transparent
-                },
-                shape,
-            )
+            .let {
+                when {
+                    isNow -> it.border(1.dp, scheme.primary.copy(alpha = 0.45f), shape)
+                    dashed -> it.border(1.dp, scheme.outlineVariant, shape)
+                    else -> it.credEdge(shape)
+                }
+            }
             .let {
                 if (onClick !=
                     null
@@ -318,8 +318,10 @@ fun MiniStat(caption: String, value: String, modifier: Modifier = Modifier) {
 fun ApexCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     Column(
         modifier.fillMaxWidth().clip(MaterialTheme.shapes.large).background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large).padding(16.dp),
+            .credEdge(MaterialTheme.shapes.large).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         content = content,
     )
 }
+
+private const val DONE_ALPHA = 0.62f

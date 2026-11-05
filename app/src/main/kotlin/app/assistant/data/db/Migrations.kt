@@ -261,3 +261,13 @@ val MIGRATION_9_10: Migration = object : Migration(9, 10) {
         db.execSQL("CREATE INDEX IF NOT EXISTS `index_task_verification_task_id` ON `task_verification` (`task_id`)")
     }
 }
+
+/** v10 -> v11: the memory_note table for "Ask Apex: remember ...". */
+val MIGRATION_10_11: Migration = object : Migration(10, 11) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `memory_note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `pinned` INTEGER NOT NULL)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_memory_note_created_at` ON `memory_note` (`created_at`)")
+    }
+}

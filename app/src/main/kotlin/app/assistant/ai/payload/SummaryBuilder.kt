@@ -107,7 +107,8 @@ class SummaryBuilder(private val patterns: RedactionPatterns) {
         const val MAX_PAYLOAD_CHARS = 4_000
         const val SCHEMA_VERSION = 1
 
-        private val REVIEW_TYPES = setOf(PromptType.DAILY_PLAN, PromptType.EVENING_REVIEW, PromptType.WEEKLY_REVIEW, PromptType.MONTHLY_MONEY_REVIEW, PromptType.ASSISTANT_ANSWER)
+        private val REVIEW_TYPES =
+            setOf(PromptType.DAILY_PLAN, PromptType.EVENING_REVIEW, PromptType.WEEKLY_REVIEW, PromptType.MONTHLY_MONEY_REVIEW, PromptType.ASSISTANT_ANSWER)
         private val MESSAGE_TYPES = setOf(PromptType.MAIL_CLASSIFIER, PromptType.SMS_FALLBACK_PARSER)
     }
 }

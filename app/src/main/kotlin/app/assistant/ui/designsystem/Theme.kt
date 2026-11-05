@@ -24,28 +24,28 @@ import androidx.compose.ui.unit.sp
  */
 object AssistantColors {
     // --- Cred-style dark canvas: ink-black base, two raised surface steps, soft outlines. ---
-    private val Ink = Color(0xFF0B0B0F) // canvas
-    private val Surface1 = Color(0xFF15151C) // cards
-    private val Surface2 = Color(0xFF1E1E27) // raised / sheets
-    private val OnInk = Color(0xFFF4F4F6) // primary text
-    private val OnInkMuted = Color(0xFFA7A7B2) // secondary text
-    private val HairlineDark = Color(0xFF2C2C36) // outlineVariant / dividers
+    private val Ink = Color(0xFF050505) // canvas: near-pure black, OLED friendly
+    private val Surface1 = Color(0xFF111113) // cards
+    private val Surface2 = Color(0xFF1A1A1D) // raised / sheets
+    private val OnInk = Color(0xFFF5F4F0) // primary text, a warm white
+    private val OnInkMuted = Color(0xFF9F9EA4) // secondary text (7:1 on cards)
+    private val HairlineDark = Color(0xFF26262A) // outlineVariant / dividers
 
-    // Restrained signature accent: a desaturated indigo-violet, Cred's cool premium tone.
-    private val Accent = Color(0xFFB7A8FF)
-    private val AccentContainer = Color(0xFF2A2440)
-    private val OnAccentContainer = Color(0xFFE6E0FF)
+    // Restrained signature accent: champagne gold, used as punctuation (progress, the live item, key numbers).
+    private val Accent = Color(0xFFE6C58F)
+    private val AccentContainer = Color(0xFF2A2316)
+    private val OnAccentContainer = Color(0xFFF4E4C4)
 
     val dark: ColorScheme = darkColorScheme(
         primary = Accent,
-        onPrimary = Color(0xFF1B1430),
+        onPrimary = Color(0xFF221807),
         primaryContainer = AccentContainer,
         onPrimaryContainer = OnAccentContainer,
-        secondary = Color(0xFFC9C6D6),
-        onSecondary = Color(0xFF1E1B2A),
+        secondary = Color(0xFFCFCDC6),
+        onSecondary = Color(0xFF1C1B18),
         secondaryContainer = Surface2,
         onSecondaryContainer = OnInk,
-        tertiary = Color(0xFF8FD6BA),
+        tertiary = Color(0xFF7ED7AE),
         onTertiary = Color(0xFF00382A),
         error = Color(0xFFFF9B94),
         onError = Color(0xFF3B0907),
@@ -61,17 +61,17 @@ object AssistantColors {
         surfaceContainerLow = Surface1,
         surfaceContainer = Surface1,
         surfaceContainerHigh = Surface2,
-        surfaceContainerHighest = Color(0xFF26262F),
-        outline = Color(0xFF50505E),
+        surfaceContainerHighest = Color(0xFF232327),
+        outline = Color(0xFF4E4E55),
         outlineVariant = HairlineDark,
     )
 
     // High-contrast light fallback (same accent, white canvas) for forced-light users.
     val light: ColorScheme = lightColorScheme(
-        primary = Color(0xFF5B45C9),
+        primary = Color(0xFF7A5A1E),
         onPrimary = Color(0xFFFFFFFF),
-        primaryContainer = Color(0xFFE7DFFF),
-        onPrimaryContainer = Color(0xFF1B0C54),
+        primaryContainer = Color(0xFFF6E7C8),
+        onPrimaryContainer = Color(0xFF2A1C04),
         secondary = Color(0xFF4A4458),
         onSecondary = Color(0xFFFFFFFF),
         secondaryContainer = Color(0xFFEDE8F4),
@@ -135,15 +135,15 @@ object AssistantType {
             letterSpacing = (-0.4).sp,
             lineHeightStyle = trim,
         ),
-        headlineLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp, lineHeight = 34.sp, letterSpacing = (-0.3).sp),
-        headlineMedium = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 23.sp, lineHeight = 29.sp, letterSpacing = (-0.2).sp),
+        headlineLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 32.sp, lineHeight = 38.sp, letterSpacing = (-0.6).sp),
+        headlineMedium = TextStyle(fontFamily = display, fontWeight = FontWeight.ExtraBold, fontSize = 24.sp, lineHeight = 30.sp, letterSpacing = (-0.4).sp),
         titleLarge = TextStyle(fontFamily = display, fontWeight = FontWeight.Bold, fontSize = 19.sp, lineHeight = 24.sp, letterSpacing = (-0.1).sp),
         titleMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp),
         bodyLarge = TextStyle(fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 23.sp),
         bodyMedium = TextStyle(fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp),
         labelLarge = TextStyle(fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 18.sp, letterSpacing = 0.1.sp),
         labelMedium = TextStyle(fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
-        labelSmall = TextStyle(fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 15.sp, letterSpacing = 0.5.sp),
+        labelSmall = TextStyle(fontWeight = FontWeight.SemiBold, fontSize = 11.sp, lineHeight = 15.sp, letterSpacing = 1.2.sp),
     )
 }
 

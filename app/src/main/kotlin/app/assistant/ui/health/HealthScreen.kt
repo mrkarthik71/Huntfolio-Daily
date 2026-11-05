@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -27,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.assistant.R
 import app.assistant.domain.engine.health.HealthRules
 import app.assistant.ui.designsystem.CredCard
+import app.assistant.ui.designsystem.CredTopBar
 import app.assistant.ui.designsystem.SectionHeader
 
 /**
@@ -41,7 +41,7 @@ fun HealthScreen(onBack: () -> Unit, viewModel: HealthViewModel = hiltViewModel(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = {
+            CredTopBar(title = {
                 Text(stringResource(R.string.health_title))
             }, navigationIcon = {
                 IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
