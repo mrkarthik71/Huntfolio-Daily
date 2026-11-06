@@ -82,6 +82,9 @@ enum class PromptType {
 
     /** Ask Apex: a short answer to a question, grounded in facts the app computed. */
     ASSISTANT_ANSWER,
+
+    /** Plan ahead: break each goal into a few concrete steps, sized S, M or L. */
+    GOAL_BREAKDOWN,
 }
 
 enum class SuggestionResponse { ACCEPTED, DISMISSED, IGNORED }

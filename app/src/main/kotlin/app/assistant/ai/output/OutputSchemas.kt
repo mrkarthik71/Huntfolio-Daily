@@ -52,7 +52,17 @@ data class SmsFallbackOutput(
 )
 
 /** Shared numeric limits used by both the schemas and the Output_Validator. */
+/** One step of a goal from the breakdown prompt; [goal] is the goal's handle (g1, g2…). */
+@Serializable
+data class GoalStepDto(val goal: String, val title: String, val size: String)
+
+@Serializable
+data class GoalBreakdownOutput(val summary: String = "", val steps: List<GoalStepDto>)
+
 object OutputLimits {
+    const val MAX_STEPS = 40
+    val STEP_SIZES: Set<String> = setOf("S", "M", "L")
+
     const val MAX_SUGGESTIONS = 3
     const val MAX_SUMMARY = 600
     const val MAX_SHORT = 200

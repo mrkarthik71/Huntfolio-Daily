@@ -8,10 +8,12 @@ import app.assistant.ai.output.ValidatedOutput
 import app.assistant.ai.payload.SummaryBuilder
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.PromptType
+import app.assistant.domain.port.AdviceStep
 import app.assistant.domain.port.AdviceSuggestion
 import app.assistant.domain.port.AdviceUnavailable
 import app.assistant.domain.port.Advisor
 import app.assistant.domain.port.AiFailure
+import app.assistant.domain.port.BreakdownAdvice
 import app.assistant.domain.port.MailAdvice
 import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.RedactedPayload
@@ -39,6 +41,21 @@ class GatewayAdvisor(private val gateway: AiGateway, private val builder: Summar
                 else -> ReviewAdvice.Unavailable(AdviceUnavailable.FAILED)
             }
             is Outcome.Err -> ReviewAdvice.Unavailable(r.error)
+        }
+    }
+
+    override suspend fun breakDownGoals(facts: ReviewFacts): BreakdownAdvice {
+        val type = PromptType.GOAL_BREAKDOWN
+        val prompt = prompt(type) ?: return BreakdownAdvice.Unavailable(AdviceUnavailable.NO_PROMPT)
+        val built = when (val b = builder.buildReview(type, facts)) {
+            is Outcome.Ok -> b.value
+            is Outcome.Err -> return BreakdownAdvice.Unavailable(AdviceUnavailable.PAYLOAD_SKIPPED)
+        }
+        return when (val r = run(type, built.payload, prompt, built.context)) {
+            is Outcome.Ok -> (r.value as? ValidatedOutput.Breakdown)?.output
+                ?.let { o -> BreakdownAdvice.Steps(o.summary.ifBlank { null }, o.steps.map { AdviceStep(it.goal, it.title.trim(), it.size) }) }
+                ?: BreakdownAdvice.Unavailable(AdviceUnavailable.FAILED)
+            is Outcome.Err -> BreakdownAdvice.Unavailable(r.error)
         }
     }
 

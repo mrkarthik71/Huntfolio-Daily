@@ -51,12 +51,25 @@ sealed interface SmsAdvice {
     data class Unavailable(val reason: AdviceUnavailable) : SmsAdvice
 }
 
+/** One AI-proposed step: [handle] is the goal's handle from the payload, [size] is S, M or L. */
+data class AdviceStep(val handle: String, val title: String, val size: String)
+
+/** The AI breakdown of the goals in a plan-ahead request. */
+sealed interface BreakdownAdvice {
+    data class Steps(val summary: String?, val steps: List<AdviceStep>) : BreakdownAdvice
+
+    data class Unavailable(val reason: AdviceUnavailable) : BreakdownAdvice
+}
+
 /**
  * The single entry point features use for AI wording and judgment (task 30.2). It is called after the
  * rule-based result is shown, never throws and never blocks it; when AI is off it answers Unavailable
  * with [AdviceUnavailable.DISABLED] at once with no network. Implemented in the ai layer.
  */
 interface Advisor {
+    /** Breaks the goals in [facts] (items g1, g2…) into steps. AI off or any failure answers Unavailable. */
+    suspend fun breakDownGoals(facts: ReviewFacts): BreakdownAdvice = BreakdownAdvice.Unavailable(AdviceUnavailable.DISABLED)
+
     suspend fun review(type: PromptType, facts: ReviewFacts): ReviewAdvice
 
     suspend fun classifyMail(facts: MessageFacts): MailAdvice

@@ -64,6 +64,7 @@ class OutputValidator(private val restrictedAdvice: List<Regex>) {
             PromptType.ASSISTANT_ANSWER -> strictJson.decodeFromString(AssistantAnswerOutput.serializer(), json).let {
                 review(it.summary, it.suggestions, type, context)
             }
+            PromptType.GOAL_BREAKDOWN -> breakdown(strictJson.decodeFromString(GoalBreakdownOutput.serializer(), json), context)
             PromptType.MAIL_CLASSIFIER -> mail(strictJson.decodeFromString(MailClassifierOutput.serializer(), json), context)
             PromptType.SMS_FALLBACK_PARSER -> sms(strictJson.decodeFromString(SmsFallbackOutput.serializer(), json), context)
         }
@@ -90,6 +91,20 @@ class OutputValidator(private val restrictedAdvice: List<Regex>) {
         checkText(summary, OutputLimits.MAX_SUMMARY, ctx)?.let { return Outcome.Err(it) }
         suggestionError(suggestions, ctx)?.let { return Outcome.Err(it) }
         return Outcome.Ok(ValidatedOutput.Review(type, summary, suggestions))
+    }
+
+    @Suppress("ReturnCount") // a validator rejects at the first failing rule
+    private fun breakdown(dto: GoalBreakdownOutput, ctx: OutputContext): Outcome<ValidatedOutput, OutputError> {
+        if (dto.summary.isNotEmpty()) checkText(dto.summary, OutputLimits.MAX_SUMMARY, ctx)?.let { return Outcome.Err(it) }
+        if (dto.steps.isEmpty()) return Outcome.Err(OutputError.MALFORMED)
+        if (dto.steps.size > OutputLimits.MAX_STEPS) return Outcome.Err(OutputError.TOO_LONG)
+        for (s in dto.steps) {
+            if (s.goal !in ctx.knownHandles) return Outcome.Err(OutputError.UNKNOWN_HANDLE)
+            if (s.size !in OutputLimits.STEP_SIZES) return Outcome.Err(OutputError.OUT_OF_RANGE)
+            if (s.title.isBlank()) return Outcome.Err(OutputError.MALFORMED)
+            checkText(s.title, OutputLimits.MAX_ONE_LINE, ctx)?.let { return Outcome.Err(it) }
+        }
+        return Outcome.Ok(ValidatedOutput.Breakdown(dto))
     }
 
     @Suppress("ReturnCount") // a validator rejects at the first failing rule
@@ -150,6 +165,7 @@ sealed interface ValidatedOutput {
     data class DailyPlan(val output: DailyPlanOutput) : ValidatedOutput
     data class Review(val type: PromptType, val summary: String, val suggestions: List<SuggestionDto>) : ValidatedOutput
     data class Mail(val output: MailClassifierOutput) : ValidatedOutput
+    data class Breakdown(val output: GoalBreakdownOutput) : ValidatedOutput
     data class Sms(val output: SmsFallbackOutput) : ValidatedOutput
 }
 
@@ -170,6 +186,7 @@ object OutputSerializer {
             else -> strictJson.encodeToString(EveningReviewOutput.serializer(), EveningReviewOutput(output.summary, suggestions = output.suggestions))
         }
         is ValidatedOutput.Mail -> strictJson.encodeToString(MailClassifierOutput.serializer(), output.output)
+        is ValidatedOutput.Breakdown -> strictJson.encodeToString(GoalBreakdownOutput.serializer(), output.output)
         is ValidatedOutput.Sms -> strictJson.encodeToString(SmsFallbackOutput.serializer(), output.output)
     }
 }

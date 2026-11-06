@@ -57,6 +57,7 @@ object Routes {
     const val VAULT = "vault"
     const val BODY = "body"
     const val CRASH = "crash"
+    const val HORIZON = "horizon"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
@@ -149,6 +150,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     androidx.compose.foundation.layout.Column(
                         verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(androidx.compose.ui.unit.Dp(12f)),
                     ) {
+                        app.assistant.ui.today.HorizonTodayPanel(onOpenPlanner = { nav.navigate(Routes.HORIZON) })
                         app.assistant.ui.settings.ConnectSourcesPanel(onOpen = { source -> sourceRoute(source)?.let(nav::navigate) })
                         app.assistant.ui.health.BodyTiles()
                     }
@@ -191,6 +193,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                 )
             }
             composable(Routes.BODY) { app.assistant.ui.health.BodyConnectScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.HORIZON) { app.assistant.ui.today.HorizonPlanScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.CRASH) { app.assistant.ui.settings.CrashReportScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.VAULT) { app.assistant.ui.life.VaultScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.ASK) {
