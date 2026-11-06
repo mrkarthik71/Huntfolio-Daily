@@ -39,6 +39,7 @@ private enum class MoneyTab(val labelRes: Int) {
     REPORTS(R.string.money_tab_reports),
     REVIEW(R.string.money_tab_review),
     SAVINGS(R.string.savings_tab),
+    NET_WORTH(R.string.nw_tab),
 }
 
 private val tabs: List<MoneyTab> = MoneyTab.entries.filter { it != MoneyTab.SUBSCRIPTIONS || FeatureFlags.SUBSCRIPTIONS }
@@ -76,6 +77,7 @@ fun MoneyScreen(onOpenSettings: () -> Unit) {
             MoneyTab.REPORTS -> SpendingReportsScreen(content)
             MoneyTab.REVIEW -> ReviewQueueScreen(content)
             MoneyTab.SAVINGS -> app.assistant.ui.life.SavingsScreen(content)
+            MoneyTab.NET_WORTH -> app.assistant.ui.life.NetWorthScreen(content)
         }
     }
 }

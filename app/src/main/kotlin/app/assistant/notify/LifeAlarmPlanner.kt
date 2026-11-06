@@ -70,6 +70,7 @@ class LifeAlarmPlanner @Inject constructor(
     private val dates: DateStore,
     private val followUps: FollowUpStore,
     private val reflection: ReflectionStore,
+    private val holdings: app.assistant.domain.port.HoldingStore,
     private val armer: AlarmArmer,
 ) : LifeAlarms {
 
@@ -94,6 +95,10 @@ class LifeAlarmPlanner @Inject constructor(
             var due = day.atTime(WEEKLY_HOUR, 0).atZone(zone).toInstant()
             if (!due.isAfter(now)) due = day.plusWeeks(1).atTime(WEEKLY_HOUR, 0).atZone(zone).toInstant()
             mapOf("week:${due.atZone(zone).toLocalDate()}" to due)
+        }
+        plan(NotificationType.MONEY_DUE, NotificationType.MONEY_DUE in s.enabledTypes) {
+            app.assistant.domain.engine.life.NetWorthRules.dueAlerts(holdings.holdingsNow(), today, today.plusDays(1))
+                .associate { it.refKey to at(it.on.minusDays(it.leadDays.toLong()), morning, zone, now) }
         }
         plan(NotificationType.FOCUS_END, NotificationType.FOCUS_END in s.enabledTypes) {
             reflection.running()?.let { mapOf(LifeRefs.focus(it.id) to it.startedAt.plus(Duration.ofMinutes(it.plannedMinutes.toLong()))) } ?: emptyMap()

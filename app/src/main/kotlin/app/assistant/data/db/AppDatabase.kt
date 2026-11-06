@@ -99,6 +99,8 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         app.assistant.data.db.entity.FollowUpEntity::class,
         app.assistant.data.db.entity.MoodLogEntity::class,
         app.assistant.data.db.entity.FocusSessionEntity::class,
+        app.assistant.data.db.entity.HoldingEntity::class,
+        app.assistant.data.db.entity.VaultItemEntity::class,
         AuditEntryEntity::class,
         SecretEntity::class,
         DiagnosticEventEntity::class,
@@ -208,7 +210,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun lifeDao(): app.assistant.data.db.dao.LifeDao
 
     companion object {
-        const val VERSION = 12
+        const val VERSION = 13
         const val FILE_NAME = "assistant.db"
     }
 }
@@ -218,7 +220,7 @@ val ALL_MIGRATIONS: Array<Migration> =
     arrayOf(
         MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6,
         MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10, MIGRATION_10_11,
-        MIGRATION_11_12,
+        MIGRATION_11_12, MIGRATION_12_13,
     )
 
 object DatabaseFactory {

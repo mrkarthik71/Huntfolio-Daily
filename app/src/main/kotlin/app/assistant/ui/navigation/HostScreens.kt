@@ -54,7 +54,7 @@ fun PlanHost(onOpenWeek: () -> Unit = {}) {
 
 /** Inbox: smart reminders and the mail that needs action, in one tab. */
 @Composable
-fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit) {
+fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit, onOpenVault: () -> Unit = {}) {
     SegmentedHost(
         listOf(
             stringResource(R.string.reminders_title),
@@ -62,6 +62,7 @@ fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit) {
             stringResource(R.string.waiting_tab),
             stringResource(R.string.mail_title),
         ),
+        action = { app.assistant.ui.designsystem.PillButton(stringResource(R.string.vault_button), onClick = onOpenVault) },
     ) { i ->
         when (i) {
             0 -> app.assistant.ui.reminders.RemindersScreen(onBack = null)

@@ -102,3 +102,36 @@ interface BodySignals {
 
     suspend fun stepsToday(): Long?
 }
+
+interface HoldingStore {
+    fun holdings(): kotlinx.coroutines.flow.Flow<List<app.assistant.domain.model.Holding>>
+
+    suspend fun holdingsNow(): List<app.assistant.domain.model.Holding>
+
+    suspend fun get(id: Long): app.assistant.domain.model.Holding?
+
+    suspend fun save(holding: app.assistant.domain.model.Holding): Long
+
+    suspend fun delete(id: Long)
+}
+
+/** The vault's index (titles and links); the files themselves live in [VaultFiles], encrypted. */
+interface VaultStore {
+    fun items(): kotlinx.coroutines.flow.Flow<List<app.assistant.domain.model.VaultItem>>
+
+    suspend fun add(title: String, dateId: Long?, fileName: String, mime: String, at: Instant): Long
+
+    suspend fun get(id: Long): app.assistant.domain.model.VaultItem?
+
+    suspend fun delete(id: Long)
+}
+
+/** Encrypted file storage on the phone only (never in Android backups). */
+interface VaultFiles {
+    /** Encrypts and stores [bytes]; returns the stored file name. */
+    suspend fun put(bytes: ByteArray): String
+
+    suspend fun read(fileName: String): ByteArray?
+
+    suspend fun remove(fileName: String)
+}

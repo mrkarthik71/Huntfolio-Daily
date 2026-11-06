@@ -82,3 +82,26 @@ data class FocusSessionEntity(
     @ColumnInfo(name = "ended_at") val endedAt: Long?,
     val completed: Boolean,
 )
+
+// Room v13: holdings for net worth, and the encrypted vault's index.
+
+@Entity(tableName = "holding")
+data class HoldingEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val kind: String,
+    @ColumnInfo(name = "value_paise") val valuePaise: Long,
+    @ColumnInfo(name = "monthly_paise") val monthlyPaise: Long,
+    @ColumnInfo(name = "due_day") val dueDay: Int?,
+    @ColumnInfo(name = "updated_on") val updatedOn: String,
+)
+
+@Entity(tableName = "vault_item", indices = [Index("date_id")])
+data class VaultItemEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val title: String,
+    @ColumnInfo(name = "date_id") val dateId: Long?,
+    @ColumnInfo(name = "file_name") val fileName: String,
+    val mime: String,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+)

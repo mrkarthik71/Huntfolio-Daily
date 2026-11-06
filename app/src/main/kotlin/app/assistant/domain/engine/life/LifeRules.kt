@@ -155,3 +155,42 @@ object BudgetAlertRules {
 
     private const val HUNDRED = 100L
 }
+
+/** A SIP or EMI reminder: [leadDays] before the payment on [on]. */
+data class MoneyDue(val holdingId: Long, val on: LocalDate, val leadDays: Int) {
+    val refKey: String get() = "due:$holdingId:$on:$leadDays"
+}
+
+/** Net worth from the User's holdings. Pure; paise throughout. */
+object NetWorthRules {
+    data class Summary(val assets: Paise, val liabilities: Paise, val monthlyOut: Paise) {
+        /** Assets minus liabilities; negative when debts are larger. */
+        val netPaise: Long get() = assets.value - liabilities.value
+    }
+
+    fun summary(holdings: List<app.assistant.domain.model.Holding>): Summary {
+        val assets = holdings.filter { !it.kind.liability }.fold(Paise(0)) { a, h -> a + h.value }
+        val debts = holdings.filter { it.kind.liability }.fold(Paise(0)) { a, h -> a + h.value }
+        val monthly = holdings.fold(Paise(0)) { a, h -> a + h.monthly }
+        return Summary(assets, debts, monthly)
+    }
+
+    /** The next payment date for a holding's [dueDay] on or after [today]. */
+    fun nextDue(dueDay: Int, today: LocalDate): LocalDate {
+        val day = dueDay.coerceIn(1, MAX_DUE_DAY)
+        val thisMonth = today.withDayOfMonth(day)
+        return if (thisMonth.isBefore(today)) today.plusMonths(1).withDayOfMonth(day) else thisMonth
+    }
+
+    /** SIP and EMI reminders that fire from [from] to [to]: the day before and on the day. */
+    fun dueAlerts(holdings: List<app.assistant.domain.model.Holding>, from: LocalDate, to: LocalDate): List<MoneyDue> = holdings
+        .filter { it.monthly.value > 0 && it.dueDay != null }
+        .flatMap { h ->
+            val next = nextDue(h.dueDay!!, from)
+            listOf(1, 0).map { MoneyDue(h.id, next, it) } + listOf(1, 0).map { MoneyDue(h.id, nextDue(h.dueDay, next.plusDays(1)), it) }
+        }
+        .filter { val fire = it.on.minusDays(it.leadDays.toLong()); !fire.isBefore(from) && !fire.isAfter(to) }
+        .distinct()
+
+    const val MAX_DUE_DAY = 28
+}

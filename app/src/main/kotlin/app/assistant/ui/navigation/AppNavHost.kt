@@ -54,6 +54,7 @@ object Routes {
     const val FOCUS = "focus"
     const val YEAR = "year"
     const val WEEK_PLAN = "weekplan"
+    const val VAULT = "vault"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
@@ -169,8 +170,10 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                 InboxHost(
                     onCreateTask = { subject -> nav.navigate(Routes.taskPrefill(subject)) },
                     onCreateBill = { if (FeatureFlags.MONEY) nav.navigate(Routes.MONEY) },
+                    onOpenVault = { nav.navigate(Routes.VAULT) },
                 )
             }
+            composable(Routes.VAULT) { app.assistant.ui.life.VaultScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.ASK) {
                 app.assistant.ui.ask.AskScreen(
                     onBack = {
@@ -207,6 +210,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenHealth = { nav.navigate(Routes.HEALTH) },
                     onOpenReminders = { nav.navigate(Routes.REMINDERS) },
                     onOpenYear = { nav.navigate(Routes.YEAR) },
+                    onOpenVault = { nav.navigate(Routes.VAULT) },
                     onBack = { nav.popBackStack() },
                     onDeleteEverything = onDeleteEverything,
                 )

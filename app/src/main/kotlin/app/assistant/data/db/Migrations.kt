@@ -292,3 +292,16 @@ private val V12_SQL = listOf(
     "CREATE TABLE IF NOT EXISTS `focus_session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `task_id` INTEGER, `started_at` INTEGER NOT NULL, `planned_min` INTEGER NOT NULL, `ended_at` INTEGER, `completed` INTEGER NOT NULL)",
     "CREATE INDEX IF NOT EXISTS `index_focus_session_started_at` ON `focus_session` (`started_at`)",
 )
+
+/** v12 -> v13: holdings for net worth, and the encrypted vault's index. */
+val MIGRATION_12_13: Migration = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V13_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V13_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `holding` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `value_paise` INTEGER NOT NULL, `monthly_paise` INTEGER NOT NULL, `due_day` INTEGER, `updated_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `vault_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date_id` INTEGER, `file_name` TEXT NOT NULL, `mime` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS `index_vault_item_date_id` ON `vault_item` (`date_id`)",
+)

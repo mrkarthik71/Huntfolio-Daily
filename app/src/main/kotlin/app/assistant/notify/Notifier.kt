@@ -125,6 +125,7 @@ class Notifier @Inject constructor(@param:ApplicationContext private val context
             NotificationType.BUDGET_ALERT -> R.string.channel_budget_alert
             NotificationType.FOCUS_END -> R.string.channel_focus_end
             NotificationType.WEEKLY_PLAN -> R.string.channel_weekly_plan
+            NotificationType.MONEY_DUE -> R.string.channel_money_due
         }
     }
 }

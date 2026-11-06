@@ -57,3 +57,35 @@ data class FocusSession(
     val endedAt: Instant?,
     val completed: Boolean,
 )
+
+/** What a holding is. Loans and cards count against net worth. */
+enum class HoldingKind(val liability: Boolean) {
+    BANK(false),
+    FIXED_DEPOSIT(false),
+    MUTUAL_FUND(false),
+    STOCKS(false),
+    PPF_EPF(false),
+    GOLD(false),
+    PROPERTY(false),
+    OTHER_ASSET(false),
+    LOAN(true),
+    CREDIT_CARD(true),
+    OTHER_DEBT(true),
+}
+
+/**
+ * One account, investment or debt with its current value, typed by the User. [monthly] is a SIP or
+ * EMI paid on [dueDay] (1 to 28) each month; zero when there is none.
+ */
+data class Holding(
+    val id: Long,
+    val name: String,
+    val kind: HoldingKind,
+    val value: Paise,
+    val monthly: Paise,
+    val dueDay: Int?,
+    val updatedOn: LocalDate,
+)
+
+/** A photo or PDF in the encrypted vault, optionally tied to an important date (an expiry). */
+data class VaultItem(val id: Long, val title: String, val dateId: Long?, val fileName: String, val mime: String, val createdAt: Instant)

@@ -204,3 +204,56 @@ class RoomReflectionStore @Inject constructor(private val holder: DbProvider) : 
 
     override suspend fun end(id: Long, at: Instant, completed: Boolean) = dao.endSession(id, at.toEpochMilli(), completed)
 }
+
+private fun app.assistant.data.db.entity.HoldingEntity.toDomain() = app.assistant.domain.model.Holding(
+    id,
+    name,
+    app.assistant.domain.model.HoldingKind.valueOf(kind),
+    Paise(valuePaise),
+    Paise(monthlyPaise),
+    dueDay,
+    LocalDate.parse(updatedOn),
+)
+
+class RoomHoldingStore @Inject constructor(private val holder: DbProvider) : app.assistant.domain.port.HoldingStore {
+    private val dao get() = holder.database().lifeDao()
+
+    override fun holdings(): Flow<List<app.assistant.domain.model.Holding>> = dao.holdings().map { l -> l.map { it.toDomain() } }
+
+    override suspend fun holdingsNow(): List<app.assistant.domain.model.Holding> = dao.holdingsNow().map { it.toDomain() }
+
+    override suspend fun get(id: Long): app.assistant.domain.model.Holding? = dao.holding(id)?.toDomain()
+
+    override suspend fun save(holding: app.assistant.domain.model.Holding): Long = idAfterUpsert(
+        holding.id,
+        dao.upsertHolding(
+            app.assistant.data.db.entity.HoldingEntity(
+                holding.id,
+                holding.name.trim().take(MAX_TEXT),
+                holding.kind.name,
+                holding.value.value,
+                holding.monthly.value,
+                holding.dueDay?.coerceIn(1, app.assistant.domain.engine.life.NetWorthRules.MAX_DUE_DAY),
+                holding.updatedOn.toString(),
+            ),
+        ),
+    )
+
+    override suspend fun delete(id: Long) = dao.deleteHolding(id)
+}
+
+class RoomVaultStore @Inject constructor(private val holder: DbProvider) : app.assistant.domain.port.VaultStore {
+    private val dao get() = holder.database().lifeDao()
+
+    private fun app.assistant.data.db.entity.VaultItemEntity.toDomain() =
+        app.assistant.domain.model.VaultItem(id, title, dateId, fileName, mime, Instant.ofEpochMilli(createdAt))
+
+    override fun items(): Flow<List<app.assistant.domain.model.VaultItem>> = dao.vaultItems().map { l -> l.map { it.toDomain() } }
+
+    override suspend fun add(title: String, dateId: Long?, fileName: String, mime: String, at: Instant): Long =
+        dao.insertVaultItem(app.assistant.data.db.entity.VaultItemEntity(title = title.trim().take(MAX_TEXT), dateId = dateId, fileName = fileName, mime = mime, createdAt = at.toEpochMilli()))
+
+    override suspend fun get(id: Long): app.assistant.domain.model.VaultItem? = dao.vaultItem(id)?.toDomain()
+
+    override suspend fun delete(id: Long) = dao.deleteVaultItem(id)
+}

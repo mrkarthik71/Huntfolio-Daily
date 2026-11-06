@@ -320,7 +320,7 @@ class AndroidNotificationScheduler @Inject constructor(
         NotificationType.GOAL_NUDGE -> "goals"
         NotificationType.HABIT_CHECK -> "plan"
         NotificationType.IMPORTANT_DATE, NotificationType.FOLLOW_UP -> "inbox"
-        NotificationType.BUDGET_ALERT -> "money"
+        NotificationType.BUDGET_ALERT, NotificationType.MONEY_DUE -> "money"
         NotificationType.WEEKLY_PLAN -> "weekplan"
         else -> "today"
     }

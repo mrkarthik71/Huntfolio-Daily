@@ -85,6 +85,7 @@ class NotificationSchedulerTest {
                     app.assistant.data.repo.RoomFollowUpStore(provider),
                     app.assistant.data.repo.RoomReflectionStore(provider),
                     time,
+                    app.assistant.data.repo.RoomHoldingStore(provider),
                 )
             },
         )

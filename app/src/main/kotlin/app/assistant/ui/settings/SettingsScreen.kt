@@ -59,6 +59,7 @@ fun SettingsScreen(
     onOpenHealth: (() -> Unit)? = null,
     onOpenReminders: (() -> Unit)? = null,
     onOpenYear: (() -> Unit)? = null,
+    onOpenVault: (() -> Unit)? = null,
     onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -83,6 +84,10 @@ fun SettingsScreen(
             item {
                 CredGroup(null) {
                     CredRow(stringResource(R.string.year_entry), Icons.Outlined.Star, supporting = stringResource(R.string.year_entry_sub), onClick = open)
+                    onOpenVault?.let {
+                        CredDivider()
+                        CredRow(stringResource(R.string.vault_title), Icons.Outlined.Lock, supporting = stringResource(R.string.vault_entry_sub), onClick = it)
+                    }
                 }
             }
         }

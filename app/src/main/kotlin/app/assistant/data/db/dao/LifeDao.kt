@@ -104,4 +104,31 @@ interface LifeDao {
 
     @Query("UPDATE focus_session SET ended_at = :at, completed = :completed WHERE id = :id")
     suspend fun endSession(id: Long, at: Long, completed: Boolean)
+
+    @Query("SELECT * FROM holding ORDER BY kind, name")
+    fun holdings(): Flow<List<app.assistant.data.db.entity.HoldingEntity>>
+
+    @Query("SELECT * FROM holding")
+    suspend fun holdingsNow(): List<app.assistant.data.db.entity.HoldingEntity>
+
+    @Query("SELECT * FROM holding WHERE id = :id")
+    suspend fun holding(id: Long): app.assistant.data.db.entity.HoldingEntity?
+
+    @Upsert
+    suspend fun upsertHolding(h: app.assistant.data.db.entity.HoldingEntity): Long
+
+    @Query("DELETE FROM holding WHERE id = :id")
+    suspend fun deleteHolding(id: Long)
+
+    @Query("SELECT * FROM vault_item ORDER BY created_at DESC")
+    fun vaultItems(): Flow<List<app.assistant.data.db.entity.VaultItemEntity>>
+
+    @Insert
+    suspend fun insertVaultItem(v: app.assistant.data.db.entity.VaultItemEntity): Long
+
+    @Query("SELECT * FROM vault_item WHERE id = :id")
+    suspend fun vaultItem(id: Long): app.assistant.data.db.entity.VaultItemEntity?
+
+    @Query("DELETE FROM vault_item WHERE id = :id")
+    suspend fun deleteVaultItem(id: Long)
 }

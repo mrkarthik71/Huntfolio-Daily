@@ -27,4 +27,5 @@ fun notificationTypeLabel(type: NotificationType): Int = when (type) {
     NotificationType.BUDGET_ALERT -> R.string.notif_type_budget_alert
     NotificationType.FOCUS_END -> R.string.notif_type_focus_end
     NotificationType.WEEKLY_PLAN -> R.string.notif_type_weekly_plan
+    NotificationType.MONEY_DUE -> R.string.notif_type_money_due
 }

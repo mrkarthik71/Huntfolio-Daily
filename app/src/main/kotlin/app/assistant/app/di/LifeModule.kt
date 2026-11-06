@@ -83,9 +83,27 @@ abstract class LifeBindingsModule {
     abstract fun lifeAlarms(impl: LifeAlarmPlanner): LifeAlarms
 
     @Binds
+    abstract fun holdingStore(impl: app.assistant.data.repo.RoomHoldingStore): app.assistant.domain.port.HoldingStore
+
+    @Binds
+    abstract fun vaultStore(impl: app.assistant.data.repo.RoomVaultStore): app.assistant.domain.port.VaultStore
+
+    @Binds
+    abstract fun vaultFiles(impl: app.assistant.security.keys.EncryptedVaultFiles): app.assistant.domain.port.VaultFiles
+
+    @Binds
     abstract fun bodySignals(impl: app.assistant.data.health.NoBodySignals): app.assistant.domain.port.BodySignals
 
     @Binds
     @IntoSet
     abstract fun budgetAlertHook(impl: BudgetAlertHook): PostCommitHook
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object LifeProvidesModule {
+    /** "Delete everything" also removes the vault's encrypted files and its key. */
+    @dagger.Provides
+    @IntoSet
+    fun vaultWipe(files: app.assistant.security.keys.EncryptedVaultFiles): app.assistant.data.wipe.WipeStep = app.assistant.data.wipe.WipeStep { files.wipe() }
 }

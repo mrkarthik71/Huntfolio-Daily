@@ -31,6 +31,7 @@ class LifeNotifications @Inject constructor(
     private val followUps: FollowUpStore,
     private val reflection: ReflectionStore,
     private val time: TimeSource,
+    private val holdings: app.assistant.domain.port.HoldingStore,
 ) {
     /** Null means there is nothing to say any more (done, deleted or switched off). */
     suspend fun content(row: QueuedAlarm): NotificationContent? = when (row.type) {
@@ -38,6 +39,7 @@ class LifeNotifications @Inject constructor(
         NotificationType.IMPORTANT_DATE -> date(row.refKey)
         NotificationType.FOLLOW_UP -> followUp(row.refKey)
         NotificationType.FOCUS_END -> focus(row.refKey)
+        NotificationType.MONEY_DUE -> moneyDue(row.refKey)
         NotificationType.WEEKLY_PLAN -> NotificationContent(context.getString(R.string.week_notif_title), context.getString(R.string.week_notif_text), "weekplan")
         else -> null
     }
@@ -79,6 +81,21 @@ class LifeNotifications @Inject constructor(
             DateKind.OTHER -> context.getString(R.string.date_notif_other, d.title, whenText)
         }
         return NotificationContent(title, DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).format(occurrence), "inbox")
+    }
+
+    private suspend fun moneyDue(ref: String): NotificationContent? {
+        val p = ref.split(':').takeIf { it.size == DUE_PARTS && it[0] == "due" } ?: return null
+        val h = p[1].toLongOrNull()?.let { holdings.get(it) }?.takeIf { it.monthly.value > 0 } ?: return null
+        val whenText = if (p[3] == "0") context.getString(R.string.date_when_today) else context.getString(R.string.date_when_tomorrow)
+        return NotificationContent(
+            context.getString(R.string.money_due_title, h.name, whenText),
+            context.getString(R.string.money_due_text, app.assistant.domain.format.MoneyFormatter.format(h.monthly)),
+            "money",
+        )
+    }
+
+    private companion object {
+        const val DUE_PARTS = 4
     }
 
     private suspend fun followUp(ref: String): NotificationContent? {

@@ -63,6 +63,9 @@ enum class NotificationType {
     /** The weekly planning ritual on the last day of the week. */
     WEEKLY_PLAN,
 
+    /** A SIP, EMI or card payment due tomorrow or today. */
+    MONEY_DUE,
+
     /** Only where important dates are enabled (Requirement 68). */
     IMPORTANT_DATE,
 }
