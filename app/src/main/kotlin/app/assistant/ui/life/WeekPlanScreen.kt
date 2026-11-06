@@ -109,11 +109,23 @@ fun WeekPlanContent(p: WeekProposal?, accepted: Boolean, notify: Boolean, onNoti
         item {
             Column(Modifier.enterAnimated(0)) {
                 Text(stringResource(R.string.week_title), style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.onBackground)
-                p?.let { Text(stringResource(R.string.week_from, it.weekStart.format(dayFormat)), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                p?.let {
+                    Text(
+                        stringResource(R.string.week_from, it.weekStart.format(dayFormat)),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
         val top = p?.top.orEmpty()
-        if (p != null && top.isEmpty()) item { Text(stringResource(R.string.week_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        if (p != null &&
+            top.isEmpty()
+        ) {
+            item {
+                Text(stringResource(R.string.week_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         itemsIndexed(top, key = { _, s -> s.task.id }) { i, s ->
             Row(
                 Modifier.fillMaxWidth().enterAnimated(i + 1).raisedPanel(MaterialTheme.shapes.large).padding(16.dp),
@@ -137,7 +149,11 @@ fun WeekPlanContent(p: WeekProposal?, accepted: Boolean, notify: Boolean, onNoti
                 Column(Modifier.fillMaxWidth().recessedWell(MaterialTheme.shapes.medium).padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Caption(stringResource(R.string.week_goals_behind), color = MaterialTheme.colorScheme.primary, live = true)
                     p.goalsBehind.forEach { Text(it, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onBackground) }
-                    Text(stringResource(R.string.week_goals_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        stringResource(R.string.week_goals_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }

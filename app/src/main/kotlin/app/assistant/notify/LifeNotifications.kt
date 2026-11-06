@@ -40,7 +40,11 @@ class LifeNotifications @Inject constructor(
         NotificationType.FOLLOW_UP -> followUp(row.refKey)
         NotificationType.FOCUS_END -> focus(row.refKey)
         NotificationType.MONEY_DUE -> moneyDue(row.refKey)
-        NotificationType.WEEKLY_PLAN -> NotificationContent(context.getString(R.string.week_notif_title), context.getString(R.string.week_notif_text), "weekplan")
+        NotificationType.WEEKLY_PLAN -> NotificationContent(
+            context.getString(R.string.week_notif_title),
+            context.getString(R.string.week_notif_text),
+            "weekplan",
+        )
         else -> null
     }
 

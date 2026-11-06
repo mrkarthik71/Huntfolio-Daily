@@ -68,6 +68,10 @@ val signingValues: Map<String, String?> = signingEnvNames.associateWith { name -
 val hasSigningValues = signingValues.values.all { it != null }
 
 android {
+    lint {
+        // Hindi and Tamil cover the daily-use screens; other strings fall back to English on purpose.
+        warning += "MissingTranslation"
+    }
     namespace = "app.assistant"
 
     defaultConfig {

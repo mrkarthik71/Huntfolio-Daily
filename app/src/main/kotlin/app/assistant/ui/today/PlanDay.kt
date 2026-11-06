@@ -89,8 +89,13 @@ class PlanDayViewModel @Inject constructor(
         val blocks = plans.timeBlocks(today)
         val blocked = blocks.mapNotNull { it.taskId?.value }.toSet()
         val candidates = tasks.openTasks().first().filter { t ->
-            t.status == TaskStatus.OPEN && t.id.value !in blocked &&
-                (t.plannedDate == today || (t.plannedDate != null && t.plannedDate.isBefore(today)) || (t.dueDate != null && !t.dueDate.isAfter(today.plusDays(2))))
+            t.status == TaskStatus.OPEN &&
+                t.id.value !in blocked &&
+                (
+                    t.plannedDate == today ||
+                        (t.plannedDate != null && t.plannedDate.isBefore(today)) ||
+                        (t.dueDate != null && !t.dueDate.isAfter(today.plusDays(2)))
+                    )
         }.map { PlanTask(it.id.value, it.title, it.estimateMinutes ?: DayPlanner.DEFAULT_MINUTES, it.priority, it.energy, it.dueDate) }
         val meetings = runCatching { calendar.eventsOn(today).first().timed.mapNotNull { f -> f.timed } }.getOrDefault(emptyList())
         val routines = runCatching { planner.routines().first() }.getOrDefault(emptyList()).filter { it.active && today.dayOfWeek in it.days }
@@ -108,7 +113,12 @@ class PlanDayViewModel @Inject constructor(
         viewModelScope.launch {
             val zone = time.zone()
             val today = time.today()
-            plans.addBlocks(today, p.blocks.map { b -> TimeBlock(null, TaskId(b.taskId), InstantRange(at(today, b.span.start, zone), at(today, b.span.end, zone)), TimeBlockKind.FOCUS) })
+            plans.addBlocks(
+                today,
+                p.blocks.map { b ->
+                    TimeBlock(null, TaskId(b.taskId), InstantRange(at(today, b.span.start, zone), at(today, b.span.end, zone)), TimeBlockKind.FOCUS)
+                },
+            )
             _accepted.value = true
         }
     }
@@ -148,7 +158,11 @@ fun PlanDaySheet(onDismiss: () -> Unit, viewModel: PlanDayViewModel = hiltViewMo
                     proposal.blocks.forEach { b -> ReadoutRow(hm(b.span.start), b.title, marker = EnergyColors.of(b.energy), trailing = hm(b.span.end)) }
                 }
                 if (proposal.unplaced.isNotEmpty()) {
-                    Text(stringResource(R.string.planday_unplaced, proposal.unplaced.joinToString(", ")), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        stringResource(R.string.planday_unplaced, proposal.unplaced.joinToString(", ")),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 CredPrimaryButton(stringResource(R.string.planday_accept), onClick = viewModel::accept)
                 Row(Modifier.fillMaxWidth().padding(top = 2.dp)) { TextButton(onClick = onDismiss) { Text(stringResource(R.string.life_cancel)) } }

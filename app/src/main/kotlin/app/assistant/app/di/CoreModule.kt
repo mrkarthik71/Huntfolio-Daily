@@ -10,6 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,6 +21,9 @@ import javax.inject.Singleton
 abstract class CoreBindings {
     @Binds
     abstract fun timeSource(impl: SystemTimeSource): TimeSource
+
+    @Binds
+    abstract fun crashReports(impl: app.assistant.security.crash.CrashRecorder): app.assistant.domain.port.CrashReports
 }
 
 @Module
@@ -36,5 +40,8 @@ object CoreModule {
     @Provides
     @Singleton
     @ApplicationScope
-    fun applicationScope(dispatchers: DispatcherProvider): CoroutineScope = CoroutineScope(SupervisorJob() + dispatchers.default)
+    fun applicationScope(dispatchers: DispatcherProvider, crashes: app.assistant.security.crash.CrashRecorder): CoroutineScope =
+        // An error in one background job (a receiver, the notification reader, a reminder) is recorded and dropped:
+        // it must never take the whole app down.
+        CoroutineScope(SupervisorJob() + dispatchers.default + CoroutineExceptionHandler { _, e -> crashes.record(e) })
 }

@@ -189,7 +189,10 @@ object NetWorthRules {
             val next = nextDue(h.dueDay!!, from)
             listOf(1, 0).map { MoneyDue(h.id, next, it) } + listOf(1, 0).map { MoneyDue(h.id, nextDue(h.dueDay, next.plusDays(1)), it) }
         }
-        .filter { val fire = it.on.minusDays(it.leadDays.toLong()); !fire.isBefore(from) && !fire.isAfter(to) }
+        .filter {
+            val fire = it.on.minusDays(it.leadDays.toLong())
+            !fire.isBefore(from) && !fire.isAfter(to)
+        }
         .distinct()
 
     const val MAX_DUE_DAY = 28

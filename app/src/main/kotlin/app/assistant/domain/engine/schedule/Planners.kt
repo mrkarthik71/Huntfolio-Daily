@@ -24,20 +24,14 @@ object DayPlanner {
     const val LOW_SLEEP = 6 * 60
 
     @Suppress("LongParameterList") // pure planner; each input is a fact about today
-    fun propose(
-        tasks: List<PlanTask>,
-        today: LocalDate,
-        nowMinute: Int,
-        working: Span,
-        busy: List<Span>,
-        sleepMinutes: Int? = null,
-    ): DayProposal {
+    fun propose(tasks: List<PlanTask>, today: LocalDate, nowMinute: Int, working: Span, busy: List<Span>, sleepMinutes: Int? = null): DayProposal {
         val start = roundUp(maxOf(nowMinute, working.start))
         val window = Span(minOf(start, working.end), working.end)
         val free = if (window.minutes <= 0) emptyList() else FreeTime.of(window, busy)
         val lowSleep = sleepMinutes != null && sleepMinutes < LOW_SLEEP
         val windows = if (lowSleep) tiredWindows() else EnergyWindows.Default
-        fun work(list: List<PlanTask>) = list.map { Work(it.id, it.minutes, it.priority, it.energy, it.due?.let { d -> ChronoUnit.DAYS.between(today, d).toInt() }) }
+        fun work(list: List<PlanTask>) =
+            list.map { Work(it.id, it.minutes, it.priority, it.energy, it.due?.let { d -> ChronoUnit.DAYS.between(today, d).toInt() }) }
         val placements = ArrayList<Placement>()
         val unplaced = LinkedHashMap<Long, Int>()
         var open = free

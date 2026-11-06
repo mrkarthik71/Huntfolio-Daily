@@ -56,6 +56,7 @@ object Routes {
     const val WEEK_PLAN = "weekplan"
     const val VAULT = "vault"
     const val BODY = "body"
+    const val CRASH = "crash"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
@@ -80,6 +81,7 @@ private val TABS = buildList {
  * destinations layered on top. [startRoute] comes from the launch intent (a notification tap).
  */
 @Composable
+@Suppress("CyclomaticComplexMethod") // the app's one navigation graph: one branch per destination
 fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
@@ -125,7 +127,12 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             navController = nav,
             // Older deep links ("goals", "tasks") land on the Plan tab that now holds both.
             startDestination = startRoute?.let { if (it == Routes.GOALS || it == Routes.TASKS) Routes.PLAN else it }?.takeIf {
-                it.startsWith("review/") || it == Routes.ASK || it == Routes.WEEK_PLAN || it == Routes.PLAN || it == Routes.INBOX || (FeatureFlags.MONEY && it == Routes.MONEY)
+                it.startsWith("review/") ||
+                    it == Routes.ASK ||
+                    it == Routes.WEEK_PLAN ||
+                    it == Routes.PLAN ||
+                    it == Routes.INBOX ||
+                    (FeatureFlags.MONEY && it == Routes.MONEY)
             } ?: Routes.TODAY,
             modifier = Modifier.fillMaxSize().padding(padding),
             enterTransition = { transitions.enter(this) },
@@ -136,7 +143,9 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             composable(Routes.TODAY) {
                 TodayScreen(onOpenReview = { date ->
                     nav.navigate(Routes.review(date))
-                }, onOpenSettings = { nav.navigate(Routes.SETTINGS) }, onOpenFocus = { nav.navigate(Routes.FOCUS) }, bodyTiles = { app.assistant.ui.health.BodyTiles() })
+                }, onOpenSettings = {
+                    nav.navigate(Routes.SETTINGS)
+                }, onOpenFocus = { nav.navigate(Routes.FOCUS) }, bodyTiles = { app.assistant.ui.health.BodyTiles() })
             }
             composable(Routes.TASKS) { TasksScreen() }
             composable(Routes.PLAN) { PlanHost(onOpenWeek = { nav.navigate(Routes.WEEK_PLAN) }) }
@@ -175,6 +184,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                 )
             }
             composable(Routes.BODY) { app.assistant.ui.health.BodyConnectScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.CRASH) { app.assistant.ui.settings.CrashReportScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.VAULT) { app.assistant.ui.life.VaultScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.ASK) {
                 app.assistant.ui.ask.AskScreen(
@@ -214,6 +224,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenYear = { nav.navigate(Routes.YEAR) },
                     onOpenVault = { nav.navigate(Routes.VAULT) },
                     onOpenBody = { nav.navigate(Routes.BODY) },
+                    onOpenCrash = { nav.navigate(Routes.CRASH) },
                     onBack = { nav.popBackStack() },
                     onDeleteEverything = onDeleteEverything,
                 )

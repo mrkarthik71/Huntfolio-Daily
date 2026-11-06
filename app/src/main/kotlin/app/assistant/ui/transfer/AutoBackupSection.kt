@@ -106,8 +106,14 @@ fun AutoBackupSection(viewModel: AutoBackupViewModel = hiltViewModel()) {
     Column(Modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Caption(stringResource(R.string.auto_caption), color = MaterialTheme.colorScheme.primary, live = s.enabled)
         if (s.enabled) {
-            Text(stringResource(R.string.auto_on, s.folderLabel.orEmpty(), s.everyDays), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
-            val last = s.lastAtEpochMs?.let { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).format(Instant.ofEpochMilli(it).atZone(viewModel.zone())) }
+            Text(
+                stringResource(R.string.auto_on, s.folderLabel.orEmpty(), s.everyDays),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            val last = s.lastAtEpochMs?.let {
+                DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).format(Instant.ofEpochMilli(it).atZone(viewModel.zone()))
+            }
             Text(
                 when {
                     last == null -> stringResource(R.string.auto_never)
@@ -123,15 +129,40 @@ fun AutoBackupSection(viewModel: AutoBackupViewModel = hiltViewModel()) {
             }
         } else {
             Text(stringResource(R.string.auto_reason), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            OutlinedTextField(pass, { pass = it }, label = { Text(stringResource(R.string.transfer_passphrase)) }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(repeat, { repeat = it }, label = { Text(stringResource(R.string.transfer_passphrase_repeat)) }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(pass, {
+                pass = it
+            }, label = {
+                Text(stringResource(R.string.transfer_passphrase))
+            }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(repeat, {
+                repeat = it
+            }, label = {
+                Text(stringResource(R.string.transfer_passphrase_repeat))
+            }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
             error?.let {
-                Text(stringResource(if (it == ExportPassphrase.Error.TOO_SHORT) R.string.auto_pass_short else R.string.auto_pass_mismatch), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    stringResource(
+                        if (it ==
+                            ExportPassphrase.Error.TOO_SHORT
+                        ) {
+                            R.string.auto_pass_short
+                        } else {
+                            R.string.auto_pass_mismatch
+                        },
+                    ),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 INTERVALS.forEach { d -> OptionKey(stringResource(R.string.auto_every, d), days == d, { days = d }) }
             }
-            CredPrimaryButton(stringResource(R.string.auto_choose), onClick = { folderPicker.launch(null) }, enabled = pass.length >= ExportPassphrase.MIN_LENGTH && pass == repeat)
+            CredPrimaryButton(
+                stringResource(R.string.auto_choose),
+                onClick = { folderPicker.launch(null) },
+                enabled =
+                pass.length >= ExportPassphrase.MIN_LENGTH && pass == repeat,
+            )
         }
     }
 }

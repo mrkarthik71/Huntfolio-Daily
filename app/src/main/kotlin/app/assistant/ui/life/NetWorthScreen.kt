@@ -58,11 +58,8 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class NetWorthViewModel @Inject constructor(
-    private val store: HoldingStore,
-    time: TimeSource,
-    notify: NotifySwitch,
-) : LifeViewModel(notify, NotificationType.MONEY_DUE) {
+class NetWorthViewModel @Inject constructor(private val store: HoldingStore, time: TimeSource, notify: NotifySwitch) :
+    LifeViewModel(notify, NotificationType.MONEY_DUE) {
     val today: LocalDate = time.today()
     val holdings: StateFlow<List<Holding>> = store.holdings().stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MS), emptyList())
 
@@ -106,25 +103,37 @@ fun NetWorthScreen(modifier: Modifier = Modifier, viewModel: NetWorthViewModel =
     var adding by rememberSaveable { mutableStateOf(false) }
     NetWorthContent(list, notify, viewModel::setNotify, onAdd = { adding = true }, onEdit = { editing = it }, modifier = modifier)
     if (adding || editing != null) {
-        HoldingSheet(editing, onDismiss = {
-            adding = false
-            editing = null
-        }, onSave = { name, kind, value, monthly, day ->
-            viewModel.save(editing, name, kind, value, monthly, day)
-            adding = false
-            editing = null
-        }, onDelete = editing?.let { h ->
-            {
-                viewModel.delete(h.id)
+        HoldingSheet(
+            editing,
+            onDismiss = {
+                adding = false
                 editing = null
-            }
-        })
+            },
+            onSave = { name, kind, value, monthly, day ->
+                viewModel.save(editing, name, kind, value, monthly, day)
+                adding = false
+                editing = null
+            },
+            onDelete = editing?.let { h ->
+                {
+                    viewModel.delete(h.id)
+                    editing = null
+                }
+            },
+        )
     }
 }
 
 @Composable
 @Suppress("LongParameterList") // state plus one callback per action
-fun NetWorthContent(list: List<Holding>, notify: Boolean, onNotify: (Boolean) -> Unit, onAdd: () -> Unit, onEdit: (Holding) -> Unit, modifier: Modifier = Modifier) {
+fun NetWorthContent(
+    list: List<Holding>,
+    notify: Boolean,
+    onNotify: (Boolean) -> Unit,
+    onAdd: () -> Unit,
+    onEdit: (Holding) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val sum = NetWorthRules.summary(list)
     val net = sum.netPaise
     val total = (sum.assets.value + sum.liabilities.value).coerceAtLeast(1)
@@ -134,7 +143,10 @@ fun NetWorthContent(list: List<Holding>, notify: Boolean, onNotify: (Boolean) ->
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Column(Modifier.fillMaxWidth().enterAnimated(0).raisedPanel(MaterialTheme.shapes.extraLarge, elevation = 18.dp).padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                Modifier.fillMaxWidth().enterAnimated(0).raisedPanel(MaterialTheme.shapes.extraLarge, elevation = 18.dp).padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Caption(stringResource(R.string.nw_caption), Modifier.weight(1f), color = MaterialTheme.colorScheme.primary)
                     KeyButton(Icons.Filled.Add, stringResource(R.string.nw_add), onClick = onAdd, tint = MaterialTheme.colorScheme.primary)
@@ -145,18 +157,36 @@ fun NetWorthContent(list: List<Holding>, notify: Boolean, onNotify: (Boolean) ->
                     color = if (net < 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
                     maxLines = 1,
                 )
-                ApexProgressBar(sum.assets.value.toFloat() / total, EnergyColors.Physical, track = MaterialTheme.colorScheme.error.copy(alpha = 0.6f), height = 6.dp)
+                ApexProgressBar(
+                    sum.assets.value.toFloat() / total,
+                    EnergyColors.Physical,
+                    track = MaterialTheme.colorScheme.error.copy(alpha = 0.6f),
+                    height = 6.dp,
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     ReadoutTile(stringResource(R.string.nw_assets), MoneyFormatter.format(sum.assets), Modifier.weight(1f))
                     ReadoutTile(stringResource(R.string.nw_debts), MoneyFormatter.format(sum.liabilities), Modifier.weight(1f))
                 }
                 if (sum.monthlyOut.value > 0) {
-                    Text(stringResource(R.string.nw_monthly_out, MoneyFormatter.format(sum.monthlyOut)), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+                    Text(
+                        stringResource(R.string.nw_monthly_out, MoneyFormatter.format(sum.monthlyOut)),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                    )
                 }
             }
         }
         item { NotifyToggle(notify, stringResource(R.string.nw_notify), stringResource(R.string.nw_notify_reason), onNotify, Modifier.enterAnimated(1)) }
-        if (list.isEmpty()) item { Text(stringResource(R.string.nw_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp)) }
+        if (list.isEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.nw_empty),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
+        }
         itemsIndexed(list, key = { _, h -> h.id }) { i, h ->
             Row(
                 Modifier.fillMaxWidth().enterAnimated(i + 2).raisedPanel(MaterialTheme.shapes.large).clickable { onEdit(h) }.padding(16.dp),
@@ -167,7 +197,11 @@ fun NetWorthContent(list: List<Holding>, notify: Boolean, onNotify: (Boolean) ->
                     Text(h.name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
                     if (h.monthly.value > 0) {
                         val due = h.dueDay?.let { stringResource(R.string.nw_due_day, it) }.orEmpty()
-                        Text(stringResource(R.string.nw_monthly, MoneyFormatter.format(h.monthly)) + due, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                        Text(
+                            stringResource(R.string.nw_monthly, MoneyFormatter.format(h.monthly)) + due,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
                     }
                 }
                 Text(
@@ -195,7 +229,19 @@ private fun HoldingSheet(existing: Holding?, onDismiss: () -> Unit, onSave: (Str
         }
         LifeField(value, { value = it }, stringResource(if (kind.liability) R.string.nw_owed else R.string.nw_value), number = true)
         LifeField(monthly, { monthly = it }, stringResource(if (kind.liability) R.string.nw_emi else R.string.nw_sip), number = true)
-        LifeField(day, { day = it.filter(Char::isDigit).take(2) }, stringResource(R.string.nw_day), number = true, error = if (day.isNotEmpty() && dayValue == null) stringResource(R.string.nw_day_error) else null)
+        LifeField(
+            day,
+            { day = it.filter(Char::isDigit).take(2) },
+            stringResource(R.string.nw_day),
+            number = true,
+            error = if (day.isNotEmpty() &&
+                dayValue == null
+            ) {
+                stringResource(R.string.nw_day_error)
+            } else {
+                null
+            },
+        )
         CredPrimaryButton(
             stringResource(R.string.life_save),
             onClick = { onSave(name, kind, parseRupees(value) ?: Paise(0), parseRupees(monthly) ?: Paise(0), dayValue) },

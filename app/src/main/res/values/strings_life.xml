@@ -267,4 +267,12 @@
     <string name="hc_steps">Steps today</string>
     <string name="hc_short_night">Short night: lighter morning</string>
     <string name="hc_entry_sub">Health Connect: plan around your sleep</string>
+    <string name="crash_title">Last crash report</string>
+    <string name="crash_entry_sub">If Apex closed by itself, copy this and send it to the developer</string>
+    <string name="crash_caption">KEPT ON THIS PHONE ONLY</string>
+    <string name="crash_none">No crash recorded. If Apex closes by itself, the details appear here.</string>
+    <string name="crash_explain">Only code locations are kept, never your data or message text. Nothing is sent anywhere.</string>
+    <string name="crash_copy">Copy report</string>
+    <string name="crash_copied">Copied</string>
+    <string name="crash_clear">Clear</string>
 </resources>

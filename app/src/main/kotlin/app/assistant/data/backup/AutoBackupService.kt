@@ -56,12 +56,16 @@ class AutoBackupService @Inject constructor(
         )
     }
 
-    private fun label(uri: Uri): String = runCatching { DocumentsContract.getTreeDocumentId(uri).substringAfterLast(':').ifBlank { "Folder" } }.getOrDefault("Folder")
+    private fun label(uri: Uri): String = runCatching {
+        DocumentsContract.getTreeDocumentId(uri).substringAfterLast(':').ifBlank { "Folder" }
+    }.getOrDefault("Folder")
 
     override suspend fun enable(folderUri: String, passphrase: CharArray, everyDays: Int) = withContext(Dispatchers.IO) {
         val uri = Uri.parse(folderUri)
         // Keep access to the folder across restarts.
-        runCatching { context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION) }
+        runCatching {
+            context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        }
         wrapper.createKey(ALIAS)
         val bytes = String(passphrase).toByteArray(Charsets.UTF_8)
         keys.write(PASS_FILE, wrapper.wrap(ALIAS, bytes))
@@ -102,7 +106,13 @@ class AutoBackupService @Inject constructor(
         val resolver = context.contentResolver
         val children = DocumentsContract.buildChildDocumentsUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
         val mine = ArrayList<Pair<String, String>>()
-        resolver.query(children, arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME), null, null, null)?.use { c ->
+        resolver.query(
+            children,
+            arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME),
+            null,
+            null,
+            null,
+        )?.use { c ->
             while (c.moveToNext()) {
                 val name = c.getString(1) ?: continue
                 if (name.startsWith(PREFIX) && name.endsWith(EXT)) mine += c.getString(0) to name
@@ -148,10 +158,7 @@ class AutoBackupService @Inject constructor(
 }
 
 @HiltWorker
-class AutoBackupWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted params: WorkerParameters,
-    private val auto: AutoBackup,
-) : CoroutineWorker(context, params) {
+class AutoBackupWorker @AssistedInject constructor(@Assisted context: Context, @Assisted params: WorkerParameters, private val auto: AutoBackup) :
+    CoroutineWorker(context, params) {
     override suspend fun doWork(): Result = if (auto.runNow() is Outcome.Ok) Result.success() else Result.retry()
 }

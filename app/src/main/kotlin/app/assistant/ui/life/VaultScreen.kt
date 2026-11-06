@@ -1,6 +1,5 @@
 package app.assistant.ui.life
 
-import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.view.WindowManager
@@ -74,12 +73,8 @@ import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
-class VaultViewModel @Inject constructor(
-    private val store: VaultStore,
-    private val files: VaultFiles,
-    dates: DateStore,
-    private val time: TimeSource,
-) : ViewModel() {
+class VaultViewModel @Inject constructor(private val store: VaultStore, private val files: VaultFiles, dates: DateStore, private val time: TimeSource) :
+    ViewModel() {
     val items: StateFlow<List<VaultItem>> = store.items().stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MS), emptyList())
     val documents: StateFlow<List<ImportantDate>> = kotlinx.coroutines.flow.flow {
         dates.dates().collect { l -> emit(l.filter { it.kind != DateKind.BIRTHDAY && it.kind != DateKind.ANNIVERSARY }) }
@@ -95,7 +90,9 @@ class VaultViewModel @Inject constructor(
         }
     }
 
-    suspend fun image(item: VaultItem): Bitmap? = files.read(item.fileName)?.let { b -> withContext(Dispatchers.Default) { BitmapFactory.decodeByteArray(b, 0, b.size) } }
+    suspend fun image(item: VaultItem): Bitmap? = files.read(item.fileName)?.let { b ->
+        withContext(Dispatchers.Default) { BitmapFactory.decodeByteArray(b, 0, b.size) }
+    }
 
     fun delete(item: VaultItem) {
         viewModelScope.launch {
@@ -127,7 +124,7 @@ class VaultViewModel @Inject constructor(
 /** Blocks screenshots and the recents thumbnail while vault content is on screen. */
 @Composable
 private fun SecureWindow() {
-    val activity = LocalContext.current as? Activity
+    val activity = androidx.activity.compose.LocalActivity.current
     DisposableEffect(activity) {
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         onDispose { activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
@@ -145,7 +142,10 @@ fun VaultScreen(onBack: () -> Unit, viewModel: VaultViewModel = hiltViewModel())
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         picked = uri?.let { runCatching { context.contentResolver.openInputStream(it)?.use { s -> s.readBytes() } }.getOrNull() }
     }
-    VaultContent(items, docs, onBack, onAdd = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, onOpen = { viewing = it })
+    VaultContent(items, docs, onBack, onAdd = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, onOpen = {
+        viewing =
+            it
+    })
     picked?.let { bytes ->
         var title by rememberSaveable { mutableStateOf("") }
         var link by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -188,13 +188,25 @@ fun VaultContent(items: List<VaultItem>, docs: List<ImportantDate>, onBack: () -
                 Text(stringResource(R.string.vault_reason), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        if (items.isEmpty()) item { Text(stringResource(R.string.vault_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        if (items.isEmpty()) {
+            item {
+                Text(stringResource(R.string.vault_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
         itemsIndexed(items, key = { _, v -> v.id }) { i, v ->
             val doc = v.dateId?.let(byId::get)
             Column(Modifier.fillMaxWidth().enterAnimated(i + 1).raisedPanel(MaterialTheme.shapes.large).clickable { onOpen(v) }.padding(16.dp)) {
                 Caption(stringResource(R.string.vault_locked), color = MaterialTheme.colorScheme.tertiary)
                 Text(v.title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
-                if (doc != null) Text(stringResource(R.string.vault_expires, doc.title, formatDate(doc.date)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                if (doc !=
+                    null
+                ) {
+                    Text(
+                        stringResource(R.string.vault_expires, doc.title, formatDate(doc.date)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
     }
@@ -209,7 +221,12 @@ private fun VaultViewer(item: VaultItem, viewModel: VaultViewModel, onClose: () 
         Column(Modifier.fillMaxSize().consoleGround().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 KeyButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), onClick = onClose)
-                Text(item.title, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.padding(start = 14.dp).weight(1f))
+                Text(
+                    item.title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(start = 14.dp).weight(1f),
+                )
                 TextButton(onClick = {
                     viewModel.delete(item)
                     onClose()

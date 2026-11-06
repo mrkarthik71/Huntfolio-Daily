@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Close
@@ -15,6 +14,7 @@ import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Lock
@@ -62,6 +62,7 @@ fun SettingsScreen(
     onOpenYear: (() -> Unit)? = null,
     onOpenVault: (() -> Unit)? = null,
     onOpenBody: (() -> Unit)? = null,
+    onOpenCrash: (() -> Unit)? = null,
     onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -93,6 +94,10 @@ fun SettingsScreen(
                     onOpenBody?.let {
                         CredDivider()
                         CredRow(stringResource(R.string.hc_title), Icons.Outlined.Favorite, supporting = stringResource(R.string.hc_entry_sub), onClick = it)
+                    }
+                    onOpenCrash?.let {
+                        CredDivider()
+                        CredRow(stringResource(R.string.crash_title), Icons.Outlined.Build, supporting = stringResource(R.string.crash_entry_sub), onClick = it)
                     }
                 }
             }

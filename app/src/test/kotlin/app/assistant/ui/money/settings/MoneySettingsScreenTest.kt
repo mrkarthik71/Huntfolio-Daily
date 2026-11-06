@@ -61,6 +61,9 @@ class MoneySettingsScreenTest {
         compose.onNodeWithText("Allow reading bank SMS?").assertIsDisplayed()
         assertEquals("nothing is enabled before the User confirms", 0, controls.smsEnables)
 
+        // Android's own dialog is not shown under Robolectric, so the permission is granted here.
+        org.robolectric.Shadows.shadowOf(compose.activity.application)
+            .grantPermissions(android.Manifest.permission.READ_SMS, android.Manifest.permission.RECEIVE_SMS)
         compose.onNodeWithText("Continue").performClick()
         compose.waitForIdle()
         assertEquals(1, controls.smsEnables)

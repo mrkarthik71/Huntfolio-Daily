@@ -422,4 +422,55 @@ class ScreenshotTest {
         val ui = app.assistant.ui.life.YearUi(2026, 5_460, 612, 41, 3, 5, Paise(42_350_000), Paise(10_000_000), 148, 190)
         capture("11-year") { app.assistant.ui.life.YearContent(ui) {} }
     }
+
+    private val holdings = listOf(
+        app.assistant.domain.model.Holding(1, "HDFC savings", app.assistant.domain.model.HoldingKind.BANK, Paise(18_500_000), Paise(0), null, today),
+        app.assistant.domain.model.Holding(
+            2,
+            "Index fund SIP",
+            app.assistant.domain.model.HoldingKind.MUTUAL_FUND,
+            Paise(42_000_000),
+            Paise(1_000_000),
+            5,
+            today,
+        ),
+        app.assistant.domain.model.Holding(3, "PPF", app.assistant.domain.model.HoldingKind.PPF_EPF, Paise(31_000_000), Paise(0), null, today),
+        app.assistant.domain.model.Holding(4, "Car loan", app.assistant.domain.model.HoldingKind.LOAN, Paise(26_000_000), Paise(1_150_000), 10, today),
+    )
+
+    @Test
+    fun netWorth() {
+        capture("12-net-worth") { Shell("money") { app.assistant.ui.life.NetWorthContent(holdings, true, {}, {}, {}) } }
+    }
+
+    @Test
+    fun weekPlan() {
+        fun t(id: Long, title: String, p: Int, due: LocalDate?) =
+            app.assistant.domain.engine.schedule.PlanTask(id, title, 60, p, app.assistant.domain.model.EnergyTag.DEEP_WORK, due)
+        val w = app.assistant.domain.engine.schedule.WeekPlanner.propose(
+            listOf(t(1, "Ship the importer", 1, today.plusDays(9)), t(2, "Book flights for Goa", 2, null), t(3, "File tax documents", 2, today.plusDays(12))),
+            today,
+            listOf("Read 12 books"),
+        )
+        capture("13-week-plan") { app.assistant.ui.life.WeekPlanContent(w, false, true, {}, {}, {}) }
+    }
+
+    @Test
+    fun vault() {
+        val items = listOf(
+            app.assistant.domain.model.VaultItem(1, "Passport front", 3, "a.bin", "image/jpeg", Instant.EPOCH),
+            app.assistant.domain.model.VaultItem(2, "Car insurance card", 2, "b.bin", "image/jpeg", Instant.EPOCH),
+        )
+        val docs = listOf(
+            app.assistant.domain.model.ImportantDate(3, "Passport", app.assistant.domain.model.DateKind.DOCUMENT, today.plusDays(30), false),
+            app.assistant.domain.model.ImportantDate(2, "Car insurance", app.assistant.domain.model.DateKind.INSURANCE, today.plusDays(6), false),
+        )
+        capture("14-vault") { app.assistant.ui.life.VaultContent(items, docs, {}, {}, {}) }
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "hi-w400dp-h860dp-night-xhdpi")
+    fun netWorthHindi() {
+        capture("15-net-worth-hindi") { Shell("money") { app.assistant.ui.life.NetWorthContent(holdings, true, {}, {}, {}) } }
+    }
 }

@@ -21,10 +21,7 @@ import javax.inject.Singleton
  * permissions every value is null.
  */
 @Singleton
-class HealthConnectSignals @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-    private val time: TimeSource,
-) : BodySignals {
+class HealthConnectSignals @Inject constructor(@param:ApplicationContext private val context: Context, private val time: TimeSource) : BodySignals {
     private fun client(): HealthConnectClient? =
         if (HealthConnectClient.getSdkStatus(context) == HealthConnectClient.SDK_AVAILABLE) HealthConnectClient.getOrCreate(context) else null
 

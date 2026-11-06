@@ -69,7 +69,13 @@ private val clock: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatS
 private const val MAX_QUICK_ADD = 200
 
 @Composable
-fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {}, onOpenFocus: () -> Unit = {}, bodyTiles: @Composable () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
+fun TodayScreen(
+    onOpenReview: (String) -> Unit,
+    onOpenSettings: () -> Unit = {},
+    onOpenFocus: () -> Unit = {},
+    bodyTiles: @Composable () -> Unit = {},
+    viewModel: TodayViewModel = hiltViewModel(),
+) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
     var text by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<ValidationError?>(null) }

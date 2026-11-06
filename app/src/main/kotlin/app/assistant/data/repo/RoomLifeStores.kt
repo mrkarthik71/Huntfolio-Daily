@@ -250,8 +250,15 @@ class RoomVaultStore @Inject constructor(private val holder: DbProvider) : app.a
 
     override fun items(): Flow<List<app.assistant.domain.model.VaultItem>> = dao.vaultItems().map { l -> l.map { it.toDomain() } }
 
-    override suspend fun add(title: String, dateId: Long?, fileName: String, mime: String, at: Instant): Long =
-        dao.insertVaultItem(app.assistant.data.db.entity.VaultItemEntity(title = title.trim().take(MAX_TEXT), dateId = dateId, fileName = fileName, mime = mime, createdAt = at.toEpochMilli()))
+    override suspend fun add(title: String, dateId: Long?, fileName: String, mime: String, at: Instant): Long = dao.insertVaultItem(
+        app.assistant.data.db.entity.VaultItemEntity(
+            title = title.trim().take(MAX_TEXT),
+            dateId = dateId,
+            fileName = fileName,
+            mime = mime,
+            createdAt = at.toEpochMilli(),
+        ),
+    )
 
     override suspend fun get(id: Long): app.assistant.domain.model.VaultItem? = dao.vaultItem(id)?.toDomain()
 

@@ -77,15 +77,7 @@ enum class HoldingKind(val liability: Boolean) {
  * One account, investment or debt with its current value, typed by the User. [monthly] is a SIP or
  * EMI paid on [dueDay] (1 to 28) each month; zero when there is none.
  */
-data class Holding(
-    val id: Long,
-    val name: String,
-    val kind: HoldingKind,
-    val value: Paise,
-    val monthly: Paise,
-    val dueDay: Int?,
-    val updatedOn: LocalDate,
-)
+data class Holding(val id: Long, val name: String, val kind: HoldingKind, val value: Paise, val monthly: Paise, val dueDay: Int?, val updatedOn: LocalDate)
 
 /** A photo or PDF in the encrypted vault, optionally tied to an important date (an expiry). */
 data class VaultItem(val id: Long, val title: String, val dateId: Long?, val fileName: String, val mime: String, val createdAt: Instant)

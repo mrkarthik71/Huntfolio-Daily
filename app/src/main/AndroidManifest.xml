@@ -33,6 +33,7 @@
     </queries>
 
     <application
+        android:localeConfig="@xml/locales_config"
         android:name=".app.AssistantApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"

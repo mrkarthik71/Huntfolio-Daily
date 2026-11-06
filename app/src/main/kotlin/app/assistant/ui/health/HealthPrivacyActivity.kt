@@ -25,7 +25,11 @@ class HealthPrivacyActivity : ComponentActivity() {
         setContent {
             AssistantTheme {
                 Column(Modifier.fillMaxSize().consoleGround().statusBarsPadding().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(stringResource(R.string.hc_privacy_title), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
+                    Text(
+                        stringResource(R.string.hc_privacy_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
                     Text(stringResource(R.string.hc_reason), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurface)
                     CredPrimaryButton(stringResource(R.string.share_done), onClick = { finish() })
                 }

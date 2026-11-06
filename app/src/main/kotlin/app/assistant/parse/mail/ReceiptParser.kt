@@ -17,17 +17,42 @@ data class Receipt(val merchant: String, val amountPaise: Long, val dueDate: Loc
  */
 object ReceiptParser {
     private val billWords = Regex(
-        "\\b(bill|invoice|statement|payment due|amount due|total due|amount payable|due date|renewal|renews|subscription|auto-?debit|autopay|e-?mandate|membership|premium due|receipt)\\b",
+        "\\b(bill|invoice|statement|payment due|amount due|total due|amount payable|due date|renewal|" +
+            "renews|subscription|auto-?debit|autopay|e-?mandate|membership|premium due|receipt)\\b",
         RegexOption.IGNORE_CASE,
     )
-    private val recurringWords = Regex("\\b(subscription|renewal|renews|auto-?renew|membership|monthly plan|annual plan|auto-?debit|autopay|e-?mandate)\\b", RegexOption.IGNORE_CASE)
-    private val paidWords = Regex("\\b(payment (received|successful)|successfully paid|thank you for your payment|has been paid|paid on|payment confirmation)\\b", RegexOption.IGNORE_CASE)
-    private val skipWords = Regex("\\b(otp|one time password|verification code|offer|cashback|sale|discount|loan offer|pre-?approved)\\b", RegexOption.IGNORE_CASE)
+    private val recurringWords =
+        Regex("\\b(subscription|renewal|renews|auto-?renew|membership|monthly plan|annual plan|auto-?debit|autopay|e-?mandate)\\b", RegexOption.IGNORE_CASE)
+    private val paidWords =
+        Regex(
+            "\\b(payment (received|successful)|successfully paid|thank you for your payment|has been paid|paid on|payment confirmation)\\b",
+            RegexOption.IGNORE_CASE,
+        )
+    private val skipWords =
+        Regex("\\b(otp|one time password|verification code|offer|cashback|sale|discount|loan offer|pre-?approved)\\b", RegexOption.IGNORE_CASE)
     private val amount = Regex("(?:₹|rs\\.?|inr)\\s?([0-9]{1,3}(?:,[0-9]{2,3})*(?:\\.[0-9]{1,2})?|[0-9]+(?:\\.[0-9]{1,2})?)", RegexOption.IGNORE_CASE)
-    private val amountLabel = Regex("(amount due|total due|amount payable|total amount|minimum due|total|amount|premium)\\s*[:\\-]?\\s*$", RegexOption.IGNORE_CASE)
-    private val dueLabel = Regex("(?:due (?:on|date|by)|pay by|payable by|renews on|renewal (?:on|date)|next (?:billing|payment) (?:date|on))\\s*[:\\-]?\\s*([0-9]{1,2}[ /\\-.][A-Za-z0-9]{1,9}[ /\\-.,]*[0-9]{2,4}|[A-Za-z]{3,9} [0-9]{1,2},? [0-9]{4}|[0-9]{1,2} [A-Za-z]{3,9})", RegexOption.IGNORE_CASE)
+    private val amountLabel =
+        Regex("(amount due|total due|amount payable|total amount|minimum due|total|amount|premium)\\s*[:\\-]?\\s*$", RegexOption.IGNORE_CASE)
+    private val dueLabel =
+        Regex(
+            "(?:due (?:on|date|by)|pay by|payable by|renews on|renewal (?:on|date)|next (?:billing|payment) (?:date|on))" +
+                "\\s*[:\\-]?\\s*([0-9]{1,2}[ /\\-.][A-Za-z0-9]{1,9}[ /\\-.,]*[0-9]{2,4}|" +
+                "[A-Za-z]{3,9} [0-9]{1,2},? [0-9]{4}|[0-9]{1,2} [A-Za-z]{3,9})",
+            RegexOption.IGNORE_CASE,
+        )
 
-    private val dateFormats: List<DateTimeFormatter> = listOf("d MMM yyyy", "d MMMM yyyy", "d/M/yyyy", "d-M-yyyy", "d.M.yyyy", "d/M/yy", "d-MMM-yyyy", "MMM d, yyyy", "MMMM d, yyyy", "MMM d yyyy")
+    private val dateFormats: List<DateTimeFormatter> = listOf(
+        "d MMM yyyy",
+        "d MMMM yyyy",
+        "d/M/yyyy",
+        "d-M-yyyy",
+        "d.M.yyyy",
+        "d/M/yy",
+        "d-MMM-yyyy",
+        "MMM d, yyyy",
+        "MMMM d, yyyy",
+        "MMM d yyyy",
+    )
         .map { DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(it).toFormatter(Locale.ENGLISH) }
     private val noYear = listOf("d MMM", "d MMMM").map { DateTimeFormatterBuilder().parseCaseInsensitive().appendPattern(it).toFormatter(Locale.ENGLISH) }
 

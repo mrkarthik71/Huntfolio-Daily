@@ -47,4 +47,8 @@
     <string name="money_settings_accuracy_empty">Accuracy shows once a sender or app is on a list.</string>
     <string name="money_settings_accuracy_value">%1$s%%</string>
     <string name="money_settings_accuracy_none">Not enough data yet</string>
+    <string name="money_settings_blocked_title">Android did not allow SMS access</string>
+    <string name="money_settings_restricted_hint">If Android says this setting is restricted: open App info, tap the ⋮ menu at the top, choose Allow restricted settings, then come back and try again. Android does this for apps installed outside the Play Store.</string>
+    <string name="money_settings_open_app_info">Open App info</string>
+    <string name="money_settings_ask_again">Ask again</string>
 </resources>

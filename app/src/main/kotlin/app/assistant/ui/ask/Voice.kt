@@ -28,6 +28,8 @@ fun rememberVoiceInput(onText: (String) -> Unit): () -> Unit {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             .putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
+            // Ask understands English and Hinglish, so listen in Indian English whatever the app language.
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN")
             .putExtra(RecognizerIntent.EXTRA_PROMPT, prompt)
         try {
             launcher.launch(intent)

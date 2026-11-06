@@ -9,11 +9,14 @@ import java.time.LocalDate
 
 class NetWorthRulesTest {
     private val today = LocalDate.of(2026, 11, 18)
-    private fun h(id: Long, kind: HoldingKind, value: Long, monthly: Long = 0, day: Int? = null) = Holding(id, "h$id", kind, Paise(value), Paise(monthly), day, today)
+    private fun h(id: Long, kind: HoldingKind, value: Long, monthly: Long = 0, day: Int? = null) =
+        Holding(id, "h$id", kind, Paise(value), Paise(monthly), day, today)
 
     @Test
     fun `net worth subtracts debts and sums monthly outflow`() {
-        val s = NetWorthRules.summary(listOf(h(1, HoldingKind.BANK, 5_000_000), h(2, HoldingKind.MUTUAL_FUND, 20_000_000, 500_000, 5), h(3, HoldingKind.LOAN, 30_000_000, 1_200_000, 10)))
+        val s = NetWorthRules.summary(
+            listOf(h(1, HoldingKind.BANK, 5_000_000), h(2, HoldingKind.MUTUAL_FUND, 20_000_000, 500_000, 5), h(3, HoldingKind.LOAN, 30_000_000, 1_200_000, 10)),
+        )
         assertEquals(Paise(25_000_000), s.assets)
         assertEquals(Paise(30_000_000), s.liabilities)
         assertEquals(-5_000_000L, s.netPaise)
