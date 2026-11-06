@@ -256,4 +256,15 @@
     <string name="auto_pass_mismatch">The two passphrases do not match</string>
     <string name="auto_every">Every %1$dd</string>
     <string name="auto_choose">Choose folder and turn on</string>
+    <string name="hc_privacy_title">How Apex uses health data</string>
+    <string name="hc_caption">Health Connect</string>
+    <string name="hc_title">Sleep and steps</string>
+    <string name="hc_reason">With your permission Apex reads two things from Health Connect: how long you slept last night and your steps today. They are read when you open Today or plan your day, never stored or sent anywhere, and used only to suggest a lighter morning after a short night. You can remove access any time in Health Connect.</string>
+    <string name="hc_connect">Connect Health Connect</string>
+    <string name="hc_connected">Connected. Remove access any time in the Health Connect app.</string>
+    <string name="hc_needs_app">Needs the Health Connect app (built into Android 14 and later; on older phones, install it from Play).</string>
+    <string name="hc_sleep">Sleep</string>
+    <string name="hc_steps">Steps today</string>
+    <string name="hc_short_night">Short night: lighter morning</string>
+    <string name="hc_entry_sub">Health Connect: plan around your sleep</string>
 </resources>

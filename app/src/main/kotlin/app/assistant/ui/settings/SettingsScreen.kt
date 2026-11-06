@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Close
@@ -60,6 +61,7 @@ fun SettingsScreen(
     onOpenReminders: (() -> Unit)? = null,
     onOpenYear: (() -> Unit)? = null,
     onOpenVault: (() -> Unit)? = null,
+    onOpenBody: (() -> Unit)? = null,
     onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -87,6 +89,10 @@ fun SettingsScreen(
                     onOpenVault?.let {
                         CredDivider()
                         CredRow(stringResource(R.string.vault_title), Icons.Outlined.Lock, supporting = stringResource(R.string.vault_entry_sub), onClick = it)
+                    }
+                    onOpenBody?.let {
+                        CredDivider()
+                        CredRow(stringResource(R.string.hc_title), Icons.Outlined.Favorite, supporting = stringResource(R.string.hc_entry_sub), onClick = it)
                     }
                 }
             }

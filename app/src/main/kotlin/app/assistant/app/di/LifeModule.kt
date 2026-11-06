@@ -95,7 +95,7 @@ abstract class LifeBindingsModule {
     abstract fun autoBackup(impl: app.assistant.data.backup.AutoBackupService): app.assistant.domain.port.AutoBackup
 
     @Binds
-    abstract fun bodySignals(impl: app.assistant.data.health.NoBodySignals): app.assistant.domain.port.BodySignals
+    abstract fun bodySignals(impl: app.assistant.data.health.HealthConnectSignals): app.assistant.domain.port.BodySignals
 
     @Binds
     @IntoSet

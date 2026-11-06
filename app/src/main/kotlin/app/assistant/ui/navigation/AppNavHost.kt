@@ -55,6 +55,7 @@ object Routes {
     const val YEAR = "year"
     const val WEEK_PLAN = "weekplan"
     const val VAULT = "vault"
+    const val BODY = "body"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
@@ -135,7 +136,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             composable(Routes.TODAY) {
                 TodayScreen(onOpenReview = { date ->
                     nav.navigate(Routes.review(date))
-                }, onOpenSettings = { nav.navigate(Routes.SETTINGS) }, onOpenFocus = { nav.navigate(Routes.FOCUS) })
+                }, onOpenSettings = { nav.navigate(Routes.SETTINGS) }, onOpenFocus = { nav.navigate(Routes.FOCUS) }, bodyTiles = { app.assistant.ui.health.BodyTiles() })
             }
             composable(Routes.TASKS) { TasksScreen() }
             composable(Routes.PLAN) { PlanHost(onOpenWeek = { nav.navigate(Routes.WEEK_PLAN) }) }
@@ -173,6 +174,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenVault = { nav.navigate(Routes.VAULT) },
                 )
             }
+            composable(Routes.BODY) { app.assistant.ui.health.BodyConnectScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.VAULT) { app.assistant.ui.life.VaultScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.ASK) {
                 app.assistant.ui.ask.AskScreen(
@@ -211,6 +213,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenReminders = { nav.navigate(Routes.REMINDERS) },
                     onOpenYear = { nav.navigate(Routes.YEAR) },
                     onOpenVault = { nav.navigate(Routes.VAULT) },
+                    onOpenBody = { nav.navigate(Routes.BODY) },
                     onBack = { nav.popBackStack() },
                     onDeleteEverything = onDeleteEverything,
                 )

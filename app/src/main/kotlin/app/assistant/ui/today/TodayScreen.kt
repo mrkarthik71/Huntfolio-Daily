@@ -69,7 +69,7 @@ private val clock: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(FormatS
 private const val MAX_QUICK_ADD = 200
 
 @Composable
-fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {}, onOpenFocus: () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
+fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {}, onOpenFocus: () -> Unit = {}, bodyTiles: @Composable () -> Unit = {}, viewModel: TodayViewModel = hiltViewModel()) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
     var text by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<ValidationError?>(null) }
@@ -120,6 +120,7 @@ fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {},
                         )
                     }
                 }
+                item { bodyTiles() }
                 item {
                     // One tap proposes blocks for today's open tasks in the free time left; nothing moves until accepted.
                     PillButton(stringResource(R.string.planday_button), onClick = { planning = true }, modifier = Modifier.fillMaxWidth().enterAnimated(2))

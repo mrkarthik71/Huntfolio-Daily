@@ -311,6 +311,8 @@ tasks.configureEach {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    // Read-only sleep and steps, only after the User connects Health Connect.
+    implementation(libs.androidx.health.connect)
     implementation(libs.kotlinx.coroutines.android)
 
     // Encrypted_Store: Room on SQLCipher (Room comes from the room convention plugin).
