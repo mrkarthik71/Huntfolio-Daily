@@ -87,6 +87,14 @@ class LifeAlarmPlanner @Inject constructor(
             followUps.openNow().filter { !it.nudgeOn.isAfter(today.plusDays(1)) }
                 .associate { LifeRefs.followUp(it.id, it.nudgeOn) to at(maxOf(it.nudgeOn, today), morning, zone, now) }
         }
+        plan(NotificationType.WEEKLY_PLAN, NotificationType.WEEKLY_PLAN in s.enabledTypes) {
+            // The next last-day-of-week at 18:00 (today if it is that day and not yet past).
+            var day = today
+            while (day.dayOfWeek != s.lastDayOfWeek) day = day.plusDays(1)
+            var due = day.atTime(WEEKLY_HOUR, 0).atZone(zone).toInstant()
+            if (!due.isAfter(now)) due = day.plusWeeks(1).atTime(WEEKLY_HOUR, 0).atZone(zone).toInstant()
+            mapOf("week:${due.atZone(zone).toLocalDate()}" to due)
+        }
         plan(NotificationType.FOCUS_END, NotificationType.FOCUS_END in s.enabledTypes) {
             reflection.running()?.let { mapOf(LifeRefs.focus(it.id) to it.startedAt.plus(Duration.ofMinutes(it.plannedMinutes.toLong()))) } ?: emptyMap()
         }
@@ -94,6 +102,10 @@ class LifeAlarmPlanner @Inject constructor(
     }
 
     @Suppress("NestedBlockDepth") // days × habits × slots is the natural shape here
+    private companion object {
+        const val WEEKLY_HOUR = 18
+    }
+
     private suspend fun habitWants(today: LocalDate, zone: ZoneId, now: Instant): Map<String, Instant> {
         val list = habits.habitsNow()
         val checks = habits.checks(today, today.plusDays(1)).first()

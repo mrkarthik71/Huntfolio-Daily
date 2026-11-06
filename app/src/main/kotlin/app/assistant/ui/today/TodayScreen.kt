@@ -53,6 +53,7 @@ import app.assistant.ui.designsystem.CredCard
 import app.assistant.ui.designsystem.EnergyColors
 import app.assistant.ui.designsystem.FocusHero
 import app.assistant.ui.designsystem.KeyButton
+import app.assistant.ui.designsystem.PillButton
 import app.assistant.ui.designsystem.ProactiveCardView
 import app.assistant.ui.designsystem.ReadoutTile
 import app.assistant.ui.designsystem.SectionHeader
@@ -72,6 +73,8 @@ fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {},
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
     var text by rememberSaveable { mutableStateOf("") }
     var error by rememberSaveable { mutableStateOf<ValidationError?>(null) }
+    var planning by rememberSaveable { mutableStateOf(false) }
+    if (planning) PlanDaySheet(onDismiss = { planning = false })
 
     // Request AI wording once the rule-based plan for the day is ready (Requirement 48.1). No-op while AI is off.
     androidx.compose.runtime.LaunchedEffect(ui.date) {
@@ -116,6 +119,10 @@ fun TodayScreen(onOpenReview: (String) -> Unit, onOpenSettings: () -> Unit = {},
                             noteColor = EnergyColors.Physical,
                         )
                     }
+                }
+                item {
+                    // One tap proposes blocks for today's open tasks in the free time left; nothing moves until accepted.
+                    PillButton(stringResource(R.string.planday_button), onClick = { planning = true }, modifier = Modifier.fillMaxWidth().enterAnimated(2))
                 }
             }
             itemsIndexed(ui.cards, key = { _, c -> "card${c.id.value}" }) { i, card ->

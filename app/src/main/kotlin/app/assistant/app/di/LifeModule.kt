@@ -83,6 +83,9 @@ abstract class LifeBindingsModule {
     abstract fun lifeAlarms(impl: LifeAlarmPlanner): LifeAlarms
 
     @Binds
+    abstract fun bodySignals(impl: app.assistant.data.health.NoBodySignals): app.assistant.domain.port.BodySignals
+
+    @Binds
     @IntoSet
     abstract fun budgetAlertHook(impl: BudgetAlertHook): PostCommitHook
 }

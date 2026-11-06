@@ -53,6 +53,7 @@ object Routes {
     const val INBOX = "inbox"
     const val FOCUS = "focus"
     const val YEAR = "year"
+    const val WEEK_PLAN = "weekplan"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
@@ -122,7 +123,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             navController = nav,
             // Older deep links ("goals", "tasks") land on the Plan tab that now holds both.
             startDestination = startRoute?.let { if (it == Routes.GOALS || it == Routes.TASKS) Routes.PLAN else it }?.takeIf {
-                it.startsWith("review/") || it == Routes.ASK || it == Routes.PLAN || it == Routes.INBOX || (FeatureFlags.MONEY && it == Routes.MONEY)
+                it.startsWith("review/") || it == Routes.ASK || it == Routes.WEEK_PLAN || it == Routes.PLAN || it == Routes.INBOX || (FeatureFlags.MONEY && it == Routes.MONEY)
             } ?: Routes.TODAY,
             modifier = Modifier.fillMaxSize().padding(padding),
             enterTransition = { transitions.enter(this) },
@@ -136,7 +137,8 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                 }, onOpenSettings = { nav.navigate(Routes.SETTINGS) }, onOpenFocus = { nav.navigate(Routes.FOCUS) })
             }
             composable(Routes.TASKS) { TasksScreen() }
-            composable(Routes.PLAN) { PlanHost() }
+            composable(Routes.PLAN) { PlanHost(onOpenWeek = { nav.navigate(Routes.WEEK_PLAN) }) }
+            composable(Routes.WEEK_PLAN) { app.assistant.ui.life.WeekPlanScreen(onBack = { if (!nav.popBackStack()) nav.navigate(Routes.TODAY) }) }
             composable(Routes.FOCUS) { app.assistant.ui.life.FocusScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.YEAR) { app.assistant.ui.life.YearScreen(onBack = { nav.popBackStack() }) }
             composable(

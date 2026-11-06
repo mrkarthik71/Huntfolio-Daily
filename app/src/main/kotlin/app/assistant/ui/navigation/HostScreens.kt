@@ -1,5 +1,7 @@
 package app.assistant.ui.navigation
 
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -22,10 +24,13 @@ import app.assistant.ui.designsystem.consoleGround
 
 /** A tab that holds two or three related screens behind one segmented control. */
 @Composable
-private fun SegmentedHost(labels: List<String>, content: @Composable (Int) -> Unit) {
+private fun SegmentedHost(labels: List<String>, action: (@Composable () -> Unit)? = null, content: @Composable (Int) -> Unit) {
     var index by rememberSaveable { mutableIntStateOf(0) }
     Column(Modifier.fillMaxSize().consoleGround().statusBarsPadding()) {
         CredPillTabs(labels, index, onSelect = { index = it }, modifier = Modifier.fillMaxWidth())
+        if (action != null) {
+            androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) { action() }
+        }
         AnimatedContent(index, transitionSpec = { fadeIn() togetherWith fadeOut() }, label = "segment") { i ->
             Box(Modifier.fillMaxSize()) { content(i) }
         }
@@ -34,8 +39,11 @@ private fun SegmentedHost(labels: List<String>, content: @Composable (Int) -> Un
 
 /** Plan: goals and their milestones, and the task list, in one tab. */
 @Composable
-fun PlanHost() {
-    SegmentedHost(listOf(stringResource(R.string.nav_goals), stringResource(R.string.nav_tasks), stringResource(R.string.habits_tab))) { i ->
+fun PlanHost(onOpenWeek: () -> Unit = {}) {
+    SegmentedHost(
+        listOf(stringResource(R.string.nav_goals), stringResource(R.string.nav_tasks), stringResource(R.string.habits_tab)),
+        action = { app.assistant.ui.designsystem.PillButton(stringResource(R.string.week_button), onClick = onOpenWeek) },
+    ) { i ->
         when (i) {
             0 -> app.assistant.ui.goals.GoalsScreen()
             1 -> app.assistant.ui.tasks.TasksScreen()

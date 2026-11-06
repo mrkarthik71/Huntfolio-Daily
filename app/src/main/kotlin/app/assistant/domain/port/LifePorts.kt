@@ -91,3 +91,14 @@ interface ContactDatesReader {
 fun interface LifeAlarms {
     suspend fun sync()
 }
+
+/** Read-only body signals from Health Connect, when the User connected it. Null means unknown. */
+interface BodySignals {
+    /** True when Health Connect is installed and the User granted the read permissions. */
+    suspend fun connected(): Boolean
+
+    /** Minutes slept in the night that ended this morning. */
+    suspend fun lastNightSleepMinutes(): Int?
+
+    suspend fun stepsToday(): Long?
+}

@@ -60,6 +60,9 @@ enum class NotificationType {
     /** A focus block reaching its end. */
     FOCUS_END,
 
+    /** The weekly planning ritual on the last day of the week. */
+    WEEKLY_PLAN,
+
     /** Only where important dates are enabled (Requirement 68). */
     IMPORTANT_DATE,
 }

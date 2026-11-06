@@ -38,6 +38,7 @@ class LifeNotifications @Inject constructor(
         NotificationType.IMPORTANT_DATE -> date(row.refKey)
         NotificationType.FOLLOW_UP -> followUp(row.refKey)
         NotificationType.FOCUS_END -> focus(row.refKey)
+        NotificationType.WEEKLY_PLAN -> NotificationContent(context.getString(R.string.week_notif_title), context.getString(R.string.week_notif_text), "weekplan")
         else -> null
     }
 
