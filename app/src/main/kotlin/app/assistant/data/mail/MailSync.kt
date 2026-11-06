@@ -41,6 +41,7 @@ class MailSync @Inject constructor(
     private val otpPatterns: MailOtpPatterns,
     private val notify: MailNotifier,
     private val accountId: MailAccountId,
+    private val billProposals: app.assistant.domain.port.BillProposals,
 ) {
     data class SyncResult(val fetched: Int, val stored: Int, val notified: Int, val error: Boolean)
 
@@ -66,6 +67,7 @@ class MailSync @Inject constructor(
                 for (message in batch.value.messages) {
                     fetched++
                     if (MailTriage.isOtp(message.header, otpPatterns.patterns())) continue
+                    proposeBill(message)
                     if (!MailTriage.shortlisted(message.header, rules)) continue
                     val outcome = scoreAndStore(message, rules, cfg.mailImportanceThreshold, dao, db)
                     if (outcome != null) {
@@ -119,6 +121,19 @@ class MailSync @Inject constructor(
         if (id == DUPLICATE) return null
         if (notified) notify.important(id, h.subject, category)
         return notified
+    }
+
+    /**
+     * Bills and subscription receipts become Bill proposals the User reviews in Money › Bills; only the
+     * merchant, amount and due date are kept (never the message). A renewing receipt without a date
+     * is proposed for a month after it arrived.
+     */
+    private suspend fun proposeBill(message: MailMessage) {
+        val h = message.header
+        val received = h.receivedAt.atZone(time.zone()).toLocalDate()
+        val r = app.assistant.parse.mail.ReceiptParser.parse(h.from, h.subject, message.snippet, received) ?: return
+        val due = r.dueDate ?: if (r.recurring) received.plusMonths(1) else null
+        runCatching { billProposals.propose(r.merchant, app.assistant.domain.model.Paise(r.amountPaise), due) }
     }
 
     /** The classifier for shortlisted mail; falls back to (Rule_Score, OTHER) when AI is off or fails. */

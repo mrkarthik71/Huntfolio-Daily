@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -86,7 +85,7 @@ class AutoBackupService @Inject constructor(
         val result = runCatching {
             val resolver = context.contentResolver
             val parent = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
-            val stamp = time.now().atZone(ZoneId.systemDefault()).format(STAMP)
+            val stamp = time.now().atZone(time.zone()).format(STAMP)
             val doc = DocumentsContract.createDocument(resolver, parent, MIME, "$PREFIX$stamp$EXT") ?: error("cannot create")
             val r = resolver.openOutputStream(doc)?.use { backup.export(it, pass) } ?: Outcome.Err(BackupError.IO_FAILED)
             if (r is Outcome.Err) runCatching { DocumentsContract.deleteDocument(resolver, doc) } else prune(tree)

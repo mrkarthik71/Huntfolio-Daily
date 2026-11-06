@@ -41,13 +41,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import javax.inject.Inject
 
 @HiltViewModel
-class AutoBackupViewModel @Inject constructor(private val auto: AutoBackup) : ViewModel() {
+class AutoBackupViewModel @Inject constructor(private val auto: AutoBackup, private val time: app.assistant.domain.port.TimeSource) : ViewModel() {
+    fun zone(): java.time.ZoneId = time.zone()
+
     val state: StateFlow<AutoBackupState> = auto.state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MS), AutoBackupState())
     private val _error = MutableStateFlow<ExportPassphrase.Error?>(null)
     val error: StateFlow<ExportPassphrase.Error?> = _error.asStateFlow()
@@ -106,7 +107,7 @@ fun AutoBackupSection(viewModel: AutoBackupViewModel = hiltViewModel()) {
         Caption(stringResource(R.string.auto_caption), color = MaterialTheme.colorScheme.primary, live = s.enabled)
         if (s.enabled) {
             Text(stringResource(R.string.auto_on, s.folderLabel.orEmpty(), s.everyDays), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
-            val last = s.lastAtEpochMs?.let { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())) }
+            val last = s.lastAtEpochMs?.let { DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT).format(Instant.ofEpochMilli(it).atZone(viewModel.zone())) }
             Text(
                 when {
                     last == null -> stringResource(R.string.auto_never)
