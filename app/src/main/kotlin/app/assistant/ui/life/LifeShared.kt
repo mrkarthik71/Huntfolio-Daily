@@ -188,7 +188,13 @@ fun OptionKey(text: String, selected: Boolean, onClick: () -> Unit, modifier: Mo
             .toggleable(selected, role = Role.RadioButton) { onClick() }
             .padding(horizontal = 16.dp),
         contentAlignment = Alignment.Center,
-    ) { Text(text, style = MaterialTheme.typography.labelLarge, color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface) }
+    ) {
+        Text(
+            text,
+            style = MaterialTheme.typography.labelLarge,
+            color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

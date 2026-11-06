@@ -102,7 +102,9 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     items = TABS.map { CredBarItem(it.route, stringResource(it.labelRes), it.selected, it.unselected) },
                     selectedKey = selectedKey,
                     center = {
-                        app.assistant.ui.designsystem.SignalButton(ApexIcons.Mic, stringResource(R.string.ask_entry), onClick = { nav.navigate("ask?voice=true") })
+                        app.assistant.ui.designsystem.SignalButton(ApexIcons.Mic, stringResource(R.string.ask_entry), onClick = {
+                            nav.navigate("ask?voice=true")
+                        })
                     },
                     onSelect = { route ->
                         haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
@@ -129,7 +131,9 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             popExitTransition = { transitions.popExit(this) },
         ) {
             composable(Routes.TODAY) {
-                TodayScreen(onOpenReview = { date -> nav.navigate(Routes.review(date)) }, onOpenSettings = { nav.navigate(Routes.SETTINGS) }, onOpenFocus = { nav.navigate(Routes.FOCUS) })
+                TodayScreen(onOpenReview = { date ->
+                    nav.navigate(Routes.review(date))
+                }, onOpenSettings = { nav.navigate(Routes.SETTINGS) }, onOpenFocus = { nav.navigate(Routes.FOCUS) })
             }
             composable(Routes.TASKS) { TasksScreen() }
             composable(Routes.PLAN) { PlanHost() }
@@ -137,13 +141,25 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             composable(Routes.YEAR) { app.assistant.ui.life.YearScreen(onBack = { nav.popBackStack() }) }
             composable(
                 Routes.SHARE,
-                arguments = listOf(androidx.navigation.navArgument("text") { type = androidx.navigation.NavType.StringType; defaultValue = "" }),
+                arguments = listOf(
+                    androidx.navigation.navArgument("text") {
+                        type = androidx.navigation.NavType.StringType
+                        defaultValue = ""
+                    },
+                ),
             ) { entry ->
-                app.assistant.ui.share.ShareScreen(entry.arguments?.getString("text").orEmpty(), onDone = { if (!nav.popBackStack()) nav.navigate(Routes.TODAY) })
+                app.assistant.ui.share.ShareScreen(entry.arguments?.getString("text").orEmpty(), onDone = {
+                    if (!nav.popBackStack()) nav.navigate(Routes.TODAY)
+                })
             }
             composable(
                 Routes.ASK_VOICE,
-                arguments = listOf(androidx.navigation.navArgument("voice") { type = androidx.navigation.NavType.BoolType; defaultValue = false }),
+                arguments = listOf(
+                    androidx.navigation.navArgument("voice") {
+                        type = androidx.navigation.NavType.BoolType
+                        defaultValue = false
+                    },
+                ),
             ) { entry ->
                 app.assistant.ui.ask.AskScreen(onBack = { nav.popBackStack() }, startVoice = entry.arguments?.getBoolean("voice") == true)
             }

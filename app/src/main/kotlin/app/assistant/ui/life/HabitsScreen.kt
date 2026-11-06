@@ -68,11 +68,8 @@ data class HabitRow(val habit: Habit, val slots: List<Pair<LocalTime, Boolean>>,
 data class HabitsUi(val today: LocalDate? = null, val rows: List<HabitRow> = emptyList(), val done: Int = 0, val total: Int = 0, val bestStreak: Int = 0)
 
 @HiltViewModel
-class HabitsViewModel @Inject constructor(
-    private val store: HabitStore,
-    private val time: TimeSource,
-    notify: NotifySwitch,
-) : LifeViewModel(notify, NotificationType.HABIT_CHECK) {
+class HabitsViewModel @Inject constructor(private val store: HabitStore, private val time: TimeSource, notify: NotifySwitch) :
+    LifeViewModel(notify, NotificationType.HABIT_CHECK) {
     private val today: LocalDate = time.today()
 
     val ui: StateFlow<HabitsUi> = combine(store.habits(), store.checks(today.minusDays(LOOKBACK), today)) { habits, checks -> build(habits, checks) }
@@ -170,10 +167,25 @@ fun HabitsContent(
                 KeyButton(Icons.Filled.Add, stringResource(R.string.habits_add), onClick = onAdd, tint = MaterialTheme.colorScheme.primary)
             }
         }
-        item { ReadoutTile(stringResource(R.string.habits_best_streak), stringResource(R.string.habits_days, ui.bestStreak), Modifier.fillMaxWidth().enterAnimated(1)) }
-        item { NotifyToggle(notify, stringResource(R.string.habits_notify), stringResource(R.string.habits_notify_reason), onNotify, Modifier.enterAnimated(2)) }
+        item {
+            ReadoutTile(
+                stringResource(R.string.habits_best_streak),
+                stringResource(R.string.habits_days, ui.bestStreak),
+                Modifier.fillMaxWidth().enterAnimated(1),
+            )
+        }
+        item {
+            NotifyToggle(notify, stringResource(R.string.habits_notify), stringResource(R.string.habits_notify_reason), onNotify, Modifier.enterAnimated(2))
+        }
         if (ui.rows.isEmpty()) {
-            item { Text(stringResource(R.string.habits_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp)) }
+            item {
+                Text(
+                    stringResource(R.string.habits_empty),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
         }
         itemsIndexed(ui.rows, key = { _, r -> r.habit.id }) { i, row -> HabitCard(row, onToggle, onEdit, Modifier.enterAnimated(i + 3)) }
     }
@@ -191,7 +203,11 @@ private fun HabitCard(row: HabitRow, onToggle: (Long, LocalTime, Boolean) -> Uni
                 Caption(stringResource(if (row.habit.kind == HabitKind.MEDICINE) R.string.habits_kind_medicine else R.string.habits_kind_habit))
                 Text(row.habit.name, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
             }
-            Text(stringResource(R.string.habits_streak_short, row.streak), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
+            Text(
+                stringResource(R.string.habits_streak_short, row.streak),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.secondary,
+            )
             TextButton(onClick = { onEdit(row.habit) }) { Text(stringResource(R.string.life_edit), color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         if (row.slots.isEmpty()) {
@@ -201,7 +217,16 @@ private fun HabitCard(row: HabitRow, onToggle: (Long, LocalTime, Boolean) -> Uni
                 row.slots.forEach { (slot, done) ->
                     Box(
                         Modifier.heightIn(min = 44.dp)
-                            .let { if (done) it.recessedWell(MaterialTheme.shapes.small, deep = true) else it.raisedPanel(MaterialTheme.shapes.small, elevation = 4.dp) }
+                            .let {
+                                if (done) {
+                                    it.recessedWell(
+                                        MaterialTheme.shapes.small,
+                                        deep = true,
+                                    )
+                                } else {
+                                    it.raisedPanel(MaterialTheme.shapes.small, elevation = 4.dp)
+                                }
+                            }
                             .toggleable(done, role = Role.Checkbox) { onToggle(row.habit.id, slot, it) }
                             .padding(horizontal = 14.dp),
                         contentAlignment = Alignment.Center,

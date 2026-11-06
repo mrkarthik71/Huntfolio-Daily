@@ -125,7 +125,9 @@ class RoomSavingsStore @Inject constructor(private val holder: DbProvider) : Sav
         l.map { SavingsGoal(it.id, it.name, Paise(it.targetPaise), it.deadline?.let(LocalDate::parse), LocalDate.parse(it.createdOn)) }
     }
 
-    override fun entries(): Flow<List<SavingsEntry>> = dao.entries().map { l -> l.map { SavingsEntry(it.id, it.goalId, Paise(it.amountPaise), LocalDate.parse(it.date)) } }
+    override fun entries(): Flow<List<SavingsEntry>> = dao.entries().map { l ->
+        l.map { SavingsEntry(it.id, it.goalId, Paise(it.amountPaise), LocalDate.parse(it.date)) }
+    }
 
     override suspend fun save(goal: SavingsGoal): Long = idAfterUpsert(
         goal.id,
@@ -188,7 +190,16 @@ class RoomReflectionStore @Inject constructor(private val holder: DbProvider) : 
     override suspend fun start(title: String, taskId: Long?, at: Instant, plannedMinutes: Int): Long {
         // Only one block runs at a time: starting a new one ends the old one, not completed.
         dao.running()?.let { dao.endSession(it.id, at.toEpochMilli(), completed = false) }
-        return dao.insertSession(FocusSessionEntity(title = title.trim().take(MAX_TEXT), taskId = taskId, startedAt = at.toEpochMilli(), plannedMinutes = plannedMinutes, endedAt = null, completed = false))
+        return dao.insertSession(
+            FocusSessionEntity(
+                title = title.trim().take(MAX_TEXT),
+                taskId = taskId,
+                startedAt = at.toEpochMilli(),
+                plannedMinutes = plannedMinutes,
+                endedAt = null,
+                completed = false,
+            ),
+        )
     }
 
     override suspend fun end(id: Long, at: Instant, completed: Boolean) = dao.endSession(id, at.toEpochMilli(), completed)

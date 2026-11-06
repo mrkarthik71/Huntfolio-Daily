@@ -141,7 +141,12 @@ fun YearContent(ui: YearUi, onBack: () -> Unit) {
             }
         }
         item {
-            Text(stringResource(R.string.year_title, ui.year), style = MaterialTheme.typography.displayMedium, color = MaterialTheme.colorScheme.onBackground, modifier = Modifier.enterAnimated(0))
+            Text(
+                stringResource(R.string.year_title, ui.year),
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.enterAnimated(0),
+            )
         }
         tiles.chunked(2).forEachIndexed { i, pair ->
             item {

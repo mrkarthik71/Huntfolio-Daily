@@ -26,11 +26,7 @@ data class HabitEntity(
     indices = [Index("date")],
     foreignKeys = [ForeignKey(HabitEntity::class, ["id"], ["habit_id"], onDelete = ForeignKey.CASCADE)],
 )
-data class HabitCheckEntity(
-    @ColumnInfo(name = "habit_id") val habitId: Long,
-    val date: String,
-    val slot: String,
-)
+data class HabitCheckEntity(@ColumnInfo(name = "habit_id") val habitId: Long, val date: String, val slot: String)
 
 @Entity(tableName = "important_date")
 data class ImportantDateEntity(
@@ -74,11 +70,7 @@ data class FollowUpEntity(
 )
 
 @Entity(tableName = "mood_log")
-data class MoodLogEntity(
-    @PrimaryKey val date: String,
-    val mood: Int,
-    val energy: Int,
-)
+data class MoodLogEntity(@PrimaryKey val date: String, val mood: Int, val energy: Int)
 
 @Entity(tableName = "focus_session", indices = [Index("started_at")])
 data class FocusSessionEntity(

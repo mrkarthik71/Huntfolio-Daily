@@ -55,11 +55,8 @@ data class SavingsRow(val goal: SavingsGoal, val saved: Paise, val progress: Flo
 
 /** Savings goals, and the switch for live budget alerts (they belong with money). */
 @HiltViewModel
-class SavingsViewModel @Inject constructor(
-    private val store: SavingsStore,
-    time: TimeSource,
-    notify: NotifySwitch,
-) : LifeViewModel(notify, NotificationType.BUDGET_ALERT) {
+class SavingsViewModel @Inject constructor(private val store: SavingsStore, time: TimeSource, notify: NotifySwitch) :
+    LifeViewModel(notify, NotificationType.BUDGET_ALERT) {
     val today: LocalDate = time.today()
 
     val rows: StateFlow<List<SavingsRow>> = combine(store.goals(), store.entries()) { goals, entries ->
@@ -128,23 +125,51 @@ fun SavingsScreen(modifier: Modifier = Modifier, viewModel: SavingsViewModel = h
 }
 
 @Composable
-fun SavingsContent(rows: List<SavingsRow>, alerts: Boolean, onAlerts: (Boolean) -> Unit, onAdd: () -> Unit, onTopUp: (SavingsGoal) -> Unit, modifier: Modifier = Modifier) {
+fun SavingsContent(
+    rows: List<SavingsRow>,
+    alerts: Boolean,
+    onAlerts: (Boolean) -> Unit,
+    onAdd: () -> Unit,
+    onTopUp: (SavingsGoal) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     LazyColumn(
         modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item { NotifyToggle(alerts, stringResource(R.string.budget_alerts_title), stringResource(R.string.budget_alerts_reason), onAlerts, Modifier.enterAnimated(0)) }
+        item {
+            NotifyToggle(
+                alerts,
+                stringResource(R.string.budget_alerts_title),
+                stringResource(R.string.budget_alerts_reason),
+                onAlerts,
+                Modifier.enterAnimated(0),
+            )
+        }
         item {
             Row(Modifier.fillMaxWidth().enterAnimated(1), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Caption(stringResource(R.string.savings_caption))
-                    Text(stringResource(R.string.savings_title), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
+                    Text(
+                        stringResource(R.string.savings_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
                 }
                 KeyButton(Icons.Filled.Add, stringResource(R.string.savings_add), onClick = onAdd, tint = MaterialTheme.colorScheme.primary)
             }
         }
-        if (rows.isEmpty()) item { Text(stringResource(R.string.savings_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp)) }
+        if (rows.isEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.savings_empty),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
+        }
         itemsIndexed(rows, key = { _, r -> r.goal.id }) { i, r ->
             Row(
                 Modifier.fillMaxWidth().enterAnimated(i + 2).raisedPanel(MaterialTheme.shapes.large).padding(16.dp),
@@ -160,7 +185,13 @@ fun SavingsContent(rows: List<SavingsRow>, alerts: Boolean, onAlerts: (Boolean) 
                         color = MaterialTheme.colorScheme.secondary,
                     )
                     r.monthly?.let {
-                        val text = if (it.value == 0L) stringResource(R.string.savings_reached) else stringResource(R.string.savings_monthly, MoneyFormatter.format(it))
+                        val text = if (it.value ==
+                            0L
+                        ) {
+                            stringResource(R.string.savings_reached)
+                        } else {
+                            stringResource(R.string.savings_monthly, MoneyFormatter.format(it))
+                        }
                         Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                     }
                 }

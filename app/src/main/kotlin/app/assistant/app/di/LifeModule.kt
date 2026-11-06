@@ -45,6 +45,7 @@ class BudgetAlertHook @Inject constructor(
     private val notifications: NotificationScheduling,
     private val time: TimeSource,
 ) : PostCommitHook {
+    @Suppress("ReturnCount") // each guard drops a payment that cannot raise an alert
     override suspend fun onPersisted(event: PersistedMessage) {
         if (!event.created || NotificationType.BUDGET_ALERT !in settings.current().enabledTypes) return
         val txn = transactions.get(event.transaction) ?: return
@@ -59,7 +60,13 @@ class BudgetAlertHook @Inject constructor(
         val ref = "budget:${txn.category.value}:$month:$threshold"
         if (ref in log.handledRefKeys(NotificationType.BUDGET_ALERT)) return
         val name = AskEngine.categoryName(txn.category)
-        val title = if (threshold >= FULL) context.getString(R.string.budget_alert_over, name) else context.getString(R.string.budget_alert_near, name, threshold)
+        val title = if (threshold >=
+            FULL
+        ) {
+            context.getString(R.string.budget_alert_over, name)
+        } else {
+            context.getString(R.string.budget_alert_near, name, threshold)
+        }
         val text = context.getString(R.string.budget_alert_text, MoneyFormatter.format(after), MoneyFormatter.format(line.budget.amount))
         notifications.offerNow(ImmediateAlert(NotificationType.BUDGET_ALERT, ref, title, text, "money"))
     }

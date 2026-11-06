@@ -341,4 +341,85 @@ class ScreenshotTest {
         }
         capture("07-ask-answers") { app.assistant.ui.ask.AskContent(app.assistant.ui.ask.AskUi(turns), onBack = {}, onAsk = {}, onClear = {}) }
     }
+
+    @Test
+    fun habits() {
+        val h1 = app.assistant.domain.model.Habit(
+            1,
+            "Vitamin D",
+            app.assistant.domain.model.HabitKind.MEDICINE,
+            listOf(java.time.LocalTime.of(8, 0), java.time.LocalTime.of(21, 0)),
+            java.time.DayOfWeek.entries.toSet(),
+            true,
+            today.minusDays(40),
+        )
+        val h2 = app.assistant.domain.model.Habit(
+            2,
+            "Drink 2 L water",
+            app.assistant.domain.model.HabitKind.HABIT,
+            listOf(java.time.LocalTime.of(11, 0), java.time.LocalTime.of(15, 0), java.time.LocalTime.of(18, 0)),
+            java.time.DayOfWeek.entries.toSet(),
+            true,
+            today.minusDays(10),
+        )
+        val ui = app.assistant.ui.life.HabitsUi(
+            today,
+            listOf(
+                app.assistant.ui.life.HabitRow(h1, listOf(java.time.LocalTime.of(8, 0) to true, java.time.LocalTime.of(21, 0) to false), 12),
+                app.assistant.ui.life.HabitRow(
+                    h2,
+                    listOf(
+                        java.time.LocalTime.of(11, 0) to true,
+                        java.time.LocalTime.of(15, 0) to true,
+                        java.time.LocalTime.of(18, 0) to false,
+                    ),
+                    4,
+                ),
+            ),
+            done = 3,
+            total = 5,
+            bestStreak = 12,
+        )
+        capture("08-habits") { Shell("plan") { app.assistant.ui.life.HabitsContent(ui, true, { _, _, _ -> }, {}, {}, {}) } }
+    }
+
+    @Test
+    fun dates() {
+        fun row(id: Long, t: String, k: app.assistant.domain.model.DateKind, days: Long, years: Int?) = app.assistant.ui.life.DateRow(
+            app.assistant.domain.model.ImportantDate(
+                id,
+                t,
+                k,
+                today.plusDays(days),
+                k == app.assistant.domain.model.DateKind.BIRTHDAY,
+            ),
+            today.plusDays(days),
+            days,
+            years,
+        )
+        val rows = listOf(
+            row(1, "Mom", app.assistant.domain.model.DateKind.BIRTHDAY, 0, 61),
+            row(2, "Car insurance", app.assistant.domain.model.DateKind.INSURANCE, 6, null),
+            row(3, "Passport", app.assistant.domain.model.DateKind.DOCUMENT, 30, null),
+            row(4, "Wedding anniversary", app.assistant.domain.model.DateKind.ANNIVERSARY, 74, 5),
+        )
+        capture("09-dates") { Shell("inbox") { app.assistant.ui.life.DatesContent(rows, true, null, {}, {}, {}, {}) } }
+    }
+
+    @Test
+    fun savings() {
+        val g1 = app.assistant.domain.model.SavingsGoal(1, "Emergency fund", Paise(15_000_000), null, today)
+        val g2 = app.assistant.domain.model.SavingsGoal(2, "Goa trip", Paise(4_000_000), today.plusMonths(4), today)
+        val rows = listOf(
+            app.assistant.ui.life.SavingsRow(g1, Paise(9_000_000), 0.6f, null),
+            app.assistant.ui.life.SavingsRow(g2, Paise(1_000_000), 0.25f, Paise(750_000)),
+        )
+        capture("10-savings") { Shell("money") { app.assistant.ui.life.SavingsContent(rows, true, {}, {}, {}) } }
+    }
+
+    @Test
+    fun year() {
+        val ui = app.assistant.ui.life.YearUi(2026, 5_460, 612, 41, 3, 5, Paise(42_350_000), Paise(10_000_000), 148, 190)
+        capture("11-year") { app.assistant.ui.life.YearContent(ui) {} }
+    }
 }

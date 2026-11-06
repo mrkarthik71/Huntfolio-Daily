@@ -63,7 +63,9 @@ fun MoodCheck(date: LocalDate, modifier: Modifier = Modifier, viewModel: MoodVie
         }
         GroupCaption(stringResource(R.string.energy_caption))
         Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            ENERGIES.forEachIndexed { i, res -> OptionKey(stringResource(res), entry?.energy == i + 1, { viewModel.set(date, null, i + 1) }, Modifier.weight(1f)) }
+            ENERGIES.forEachIndexed { i, res ->
+                OptionKey(stringResource(res), entry?.energy == i + 1, { viewModel.set(date, null, i + 1) }, Modifier.weight(1f))
+            }
         }
     }
 }

@@ -51,11 +51,8 @@ import java.time.Duration
 import javax.inject.Inject
 
 @HiltViewModel
-class FocusViewModel @Inject constructor(
-    private val store: ReflectionStore,
-    private val time: TimeSource,
-    notify: NotifySwitch,
-) : LifeViewModel(notify, NotificationType.FOCUS_END) {
+class FocusViewModel @Inject constructor(private val store: ReflectionStore, private val time: TimeSource, notify: NotifySwitch) :
+    LifeViewModel(notify, NotificationType.FOCUS_END) {
     private val _running = MutableStateFlow<FocusSession?>(null)
     val running: StateFlow<FocusSession?> = _running.asStateFlow()
 
@@ -119,7 +116,13 @@ fun FocusScreen(onBack: () -> Unit, viewModel: FocusViewModel = hiltViewModel())
     Column(Modifier.fillMaxSize().consoleGround().statusBarsPadding().padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(20.dp)) {
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             KeyButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), onClick = onBack)
-            Caption(stringResource(R.string.focus_caption), Modifier.padding(start = 14.dp).weight(1f), color = MaterialTheme.colorScheme.primary, live = running != null)
+            Caption(
+                stringResource(R.string.focus_caption),
+                Modifier.padding(start = 14.dp).weight(1f),
+                color = MaterialTheme.colorScheme.primary,
+                live =
+                running != null,
+            )
         }
         val s = running
         if (s != null) {
@@ -142,7 +145,11 @@ fun FocusScreen(onBack: () -> Unit, viewModel: FocusViewModel = hiltViewModel())
             CredPrimaryButton(stringResource(R.string.focus_start), onClick = { viewModel.start(title.ifBlank { defaultTitle }, minutes) })
             Text(stringResource(R.string.focus_reason), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        ReadoutTile(stringResource(R.string.focus_today), stringResource(R.string.duration_h_m, today / MIN_PER_HOUR, today % MIN_PER_HOUR), Modifier.fillMaxWidth())
+        ReadoutTile(
+            stringResource(R.string.focus_today),
+            stringResource(R.string.duration_h_m, today / MIN_PER_HOUR, today % MIN_PER_HOUR),
+            Modifier.fillMaxWidth(),
+        )
     }
 }
 

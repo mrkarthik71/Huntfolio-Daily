@@ -118,7 +118,7 @@
     <string name="savings_monthly">%1$s a month to make it</string>
     <string name="savings_add_short">+ Add</string>
     <string name="budget_alerts_title">Alert me when a budget is nearly used</string>
-    <string name="budget_alerts_reason">A notification the moment a category passes 80% and 100% of its monthly budget.</string>
+    <string name="budget_alerts_reason">A notification the moment a category passes 80 and 100 percent of its monthly budget.</string>
     <string name="focus_default_title">Focus</string>
     <string name="focus_caption">Focus timer</string>
     <string name="focus_left">left</string>

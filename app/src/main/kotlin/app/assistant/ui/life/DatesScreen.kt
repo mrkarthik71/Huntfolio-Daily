@@ -146,19 +146,25 @@ fun DatesScreen(viewModel: DatesViewModel = hiltViewModel()) {
         )
     }
     if (adding || editing != null) {
-        DateSheet(editing, viewModel.today, onDismiss = {
-            adding = false
-            editing = null
-        }, onSave = { t, k, d ->
-            viewModel.save(t, k, d, editing)
-            adding = false
-            editing = null
-        }, onDelete = editing?.let { e ->
-            {
-                viewModel.delete(e.id)
+        DateSheet(
+            editing,
+            viewModel.today,
+            onDismiss = {
+                adding = false
                 editing = null
-            }
-        })
+            },
+            onSave = { t, k, d ->
+                viewModel.save(t, k, d, editing)
+                adding = false
+                editing = null
+            },
+            onDelete = editing?.let { e ->
+                {
+                    viewModel.delete(e.id)
+                    editing = null
+                }
+            },
+        )
     }
 }
 
@@ -191,10 +197,27 @@ fun DatesContent(
         item {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = onImport) { Text(stringResource(R.string.dates_import), color = MaterialTheme.colorScheme.primary) }
-                if (imported != null) Text(stringResource(R.string.dates_imported, imported), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (imported !=
+                    null
+                ) {
+                    Text(
+                        stringResource(R.string.dates_imported, imported),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
-        if (rows.isEmpty()) item { Text(stringResource(R.string.dates_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp)) }
+        if (rows.isEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.dates_empty),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
+        }
         itemsIndexed(rows, key = { _, r -> r.date.id }) { i, r -> DateCard(r, Modifier.enterAnimated(i + 2).clickable { onEdit(r.date) }) }
     }
 }
@@ -213,7 +236,9 @@ private fun DateCard(r: DateRow, modifier: Modifier = Modifier) {
         ) {
             Text(
                 if (r.daysLeft == 0L) stringResource(R.string.dates_today_short) else "${r.daysLeft}",
-                style = app.assistant.ui.designsystem.AssistantType.Readout.copy(fontSize = androidx.compose.ui.unit.TextUnit(22f, androidx.compose.ui.unit.TextUnitType.Sp)),
+                style = app.assistant.ui.designsystem.AssistantType.Readout.copy(
+                    fontSize = androidx.compose.ui.unit.TextUnit(22f, androidx.compose.ui.unit.TextUnitType.Sp),
+                ),
                 color = if (soon) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground,
             )
             if (r.daysLeft > 0) Caption(stringResource(R.string.dates_days_caption))
@@ -231,7 +256,13 @@ private fun DateCard(r: DateRow, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun DateSheet(existing: ImportantDate?, today: LocalDate, onDismiss: () -> Unit, onSave: (String, DateKind, LocalDate) -> Unit, onDelete: (() -> Unit)?) {
+private fun DateSheet(
+    existing: ImportantDate?,
+    today: LocalDate,
+    onDismiss: () -> Unit,
+    onSave: (String, DateKind, LocalDate) -> Unit,
+    onDelete: (() -> Unit)?,
+) {
     var title by rememberSaveable { mutableStateOf(existing?.title.orEmpty()) }
     var kind by rememberSaveable { mutableStateOf(existing?.kind ?: DateKind.BIRTHDAY) }
     var date by remember { mutableStateOf(existing?.date ?: today) }

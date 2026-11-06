@@ -75,7 +75,16 @@ class ShareViewModel @Inject constructor(
                     val now = time.now().atZone(zone).toLocalDateTime()
                     val q = AskParser.parse("remind me to $body", now)
                     val at = q.remindAt ?: now.toLocalDate().plusDays(1).atTime(LocalTime.of(MORNING, 0))
-                    planner.saveReminder(SmartReminder(ReminderId(0), q.text.ifBlank { body }.take(TASK_MAX), ReminderKind.TIME, fireAt = at.atZone(zone).toInstant()))
+                    planner.saveReminder(
+                        SmartReminder(
+                            ReminderId(0),
+                            q.text.ifBlank {
+                                body
+                            }.take(TASK_MAX),
+                            ReminderKind.TIME,
+                            fireAt = at.atZone(zone).toInstant(),
+                        ),
+                    )
                     settings.update { it.copy(enabledTypes = it.enabledTypes + NotificationType.SMART_REMINDER) }
                     scheduler.sync()
                 }

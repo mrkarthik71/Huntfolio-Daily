@@ -93,6 +93,7 @@ class LifeAlarmPlanner @Inject constructor(
         armer.arm(alarms.earliest())
     }
 
+    @Suppress("NestedBlockDepth") // days × habits × slots is the natural shape here
     private suspend fun habitWants(today: LocalDate, zone: ZoneId, now: Instant): Map<String, Instant> {
         val list = habits.habitsNow()
         val checks = habits.checks(today, today.plusDays(1)).first()

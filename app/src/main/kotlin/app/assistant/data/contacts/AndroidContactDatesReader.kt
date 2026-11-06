@@ -21,6 +21,7 @@ import javax.inject.Inject
  * contacts permission, which is asked for only when the User taps "Import from contacts".
  */
 class AndroidContactDatesReader @Inject constructor(@param:ApplicationContext private val context: Context) : ContactDatesReader {
+    @Suppress("LoopWithTooManyJumpStatements") // skips rows without a date or of another event type
     override suspend fun read(): List<ImportantDate> = withContext(Dispatchers.IO) {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) return@withContext emptyList()
         val out = ArrayList<ImportantDate>()

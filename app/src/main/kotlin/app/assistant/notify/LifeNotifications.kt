@@ -46,7 +46,13 @@ class LifeNotifications @Inject constructor(
         val h = habits.get(r.id)?.takeIf { it.active } ?: return null
         val done = habits.checks(r.date, r.date).first().any { it.habitId == h.id && it.slot == r.slot }
         if (done) return null
-        val title = if (h.kind == HabitKind.MEDICINE) context.getString(R.string.habit_notif_medicine, h.name) else context.getString(R.string.habit_notif_title, h.name)
+        val title = if (h.kind ==
+            HabitKind.MEDICINE
+        ) {
+            context.getString(R.string.habit_notif_medicine, h.name)
+        } else {
+            context.getString(R.string.habit_notif_title, h.name)
+        }
         return NotificationContent(title, context.getString(R.string.habit_notif_text), "plan", actionRef = ref)
     }
 
@@ -60,7 +66,13 @@ class LifeNotifications @Inject constructor(
         }
         val years = DateRules.yearsAt(d, occurrence.minusDays(lead.toLong()))
         val title = when (d.kind) {
-            DateKind.BIRTHDAY -> if (years != null) context.getString(R.string.date_notif_birthday_age, d.title, years, whenText) else context.getString(R.string.date_notif_birthday, d.title, whenText)
+            DateKind.BIRTHDAY -> if (years !=
+                null
+            ) {
+                context.getString(R.string.date_notif_birthday_age, d.title, years, whenText)
+            } else {
+                context.getString(R.string.date_notif_birthday, d.title, whenText)
+            }
             DateKind.ANNIVERSARY -> context.getString(R.string.date_notif_anniversary, d.title, whenText)
             DateKind.DOCUMENT, DateKind.INSURANCE, DateKind.WARRANTY -> context.getString(R.string.date_notif_expiry, d.title, whenText)
             DateKind.OTHER -> context.getString(R.string.date_notif_other, d.title, whenText)
@@ -71,7 +83,12 @@ class LifeNotifications @Inject constructor(
     private suspend fun followUp(ref: String): NotificationContent? {
         val id = LifeRefs.parseFollowUp(ref) ?: return null
         val f = followUps.get(id)?.takeIf { !it.done } ?: return null
-        return NotificationContent(context.getString(R.string.follow_notif_title, f.person), context.getString(R.string.follow_notif_text, f.about), "inbox", actionRef = ref)
+        return NotificationContent(
+            context.getString(R.string.follow_notif_title, f.person),
+            context.getString(R.string.follow_notif_text, f.about),
+            "inbox",
+            actionRef = ref,
+        )
     }
 
     private suspend fun focus(ref: String): NotificationContent? {
@@ -79,7 +96,11 @@ class LifeNotifications @Inject constructor(
         val s = reflection.running()?.takeIf { it.id == id } ?: return null
         // The block ran its full time: it counts as completed.
         reflection.end(s.id, time.now(), completed = true)
-        return NotificationContent(context.getString(R.string.focus_notif_title), context.getString(R.string.focus_notif_text, s.title, s.plannedMinutes), "today")
+        return NotificationContent(
+            context.getString(R.string.focus_notif_title),
+            context.getString(R.string.focus_notif_text, s.title, s.plannedMinutes),
+            "today",
+        )
     }
 
     /**

@@ -135,7 +135,7 @@ object AskParser {
     private val inTime = Regex("\\s+in\\s+(\\d{1,3})\\s*(min|mins|minutes|hour|hours|hr|hrs)\\s*$", RegexOption.IGNORE_CASE)
     private val tomorrowTail = Regex("\\s+tomorrow\\s*$", RegexOption.IGNORE_CASE)
 
-    @Suppress("CyclomaticComplexMethod") // a flat list of keyword rules reads best in one place
+    @Suppress("CyclomaticComplexMethod", "ReturnCount") // a flat list of keyword rules, each command returning early, reads best in one place
     fun parse(raw: String, now: LocalDateTime): AskQuery {
         val text = raw.trim()
         val q = text.lowercase(Locale.ROOT)
@@ -145,9 +145,10 @@ object AskParser {
         followUp.find(text)?.let { m -> return parseFollowUp(m.groupValues[3].trim(), m.groupValues[5].trim(), now.toLocalDate()) }
         val period = periodOf(q)
         return when {
-            has(q, "birthday", "birthdays", "anniversary", "anniversaries", "expire", "expires", "expiry", "passport", "licence", "license", "insurance", "warranty") ->
-                AskQuery(AskIntent.DATES)
-            has(q, "habit", "habits", "medicine", "medicines", "tablet", "tablets", "pill", "pills", "streak", "streaks", "check-ins") -> AskQuery(AskIntent.HABITS)
+            has(q, *DATE_WORDS) -> AskQuery(AskIntent.DATES)
+            has(q, "habit", "habits", "medicine", "medicines", "tablet", "tablets", "pill", "pills", "streak", "streaks", "check-ins") -> AskQuery(
+                AskIntent.HABITS,
+            )
             has(q, "save", "save money", "saving", "savings", "spend less", "suggest", "improve", "tips", "advice", "cut", "reduce", "bachat") -> AskQuery(
                 AskIntent.SAVE_TIPS,
             )
@@ -162,7 +163,6 @@ object AskParser {
         }
     }
 
-    @Suppress("ReturnCount") // one early return per time form ("in", "at", "tomorrow") reads clearer than nesting
     private val followUp = Regex("^(waiting (for|on)|follow up with|chase)\\s+(.+?)\\s+(about|to|on|for|re|regarding)\\s+(.+)$", RegexOption.IGNORE_CASE)
     private val nudgeTail = Regex("\\s+(by|on|in|next|tomorrow|this)\\b.*$", RegexOption.IGNORE_CASE)
 
@@ -175,6 +175,7 @@ object AskParser {
     }
 
     /** "tomorrow", "in 3 days", "next week", "on friday", "by monday". */
+    @Suppress("ReturnCount") // one early return per phrase form
     fun dayFrom(phrase: String, today: LocalDate): LocalDate? {
         val p = phrase.removePrefix("by ").removePrefix("on ").removePrefix("this ").trim()
         if (p == "tomorrow") return today.plusDays(1)
@@ -186,6 +187,7 @@ object AskParser {
         return null
     }
 
+    @Suppress("ReturnCount") // one early return per time form ("in", "at", "tomorrow") reads clearer than nesting
     private fun parseRemind(body: String, now: LocalDateTime): AskQuery {
         inTime.find(body)?.let { m ->
             val n = m.groupValues[1].toLong()
@@ -238,6 +240,11 @@ object AskParser {
     }
 
     private const val DEFAULT_NUDGE_DAYS = 3L
+    private val DATE_WORDS =
+        arrayOf(
+            "birthday", "birthdays", "anniversary", "anniversaries", "expire", "expires",
+            "expiry", "passport", "licence", "license", "insurance", "warranty",
+        )
     private const val NOON = 12
     private const val LAST_HOUR = 23
     private const val LAST_MINUTE = 59

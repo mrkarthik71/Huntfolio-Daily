@@ -2,8 +2,8 @@ package app.assistant.ui.settings
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -69,7 +69,10 @@ fun SettingsScreen(
         contentPadding = PaddingValues(bottom = 24.dp),
     ) {
         item {
-            androidx.compose.foundation.layout.Row(Modifier.padding(start = 16.dp, top = 12.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            androidx.compose.foundation.layout.Row(
+                Modifier.padding(start = 16.dp, top = 12.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            ) {
                 if (onBack != null) {
                     app.assistant.ui.designsystem.KeyButton(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), onClick = onBack)
                 }

@@ -88,6 +88,6 @@ interface ContactDatesReader {
 }
 
 /** Keeps the alarm queue in step with habits, important dates, follow-ups and a running focus block. */
-interface LifeAlarms {
+fun interface LifeAlarms {
     suspend fun sync()
 }

@@ -48,7 +48,12 @@ fun PlanHost() {
 @Composable
 fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit) {
     SegmentedHost(
-        listOf(stringResource(R.string.reminders_title), stringResource(R.string.dates_tab), stringResource(R.string.waiting_tab), stringResource(R.string.mail_title)),
+        listOf(
+            stringResource(R.string.reminders_title),
+            stringResource(R.string.dates_tab),
+            stringResource(R.string.waiting_tab),
+            stringResource(R.string.mail_title),
+        ),
     ) { i ->
         when (i) {
             0 -> app.assistant.ui.reminders.RemindersScreen(onBack = null)

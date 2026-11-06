@@ -30,14 +30,7 @@ enum class DateKind { BIRTHDAY, ANNIVERSARY, DOCUMENT, INSURANCE, WARRANTY, OTHE
  * A date to remember. Birthdays and anniversaries repeat every year; documents, insurance and
  * warranties are one expiry date (renewing is a new date).
  */
-data class ImportantDate(
-    val id: Long,
-    val title: String,
-    val kind: DateKind,
-    val date: LocalDate,
-    val yearly: Boolean,
-    val fromContacts: Boolean = false,
-)
+data class ImportantDate(val id: Long, val title: String, val kind: DateKind, val date: LocalDate, val yearly: Boolean, val fromContacts: Boolean = false)
 
 data class SavingsGoal(val id: Long, val name: String, val target: Paise, val deadline: LocalDate?, val createdOn: LocalDate)
 

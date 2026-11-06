@@ -85,8 +85,14 @@ object DateRules {
         }
     }
 
-    private fun onYear(date: LocalDate, year: Int): LocalDate =
-        if (date.monthValue == 2 && date.dayOfMonth == LEAP_DAY && !java.time.Year.isLeap(year.toLong())) LocalDate.of(year, 2, LEAP_DAY - 1) else date.withYear(year)
+    private fun onYear(date: LocalDate, year: Int): LocalDate = if (date.monthValue == 2 &&
+        date.dayOfMonth == LEAP_DAY &&
+        !java.time.Year.isLeap(year.toLong())
+    ) {
+        LocalDate.of(year, 2, LEAP_DAY - 1)
+    } else {
+        date.withYear(year)
+    }
 
     fun daysUntil(d: ImportantDate, today: LocalDate): Long? = nextOccurrence(d, today)?.let { ChronoUnit.DAYS.between(today, it) }
 
@@ -122,8 +128,7 @@ object DateRules {
 
 /** Savings progress and pace. Pure; amounts in paise. */
 object SavingsRules {
-    fun saved(goal: SavingsGoal, entries: List<SavingsEntry>): Paise =
-        entries.filter { it.goalId == goal.id }.fold(Paise(0)) { a, e -> a + e.amount }
+    fun saved(goal: SavingsGoal, entries: List<SavingsEntry>): Paise = entries.filter { it.goalId == goal.id }.fold(Paise(0)) { a, e -> a + e.amount }
 
     fun progress(goal: SavingsGoal, entries: List<SavingsEntry>): Float =
         if (goal.target.value == 0L) 0f else (saved(goal, entries).value.toFloat() / goal.target.value).coerceIn(0f, 1f)

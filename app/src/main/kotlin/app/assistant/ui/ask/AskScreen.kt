@@ -243,7 +243,12 @@ private fun Composer(text: String, onChange: (String) -> Unit, onSend: () -> Uni
         }
         if (text.isBlank() && onVoice != null) {
             // Nothing typed: the key listens instead of sending.
-            app.assistant.ui.designsystem.SignalButton(app.assistant.ui.designsystem.ApexIcons.Mic, stringResource(R.string.voice_speak), onClick = onVoice, size = 44.dp)
+            app.assistant.ui.designsystem.SignalButton(
+                app.assistant.ui.designsystem.ApexIcons.Mic,
+                stringResource(R.string.voice_speak),
+                onClick = onVoice,
+                size = 44.dp,
+            )
         } else {
             Box(
                 Modifier.size(44.dp).pressScale(interaction).clip(CircleShape).background(if (canSend) scheme.primary else scheme.surfaceVariant)

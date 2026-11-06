@@ -50,11 +50,8 @@ import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
-class WaitingViewModel @Inject constructor(
-    private val store: FollowUpStore,
-    time: TimeSource,
-    notify: NotifySwitch,
-) : LifeViewModel(notify, NotificationType.FOLLOW_UP) {
+class WaitingViewModel @Inject constructor(private val store: FollowUpStore, time: TimeSource, notify: NotifySwitch) :
+    LifeViewModel(notify, NotificationType.FOLLOW_UP) {
     val today: LocalDate = time.today()
     val items: StateFlow<List<FollowUp>> = store.followUps().stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_MS), emptyList())
 
@@ -99,17 +96,34 @@ fun WaitingContent(items: List<FollowUp>, today: LocalDate, notify: Boolean, onN
             Row(Modifier.fillMaxWidth().enterAnimated(0), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Caption(stringResource(R.string.waiting_caption, items.count { !it.done }))
-                    Text(stringResource(R.string.waiting_title), style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
+                    Text(
+                        stringResource(R.string.waiting_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
                 }
                 KeyButton(Icons.Filled.Add, stringResource(R.string.waiting_add), onClick = onAdd, tint = MaterialTheme.colorScheme.primary)
             }
         }
-        item { NotifyToggle(notify, stringResource(R.string.waiting_notify), stringResource(R.string.waiting_notify_reason), onNotify, Modifier.enterAnimated(1)) }
-        if (items.isEmpty()) item { Text(stringResource(R.string.waiting_empty), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(8.dp)) }
+        item {
+            NotifyToggle(notify, stringResource(R.string.waiting_notify), stringResource(R.string.waiting_notify_reason), onNotify, Modifier.enterAnimated(1))
+        }
+        if (items.isEmpty()) {
+            item {
+                Text(
+                    stringResource(R.string.waiting_empty),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(8.dp),
+                )
+            }
+        }
         itemsIndexed(items, key = { _, f -> f.id }) { i, f ->
             val overdue = !f.done && !f.nudgeOn.isAfter(today)
             Row(
-                Modifier.fillMaxWidth().enterAnimated(i + 2).alpha(if (f.done) DONE_ALPHA else 1f).raisedPanel(MaterialTheme.shapes.large).padding(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                Modifier.fillMaxWidth().enterAnimated(
+                    i + 2,
+                ).alpha(if (f.done) DONE_ALPHA else 1f).raisedPanel(MaterialTheme.shapes.large).padding(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Checkbox(
@@ -121,7 +135,11 @@ fun WaitingContent(items: List<FollowUp>, today: LocalDate, notify: Boolean, onN
                     Text(f.person, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onBackground)
                     if (f.about.isNotBlank()) Text(f.about, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Caption(formatShortDate(f.nudgeOn), color = if (overdue) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant, live = overdue)
+                Caption(
+                    formatShortDate(f.nudgeOn),
+                    color = if (overdue) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    live = overdue,
+                )
             }
         }
     }
