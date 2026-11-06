@@ -41,4 +41,8 @@
     <string name="health_alert_title">Something needs your attention</string>
     <string name="health_alert_text">The assistant can\'t run some of its background work. Tap to fix.</string>
     <string name="mail_important_title">Important email</string>
+    <string name="mail_gmail_title">Link Gmail</string>
+    <string name="mail_gmail_steps">1. Tap Use Gmail. 2. Tap Create app password and sign in to Google (2-Step Verification must be on). Name it Apex and copy the 16-letter password. 3. Enter your Gmail address and that password below, then tap Connect. Apex only reads mail; it never sends, deletes or marks anything.</string>
+    <string name="mail_gmail_use">Use Gmail</string>
+    <string name="mail_gmail_password">Create app password</string>
 </resources>

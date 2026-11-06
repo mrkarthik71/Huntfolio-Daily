@@ -153,6 +153,24 @@ private fun ConnectCard(ui: MailUi, viewModel: MailViewModel) {
             var port by remember { mutableStateOf("993") }
             var user by remember { mutableStateOf("") }
             var pass by remember { mutableStateOf("") }
+            val context = androidx.compose.ui.platform.LocalContext.current
+            // Gmail in one tap: fills Google's IMAP server; the User signs in with a Google app password.
+            Text(stringResource(R.string.mail_gmail_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.mail_gmail_steps), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                androidx.compose.material3.Button(onClick = {
+                    host = GMAIL_HOST
+                    port = "993"
+                }) { Text(stringResource(R.string.mail_gmail_use)) }
+                androidx.compose.material3.OutlinedButton(onClick = {
+                    runCatching {
+                        context.startActivity(
+                            android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(GMAIL_APP_PASSWORDS))
+                                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+                        )
+                    }
+                }) { Text(stringResource(R.string.mail_gmail_password)) }
+            }
             OutlinedTextField(host, {
                 host = it
             }, label = { Text(stringResource(R.string.mail_imap_host)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -200,3 +218,8 @@ private fun AddRuleCard(viewModel: MailViewModel) {
         }
     }
 }
+
+private const val GMAIL_HOST = "imap.gmail.com"
+
+/** Google's own page for creating an app password; a fixed address, opened only when the User taps the button. */
+private const val GMAIL_APP_PASSWORDS = "https://myaccount.google.com/apppasswords"

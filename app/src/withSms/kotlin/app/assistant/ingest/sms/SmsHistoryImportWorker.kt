@@ -18,7 +18,6 @@ import app.assistant.R
 import app.assistant.domain.port.HistoryImportState
 import app.assistant.domain.port.HistoryImportSummary
 import app.assistant.domain.port.ReaderStateStore
-import app.assistant.domain.port.TimeSource
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -35,16 +34,16 @@ class SmsHistoryImportWorker @AssistedInject constructor(
     private val core: SmsReaderCore,
     private val readerState: ReaderStateStore,
     private val reporter: SmsImportReporter,
-    private val time: TimeSource,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         val flags = readerState.current()
         if (!flags.smsEnabled) return Result.success()
         reporter.state.value = HistoryImportState.Running
-        val enabledOn = (flags.smsEnabledAt ?: flags.smsCursor)?.let { it.atZone(time.zone()).toLocalDate() }
-            ?: time.today()
-        val summary = core.historyImport(enabledOn)
+        val summary = runCatching { core.importAll() }.getOrElse {
+            reporter.state.value = HistoryImportState.None
+            return Result.failure()
+        }
         readerState.markHistoryImportOffered()
         reporter.state.value = HistoryImportState.Done(
             HistoryImportSummary(smsRead = summary.smsRead, transactionsCreated = summary.transactionsCreated, reviewItems = summary.reviewItemsAdded),

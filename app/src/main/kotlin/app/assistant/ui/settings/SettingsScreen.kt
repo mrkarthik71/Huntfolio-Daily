@@ -63,6 +63,8 @@ fun SettingsScreen(
     onOpenVault: (() -> Unit)? = null,
     onOpenBody: (() -> Unit)? = null,
     onOpenCrash: (() -> Unit)? = null,
+    /** Opens the page that connects a source; null for a source with no such page. */
+    onOpenSource: ((DataSource) -> (() -> Unit)?)? = null,
     onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -111,6 +113,7 @@ fun SettingsScreen(
                         title = stringResource(row.source.label()),
                         icon = row.source.icon(),
                         supporting = stringResource(if (row.connected) R.string.source_connected else R.string.source_disconnected),
+                        onClick = onOpenSource?.invoke(row.source),
                         trailing = {
                             Icon(
                                 if (row.connected) Icons.Filled.CheckCircle else Icons.Outlined.Close,

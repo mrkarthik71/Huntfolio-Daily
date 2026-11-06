@@ -16,9 +16,9 @@
     <string name="money_settings_sms_rationale_continue">Continue</string>
     <string name="money_settings_sms_rationale_cancel">Not now</string>
 
-    <string name="money_settings_import_title">Read earlier bank SMS?</string>
-    <string name="money_settings_import_body">Read the bank SMS from the last 3 months once, so your history is filled in.</string>
-    <string name="money_settings_import_start">Read last 3 months</string>
+    <string name="money_settings_import_title">Read all earlier bank SMS</string>
+    <string name="money_settings_import_body">Reads every SMS already on this phone from the senders on your bank list, so your history is filled in. Messages from anyone else are never read. Safe to run again: nothing is added twice.</string>
+    <string name="money_settings_import_start">Read all earlier SMS</string>
     <string name="money_settings_import_skip">Skip</string>
     <string name="money_settings_import_running">Reading earlier SMS…</string>
     <string name="money_settings_import_done">Import finished: %1$d SMS read, %2$d transactions created, %3$d added to the review list.</string>
@@ -51,4 +51,5 @@
     <string name="money_settings_restricted_hint">If Android says this setting is restricted: open App info, tap the ⋮ menu at the top, choose Allow restricted settings, then come back and try again. Android does this for apps installed outside the Play Store.</string>
     <string name="money_settings_open_app_info">Open App info</string>
     <string name="money_settings_ask_again">Ask again</string>
+    <string name="money_settings_import_again">Read again</string>
 </resources>

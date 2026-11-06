@@ -145,7 +145,14 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     nav.navigate(Routes.review(date))
                 }, onOpenSettings = {
                     nav.navigate(Routes.SETTINGS)
-                }, onOpenFocus = { nav.navigate(Routes.FOCUS) }, bodyTiles = { app.assistant.ui.health.BodyTiles() })
+                }, onOpenFocus = { nav.navigate(Routes.FOCUS) }, bodyTiles = {
+                    androidx.compose.foundation.layout.Column(
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(androidx.compose.ui.unit.Dp(12f)),
+                    ) {
+                        app.assistant.ui.settings.ConnectSourcesPanel(onOpen = { source -> sourceRoute(source)?.let(nav::navigate) })
+                        app.assistant.ui.health.BodyTiles()
+                    }
+                })
             }
             composable(Routes.TASKS) { TasksScreen() }
             composable(Routes.PLAN) { PlanHost(onOpenWeek = { nav.navigate(Routes.WEEK_PLAN) }) }
@@ -225,6 +232,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenVault = { nav.navigate(Routes.VAULT) },
                     onOpenBody = { nav.navigate(Routes.BODY) },
                     onOpenCrash = { nav.navigate(Routes.CRASH) },
+                    onOpenSource = { source -> sourceRoute(source)?.let { route -> { nav.navigate(route) } } },
                     onBack = { nav.popBackStack() },
                     onDeleteEverything = onDeleteEverything,
                 )
@@ -272,4 +280,15 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             }
         }
     }
+}
+
+/** The page that connects each data source, or null when it has none. */
+private fun sourceRoute(source: app.assistant.domain.model.DataSource): String? = when (source) {
+    app.assistant.domain.model.DataSource.SMS,
+    app.assistant.domain.model.DataSource.APP_NOTIFICATIONS,
+    -> if (FeatureFlags.MONEY) Routes.MONEY_SETTINGS else null
+    app.assistant.domain.model.DataSource.CALENDAR -> Routes.CALENDAR_SETTINGS
+    app.assistant.domain.model.DataSource.MAILBOX -> Routes.MAIL
+    app.assistant.domain.model.DataSource.AI_PROVIDER -> Routes.AI_SETTINGS
+    else -> null
 }

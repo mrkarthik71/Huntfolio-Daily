@@ -163,7 +163,9 @@ private fun SmsSection(state: MoneyReaderState, importState: HistoryImportState,
             if (state == MoneyReaderState.NEEDS_PERMISSION) {
                 RestrictedHint(onAsk = { rationale = true }, onOpen = { openAppInfo(context) })
             }
-            HistoryImportCard(importState, onStart = viewModel::runHistoryImport, onSkip = viewModel::declineHistoryImport)
+            if (state == MoneyReaderState.ACTIVE) {
+                HistoryImportCard(importState, onStart = viewModel::runHistoryImport, onSkip = viewModel::declineHistoryImport)
+            }
         }
     }
     if (rationale) {
@@ -233,8 +235,7 @@ private fun openAppInfo(context: Context) {
 @Composable
 private fun HistoryImportCard(state: HistoryImportState, onStart: () -> Unit, onSkip: () -> Unit) {
     when (state) {
-        HistoryImportState.None -> Unit
-        HistoryImportState.Offered -> CredCard(Modifier.fillMaxWidth()) {
+        HistoryImportState.None, HistoryImportState.Offered -> CredCard(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.money_settings_import_title), style = MaterialTheme.typography.titleSmall)
                 Text(stringResource(R.string.money_settings_import_body), style = MaterialTheme.typography.bodyMedium)
@@ -242,22 +243,29 @@ private fun HistoryImportCard(state: HistoryImportState, onStart: () -> Unit, on
                     Button(onClick = onStart, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
                         Text(stringResource(R.string.money_settings_import_start))
                     }
-                    OutlinedButton(onClick = onSkip, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
-                        Text(stringResource(R.string.money_settings_import_skip))
+                    if (state == HistoryImportState.Offered) {
+                        OutlinedButton(onClick = onSkip, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
+                            Text(stringResource(R.string.money_settings_import_skip))
+                        }
                     }
                 }
             }
         }
         HistoryImportState.Running -> Text(stringResource(R.string.money_settings_import_running), style = MaterialTheme.typography.bodyMedium)
-        is HistoryImportState.Done -> Text(
-            stringResource(
-                R.string.money_settings_import_done,
-                state.summary.smsRead,
-                state.summary.transactionsCreated,
-                state.summary.reviewItems,
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        is HistoryImportState.Done -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(
+                    R.string.money_settings_import_done,
+                    state.summary.smsRead,
+                    state.summary.transactionsCreated,
+                    state.summary.reviewItems,
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedButton(onClick = onStart, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
+                Text(stringResource(R.string.money_settings_import_again))
+            }
+        }
     }
 }
 

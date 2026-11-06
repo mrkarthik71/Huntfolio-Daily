@@ -28,6 +28,10 @@
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
+    <!-- Network is used only for what the User connects: their own mailbox (IMAP over TLS) and the AI
+         provider they turn on. No analytics, no ads; cleartext is blocked by the network security config. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <queries>
         <package android:name="com.google.android.apps.healthdata" />
     </queries>
