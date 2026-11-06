@@ -37,3 +37,29 @@ interface BackupManager {
     /** On launch, finishes a restore interrupted mid-rename (Requirement 60.7). */
     suspend fun recoverIfInterrupted(): Boolean
 }
+
+/** Automatic backup settings and the result of the last run. */
+data class AutoBackupState(
+    val enabled: Boolean = false,
+    /** A readable name for the chosen folder, when one is set. */
+    val folderLabel: String? = null,
+    val everyDays: Int = 7,
+    val lastAtEpochMs: Long? = null,
+    val lastOk: Boolean? = null,
+)
+
+/**
+ * Scheduled encrypted exports into a folder the User chose (Requirement 60, automatic). The
+ * passphrase the User sets is kept wrapped by the Android Keystore so backups can run unattended;
+ * the backup files are the same Export_File format and need that passphrase to restore.
+ */
+interface AutoBackup {
+    val state: kotlinx.coroutines.flow.Flow<AutoBackupState>
+
+    suspend fun enable(folderUri: String, passphrase: CharArray, everyDays: Int)
+
+    suspend fun disable()
+
+    /** Runs one backup now; also what the scheduled work calls. */
+    suspend fun runNow(): Outcome<Unit, BackupError>
+}

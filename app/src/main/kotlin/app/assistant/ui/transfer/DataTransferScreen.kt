@@ -111,6 +111,8 @@ fun DataTransferScreen(onBack: () -> Unit, viewModel: DataTransferViewModel = hi
                 }
             }
 
+            AutoBackupSection()
+
             SectionHeader(stringResource(R.string.transfer_restore).uppercase())
             CredCard {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

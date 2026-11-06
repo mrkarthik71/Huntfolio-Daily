@@ -243,4 +243,17 @@
     <string name="vault_expires">%1$s · expires %2$s</string>
     <string name="vault_opening">Decrypting…</string>
     <string name="vault_entry_sub">Encrypted photos of your documents</string>
+    <string name="auto_caption">Automatic backup</string>
+    <string name="auto_on">Backing up to “%1$s” every %2$d days</string>
+    <string name="auto_never">No backup yet</string>
+    <string name="auto_last_ok">Last backup %1$s</string>
+    <string name="auto_last_failed">Last backup failed %1$s. Check the folder still exists.</string>
+    <string name="auto_now">Back up now</string>
+    <string name="auto_running">Backing up…</string>
+    <string name="auto_off">Turn off</string>
+    <string name="auto_reason">Choose a passphrase you will remember, then a folder: on this phone, an SD card, or a cloud app folder such as Google Drive. Backups are encrypted with your passphrase and the newest 4 are kept. Vault photos stay on this phone and are not included.</string>
+    <string name="auto_pass_short">Use at least 10 characters</string>
+    <string name="auto_pass_mismatch">The two passphrases do not match</string>
+    <string name="auto_every">Every %1$dd</string>
+    <string name="auto_choose">Choose folder and turn on</string>
 </resources>

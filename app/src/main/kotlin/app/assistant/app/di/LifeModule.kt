@@ -92,6 +92,9 @@ abstract class LifeBindingsModule {
     abstract fun vaultFiles(impl: app.assistant.security.keys.EncryptedVaultFiles): app.assistant.domain.port.VaultFiles
 
     @Binds
+    abstract fun autoBackup(impl: app.assistant.data.backup.AutoBackupService): app.assistant.domain.port.AutoBackup
+
+    @Binds
     abstract fun bodySignals(impl: app.assistant.data.health.NoBodySignals): app.assistant.domain.port.BodySignals
 
     @Binds
@@ -106,4 +109,9 @@ object LifeProvidesModule {
     @dagger.Provides
     @IntoSet
     fun vaultWipe(files: app.assistant.security.keys.EncryptedVaultFiles): app.assistant.data.wipe.WipeStep = app.assistant.data.wipe.WipeStep { files.wipe() }
+
+    /** ...and the automatic backup's folder, schedule and wrapped passphrase. */
+    @dagger.Provides
+    @IntoSet
+    fun autoBackupWipe(auto: app.assistant.data.backup.AutoBackupService): app.assistant.data.wipe.WipeStep = app.assistant.data.wipe.WipeStep { auto.wipe() }
 }
