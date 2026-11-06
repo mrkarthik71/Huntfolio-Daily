@@ -1,10 +1,10 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.cloud.CloudKeySource
-import app.assistant.ai.cloud.CloudCredential
-import app.assistant.ai.gateway.AiConfig
 import app.assistant.domain.model.AiMode
 import app.assistant.domain.model.PromptType
+import app.assistant.domain.port.AiConfig
+import app.assistant.domain.port.CloudCredential
+import app.assistant.domain.port.CloudKeySource
 import app.assistant.domain.port.SettingsStore
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,10 +18,7 @@ import javax.inject.Singleton
  * reported true there by its [CloudKeySource].
  */
 @Singleton
-class SettingsAiConfig @Inject constructor(
-    private val settings: SettingsStore,
-    private val keySource: CloudKeySource,
-) : AiConfig {
+class SettingsAiConfig @Inject constructor(private val settings: SettingsStore, private val keySource: CloudKeySource) : AiConfig {
     override suspend fun mode(): AiMode = settings.current().aiMode
 
     override suspend fun capPaise(): Long = settings.current().aiMonthlyCapPaise

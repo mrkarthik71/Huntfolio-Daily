@@ -8,7 +8,4 @@ import androidx.room.PrimaryKey
  * is missing its window. One row per job name, updated each run; no history is kept.
  */
 @Entity(tableName = "job_run")
-data class JobRunEntity(
-    @PrimaryKey val job: String,
-    @androidx.room.ColumnInfo(name = "last_run_at") val lastRunAt: Long,
-)
+data class JobRunEntity(@PrimaryKey val job: String, @androidx.room.ColumnInfo(name = "last_run_at") val lastRunAt: Long)

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.provider.Telephony
 import app.assistant.domain.port.ApplicationScope
 import app.assistant.domain.port.ReaderStateStore
+import app.assistant.domain.port.TimeSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -27,6 +28,8 @@ class SmsReceiver : BroadcastReceiver() {
 
     @Inject lateinit var readerState: ReaderStateStore
 
+    @Inject lateinit var time: TimeSource
+
     @Inject @ApplicationScope
     lateinit var scope: CoroutineScope
 
@@ -39,7 +42,7 @@ class SmsReceiver : BroadcastReceiver() {
         val address = messages.first().originatingAddress
         val parts = messages.mapNotNull { it.messageBody }
         val sentAtMillis = messages.first().timestampMillis
-        val receivedAt = Instant.now()
+        val receivedAt = time.now()
 
         val message = SmsAssembler.fromParts(
             address = address,

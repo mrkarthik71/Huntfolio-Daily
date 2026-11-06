@@ -7,40 +7,16 @@ import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.AiMode
 import app.assistant.domain.model.AuditId
 import app.assistant.domain.model.PromptType
+import app.assistant.domain.port.AiConfig
 import app.assistant.domain.port.AiFailure
 import app.assistant.domain.port.AiProvider
 import app.assistant.domain.port.AuditLog
+import app.assistant.domain.port.Connectivity
 import app.assistant.domain.port.ProviderRequest
 import app.assistant.domain.port.RedactedPayload
 import app.assistant.domain.port.TimeSource
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
-
-/** Everything the gateway needs to know about the live AI configuration, read fresh per call. */
-interface AiConfig {
-    /** The active AI_Mode. */
-    suspend fun mode(): AiMode
-
-    /**
-     * A monotonically-increasing epoch that changes whenever AI_Mode or the key changes. The gateway
-     * captures it before a send and drops a result whose epoch no longer matches (Requirement 42.7).
-     */
-    suspend fun epoch(): Long
-
-    /** The configured monthly cap in paise; 0 means no cap set. */
-    suspend fun capPaise(): Long
-
-    /** False when Cloud cannot run: no cap, or (in the personal flavour) no key (Requirement 45.1, 45.2). */
-    suspend fun cloudConfigured(): Boolean
-
-    /** The per-Prompt_Type model name, or null for the adapter default. */
-    suspend fun model(type: PromptType): String?
-}
-
-/** Reports whether the device currently has a usable network (Requirement 43.1). */
-fun interface Connectivity {
-    fun isOnline(): Boolean
-}
 
 /**
  * The AI_Gateway (Requirement 42, 43, design: AI_Gateway). It is the ONLY place that decides whether
@@ -66,12 +42,8 @@ class AiGateway(
      * Runs one feature request. [render] turns the payload into the prompt+body text the provider
      * sends; [context] is what the Output_Validator checks the reply against.
      */
-    suspend fun run(
-        type: PromptType,
-        payload: RedactedPayload,
-        prompt: String,
-        context: OutputContext,
-    ): Outcome<Success, AiFailure> {
+    @Suppress("ReturnCount") // each guard is one documented refusal (Requirement 42, 43)
+    suspend fun run(type: PromptType, payload: RedactedPayload, prompt: String, context: OutputContext): Outcome<Success, AiFailure> {
         val mode = config.mode()
         if (mode == AiMode.NONE) return Outcome.Err(AiFailure.DISABLED)
         if (mode == AiMode.CLOUD && !connectivity.isOnline()) return Outcome.Err(AiFailure.OFFLINE)
@@ -82,7 +54,7 @@ class AiGateway(
         val startEpoch = config.epoch()
         var lastFailure: AiFailure = AiFailure.TRANSPORT
 
-        for (attempt in 1..MAX_ATTEMPTS) {
+        repeat(MAX_ATTEMPTS) {
             if (mode == AiMode.CLOUD) {
                 if (cap.isCapReached(capPaise)) return Outcome.Err(AiFailure.CAP_REACHED)
                 if (!cap.tryReserve(capPaise)) return Outcome.Err(AiFailure.CAP_REACHED)
@@ -154,11 +126,10 @@ class AiGateway(
             }
         }
 
-    private fun renderForAudit(payload: RedactedPayload): String =
-        buildString {
-            payload.fields.forEach { (k, v) -> append(k).append('=').append(v.value).append('\n') }
-            payload.lists.forEach { (k, v) -> append(k).append('=').append(v.joinToString("|") { it.value }).append('\n') }
-        }
+    private fun renderForAudit(payload: RedactedPayload): String = buildString {
+        payload.fields.forEach { (k, v) -> append(k).append('=').append(v.value).append('\n') }
+        payload.lists.forEach { (k, v) -> append(k).append('=').append(v.joinToString("|") { it.value }).append('\n') }
+    }
 
     companion object {
         const val MAX_ATTEMPTS = 3

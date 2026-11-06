@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionParameters
@@ -14,6 +15,7 @@ import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
@@ -25,6 +27,7 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
+import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -42,9 +45,15 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.first
 
 /** Day/night colours via the public glance.color factory (the unit/resource overloads are restricted). */
-private val OnBg = ColorProvider(day = Color(0xFF1C1B1F), night = Color(0xFFE6E1E5))
-private val Bg = ColorProvider(day = Color(0xFFFFFBFE), night = Color(0xFF1C1B1F))
-private val Muted = ColorProvider(day = Color(0xFF6B6B70), night = Color(0xFFA8A8AD))
+private val OnBg = ColorProvider(day = Color(0xFFF5F4F0), night = Color(0xFFF5F4F0))
+private val Bg = ColorProvider(day = Color(0xFF0B0B0C), night = Color(0xFF0B0B0C))
+private val Muted = ColorProvider(day = Color(0xFF9F9EA4), night = Color(0xFF9F9EA4))
+private val Accent = ColorProvider(day = Color(0xFFE6C58F), night = Color(0xFFE6C58F))
+private val Done = ColorProvider(day = Color(0xFF7ED7AE), night = Color(0xFF7ED7AE))
+private val Pill = ColorProvider(day = Color(0xFF1A1A1D), night = Color(0xFF1A1A1D))
+private val Track = ColorProvider(day = Color(0xFF26262A), night = Color(0xFF26262A))
+private val Ink = ColorProvider(day = Color(0xFF050505), night = Color(0xFF050505))
+private val White = ColorProvider(day = Color(0xFFF5F4F0), night = Color(0xFFF5F4F0))
 
 /** Hilt entry point for the widget and its action callbacks (Glance components are not @AndroidEntryPoint). */
 @EntryPoint
@@ -81,7 +90,10 @@ class TodayWidget : GlanceAppWidget() {
         val openTasks = Intent(context, app.assistant.ui.MainActivity::class.java)
             .putExtra("route", "tasks")
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        provideContent { WidgetContent(priorities, nextEvent, openToday, openTasks) }
+        val openAsk = Intent(context, app.assistant.ui.MainActivity::class.java)
+            .putExtra("route", "ask")
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        provideContent { WidgetContent(priorities, nextEvent, openToday, openTasks, openAsk) }
     }
 
     /** The next timed event today as "HH:mm Title", or null when none is left (Requirement 21.5). */
@@ -94,38 +106,81 @@ class TodayWidget : GlanceAppWidget() {
     }
 
     @androidx.compose.runtime.Composable
-    private fun WidgetContent(priorities: List<WidgetModel>, nextEvent: String?, openToday: Intent, openTasks: Intent) {
+    private fun WidgetContent(priorities: List<WidgetModel>, nextEvent: String?, openToday: Intent, openTasks: Intent, openAsk: Intent) {
+        val ctx = androidx.glance.LocalContext.current
         Column(
-            modifier = GlanceModifier.fillMaxSize().background(Bg).padding(12.dp),
+            modifier = GlanceModifier.fillMaxSize().background(Bg).cornerRadius(24.dp).padding(16.dp),
         ) {
-            Row(modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(openToday))) {
-                Text("Today", style = TextStyle(color = OnBg, fontWeight = FontWeight.Bold))
+            Row(
+                modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(openToday)),
+                verticalAlignment = androidx.glance.layout.Alignment.CenterVertically,
+            ) {
+                Text(ctx.getString(app.assistant.R.string.widget_today), style = TextStyle(color = OnBg, fontWeight = FontWeight.Bold, fontSize = 18.sp))
+                Spacer(GlanceModifier.defaultWeight())
+                Text(ctx.getString(app.assistant.R.string.widget_open), style = TextStyle(color = Accent, fontSize = 12.sp))
             }
-            Spacer(modifier = GlanceModifier.height(6.dp))
-            if (nextEvent != null) {
-                Text(nextEvent, style = TextStyle(color = Muted))
+            Spacer(modifier = GlanceModifier.height(8.dp))
+            // Day progress from the allow-listed fields only (done/total of today's priorities; Requirement 21.2).
+            if (priorities.isNotEmpty()) {
+                val done = priorities.count { it.done }
+                Row(modifier = GlanceModifier.fillMaxWidth(), verticalAlignment = androidx.glance.layout.Alignment.Bottom) {
+                    Text("$done", style = TextStyle(color = OnBg, fontWeight = FontWeight.Bold, fontSize = 28.sp))
+                    Text(
+                        ctx.getString(app.assistant.R.string.widget_progress, priorities.size),
+                        style = TextStyle(color = Muted, fontSize = 13.sp),
+                        modifier = GlanceModifier.padding(start = 6.dp, bottom = 4.dp),
+                    )
+                }
                 Spacer(modifier = GlanceModifier.height(6.dp))
+                androidx.glance.appwidget.LinearProgressIndicator(
+                    progress = done.toFloat() / priorities.size,
+                    modifier = GlanceModifier.fillMaxWidth().height(6.dp).cornerRadius(3.dp),
+                    color = Accent,
+                    backgroundColor = Track,
+                )
+                Spacer(modifier = GlanceModifier.height(10.dp))
+            }
+            if (nextEvent != null) {
+                Text(ctx.getString(app.assistant.R.string.widget_next, nextEvent), style = TextStyle(color = Muted, fontSize = 13.sp), maxLines = 1)
+                Spacer(modifier = GlanceModifier.height(8.dp))
             }
             if (priorities.isEmpty()) {
-                Text("No priorities set", style = TextStyle(color = Muted))
+                Text(ctx.getString(app.assistant.R.string.widget_no_priorities), style = TextStyle(color = Muted))
             } else {
                 priorities.take(3).forEach { model ->
                     Row(
-                        modifier = GlanceModifier.fillMaxWidth().padding(vertical = 2.dp)
+                        modifier = GlanceModifier.fillMaxWidth().padding(vertical = 4.dp)
                             .clickable(
                                 actionRunCallback<CompleteTaskAction>(
                                     actionParametersOf(CompleteTaskAction.TASK_ID to model.taskId),
                                 ),
                             ),
+                        verticalAlignment = androidx.glance.layout.Alignment.CenterVertically,
                     ) {
                         val mark = if (model.done) "\u2713" else "\u25CB"
-                        Text("$mark  ${model.title}", style = TextStyle(color = OnBg))
+                        Text(mark, style = TextStyle(color = if (model.done) Done else Accent, fontWeight = FontWeight.Bold))
+                        Spacer(GlanceModifier.width(10.dp))
+                        Text(model.title, style = TextStyle(color = if (model.done) Muted else OnBg, fontSize = 15.sp), maxLines = 1)
                     }
                 }
             }
-            Spacer(modifier = GlanceModifier.height(8.dp))
-            Row(modifier = GlanceModifier.fillMaxWidth().clickable(actionStartActivity(openTasks))) {
-                Text("+ Quick add", style = TextStyle(color = OnBg, fontWeight = FontWeight.Medium))
+            Spacer(modifier = GlanceModifier.defaultWeight())
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                Row(
+                    modifier = GlanceModifier.defaultWeight().background(Pill).cornerRadius(999.dp).padding(horizontal = 14.dp, vertical = 10.dp)
+                        .clickable(actionStartActivity(openTasks)),
+                    horizontalAlignment = androidx.glance.layout.Alignment.CenterHorizontally,
+                ) {
+                    Text(ctx.getString(app.assistant.R.string.widget_quick_add), style = TextStyle(color = OnBg, fontWeight = FontWeight.Medium))
+                }
+                Spacer(GlanceModifier.width(8.dp))
+                Row(
+                    modifier = GlanceModifier.defaultWeight().background(White).cornerRadius(999.dp).padding(horizontal = 14.dp, vertical = 10.dp)
+                        .clickable(actionStartActivity(openAsk)),
+                    horizontalAlignment = androidx.glance.layout.Alignment.CenterHorizontally,
+                ) {
+                    Text(ctx.getString(app.assistant.R.string.widget_ask), style = TextStyle(color = Ink, fontWeight = FontWeight.Bold))
+                }
             }
         }
     }

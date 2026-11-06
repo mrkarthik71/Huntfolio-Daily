@@ -5,11 +5,12 @@ import app.assistant.domain.engine.dedupe.ParsedFact
 import app.assistant.domain.engine.redact.RedactionPatterns
 import app.assistant.domain.engine.redact.Redactor
 import app.assistant.domain.error.Outcome
-import app.assistant.domain.model.TransactionId
 import app.assistant.domain.model.TxnType
 import app.assistant.domain.port.AtomicWork
 import app.assistant.domain.port.BillProposals
 import app.assistant.domain.port.IngestLedger
+import app.assistant.domain.port.PersistedMessage
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.ReviewAddResult
 import app.assistant.domain.port.ReviewQueueRepository
 import app.assistant.domain.port.TimeSource
@@ -93,14 +94,6 @@ class BillProposalStage(
     private companion object {
         const val OUTCOME = "bill_proposed"
     }
-}
-
-/** What a post-commit hook is told about a message that has just been stored. */
-data class PersistedMessage(val transaction: TransactionId, val created: Boolean, val origin: String, val formatId: String)
-
-/** Work that follows a stored message: the Bill paid matcher, Subscription_Detector and Quality_Monitor plug in here. */
-fun interface PostCommitHook {
-    suspend fun onPersisted(event: PersistedMessage)
 }
 
 /**

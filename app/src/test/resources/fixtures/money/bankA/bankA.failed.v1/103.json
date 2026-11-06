@@ -1,0 +1,12 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Your transaction of Rs 1310 at Green Grocer on 05-01-25 has failed/declined. Ref ZX90QW12.",
+  "expected": {
+    "result": "FAILED",
+    "format_id": "bankA.failed.v1"
+  }
+}

@@ -1,14 +1,10 @@
 package app.assistant.app.di
 
 import android.content.Context
-import app.assistant.ai.cloud.CloudKeySource
 import app.assistant.ai.cloud.OkHttpCloudTransport
 import app.assistant.ai.cloud.OpenAiCompatibleProvider
-import app.assistant.ai.cloud.ProxyClient
-import app.assistant.ai.gateway.AiConfig
 import app.assistant.ai.gateway.AiGateway
 import app.assistant.ai.gateway.CapGovernor
-import app.assistant.ai.gateway.Connectivity
 import app.assistant.ai.ondevice.OnDeviceAiProvider
 import app.assistant.ai.ondevice.OnDeviceAvailability
 import app.assistant.ai.ondevice.OnDeviceRuntime
@@ -20,10 +16,14 @@ import app.assistant.data.ai.RoomCapStore
 import app.assistant.data.ai.SettingsAiConfig
 import app.assistant.domain.engine.redact.RedactionPatterns
 import app.assistant.domain.model.AiMode
+import app.assistant.domain.port.AiConfig
 import app.assistant.domain.port.AiProvider
 import app.assistant.domain.port.AuditLog
 import app.assistant.domain.port.CapStore
+import app.assistant.domain.port.CloudKeySource
+import app.assistant.domain.port.Connectivity
 import app.assistant.domain.port.NoneProvider
+import app.assistant.domain.port.ProxyClient
 import app.assistant.domain.port.TimeSource
 import app.assistant.security.network.EgressPolicy
 import app.assistant.security.network.HttpClientFactory
@@ -65,10 +65,13 @@ abstract class AiModule {
     abstract fun connectivity(impl: AndroidConnectivity): Connectivity
 
     companion object {
-        /** Configured OpenAI-compatible host (e.g. "api.openai.com"); blank = no Cloud egress allowed. */
-        const val AI_VENDOR_HOST = ""
-        const val AI_ENDPOINT = "" // e.g. "https://api.openai.com/v1/chat/completions"
-        const val DEFAULT_MODEL = "gpt-4o-mini"
+        /**
+         * Cloud vendor: Google Gemini through its OpenAI-compatible endpoint (Open decision 2: Gemini for now).
+         * Only this host is on the AI egress allow-list; the key is entered on the device (personal flavour).
+         */
+        const val AI_VENDOR_HOST = "generativelanguage.googleapis.com"
+        const val AI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+        const val DEFAULT_MODEL = "gemini-2.5-flash"
 
         @Provides
         @Singleton
@@ -104,11 +107,7 @@ abstract class AiModule {
 
         @Provides
         @Singleton
-        fun cloudProvider(
-            keySource: CloudKeySource,
-            proxy: ProxyClient,
-            @Named("ai") policy: EgressPolicy,
-        ): OpenAiCompatibleProvider {
+        fun cloudProvider(keySource: CloudKeySource, proxy: ProxyClient, @Named("ai") policy: EgressPolicy): OpenAiCompatibleProvider {
             val client = HttpClientFactory.create(policy)
             val transport = OkHttpCloudTransport(AI_ENDPOINT) { url, body, apiKey ->
                 val request = Request.Builder()
@@ -137,6 +136,7 @@ abstract class AiModule {
 
         @Provides
         @Singleton
+        @Suppress("LongParameterList") // DI provider: the gateway needs each collaborator
         fun aiGateway(
             config: AiConfig,
             connectivity: Connectivity,
@@ -161,8 +161,8 @@ abstract class AiModule {
 
         @Provides
         @Singleton
-        fun featureAdvisor(gateway: AiGateway, builder: SummaryBuilder, prompts: app.assistant.data.ai.PromptStore): app.assistant.ai.feature.FeatureAdvisor =
-            app.assistant.ai.feature.FeatureAdvisor(gateway, builder) { prompts.prompt(it) }
+        fun advisor(gateway: AiGateway, builder: SummaryBuilder, prompts: app.assistant.data.ai.PromptStore): app.assistant.domain.port.Advisor =
+            app.assistant.ai.feature.GatewayAdvisor(gateway, builder) { prompts.prompt(it) }
     }
 }
 

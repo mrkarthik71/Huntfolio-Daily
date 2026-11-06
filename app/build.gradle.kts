@@ -68,6 +68,10 @@ val signingValues: Map<String, String?> = signingEnvNames.associateWith { name -
 val hasSigningValues = signingValues.values.all { it != null }
 
 android {
+    lint {
+        // Hindi and Tamil cover the daily-use screens; other strings fall back to English on purpose.
+        warning += "MissingTranslation"
+    }
     namespace = "app.assistant"
 
     defaultConfig {
@@ -311,6 +315,8 @@ tasks.configureEach {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    // Read-only sleep and steps, only after the User connects Health Connect.
+    implementation(libs.androidx.health.connect)
     implementation(libs.kotlinx.coroutines.android)
 
     // Encrypted_Store: Room on SQLCipher (Room comes from the room convention plugin).

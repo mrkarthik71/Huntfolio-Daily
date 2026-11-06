@@ -3,7 +3,7 @@ package app.assistant.data.ai
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import app.assistant.ai.gateway.Connectivity
+import app.assistant.domain.port.Connectivity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

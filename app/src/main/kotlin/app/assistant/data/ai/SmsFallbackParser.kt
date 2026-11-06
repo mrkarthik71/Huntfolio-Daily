@@ -1,12 +1,11 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.feature.FeatureAdvisor
-import app.assistant.ai.output.ValidatedOutput
-import app.assistant.ai.payload.SummaryBuilder
-import app.assistant.domain.model.PromptType
 import app.assistant.domain.model.ReviewItemId
+import app.assistant.domain.port.Advisor
+import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.ReviewQueueRepository
 import app.assistant.domain.port.SettingsStore
+import app.assistant.domain.port.SmsAdvice
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -20,11 +19,7 @@ import javax.inject.Singleton
  * 30.5).
  */
 @Singleton
-class SmsFallbackParser @Inject constructor(
-    private val settings: SettingsStore,
-    private val review: ReviewQueueRepository,
-    private val advisor: FeatureAdvisor,
-) {
+class SmsFallbackParser @Inject constructor(private val settings: SettingsStore, private val review: ReviewQueueRepository, private val advisor: Advisor) {
     /**
      * Attempts the fallback parse for one new review item. Returns true when a proposal was stored,
      * false otherwise (disabled, already attempted, or no usable output). Always leaves the item
@@ -35,20 +30,14 @@ class SmsFallbackParser @Inject constructor(
         val item = review.get(id) ?: return false
         if (item.fallbackAttempted) return false
 
-        val facts = SummaryBuilder.MessageFacts(handle = "m1", rawText = item.redactedText)
-        return when (val r = advisor.message(PromptType.SMS_FALLBACK_PARSER, facts)) {
-            is FeatureAdvisor.Result.Advice -> {
-                val sms = r.output as? ValidatedOutput.Sms
-                if (sms == null) {
-                    review.markFallbackAttempted(id, proposalJson = null)
-                    false
-                } else {
-                    // Store the validated proposal (amount already proven to be in the redacted text).
-                    review.markFallbackAttempted(id, proposalJson = app.assistant.ai.output.OutputSerializer.toJson(r.output))
-                    true
-                }
+        val facts = MessageFacts(handle = "m1", rawText = item.redactedText)
+        return when (val r = advisor.parseSms(facts)) {
+            is SmsAdvice.Proposal -> {
+                // Store the validated proposal (amount already proven to be in the redacted text).
+                review.markFallbackAttempted(id, proposalJson = r.json)
+                true
             }
-            is FeatureAdvisor.Result.Unavailable -> {
+            SmsAdvice.Unusable, is SmsAdvice.Unavailable -> {
                 review.markFallbackAttempted(id, proposalJson = null)
                 false
             }

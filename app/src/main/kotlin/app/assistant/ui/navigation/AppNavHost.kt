@@ -2,22 +2,7 @@ package app.assistant.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,6 +16,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import app.assistant.R
 import app.assistant.app.FeatureFlags
+import app.assistant.ui.designsystem.ApexIcons
+import app.assistant.ui.designsystem.CredBarItem
+import app.assistant.ui.designsystem.CredBottomBar
 import app.assistant.ui.goals.GoalsScreen
 import app.assistant.ui.money.MoneyScreen
 import app.assistant.ui.money.settings.MoneySettingsScreen
@@ -59,6 +47,19 @@ object Routes {
     const val MAIL = "settings/mail"
     const val TRANSFER = "settings/transfer"
     const val HEALTH = "settings/health"
+    const val REMINDERS = "settings/reminders"
+    const val ASK = "ask"
+    const val PLAN = "plan"
+    const val INBOX = "inbox"
+    const val FOCUS = "focus"
+    const val YEAR = "year"
+    const val WEEK_PLAN = "weekplan"
+    const val VAULT = "vault"
+    const val BODY = "body"
+    const val CRASH = "crash"
+    const val HORIZON = "horizon"
+    const val SHARE = "share?text={text}"
+    const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
 
     fun taskPrefill(title: String) = "tasks/new?title=" + android.net.Uri.encode(title)
@@ -69,12 +70,11 @@ object Routes {
 private data class Tab(val route: String, val labelRes: Int, val selected: ImageVector, val unselected: ImageVector)
 
 private val TABS = buildList {
-    add(Tab(Routes.TODAY, R.string.nav_today, Icons.Filled.Home, Icons.Outlined.Home))
-    add(Tab(Routes.TASKS, R.string.nav_tasks, Icons.Filled.CheckCircle, Icons.Outlined.CheckCircle))
-    add(Tab(Routes.GOALS, R.string.nav_goals, Icons.Filled.DateRange, Icons.Outlined.DateRange))
+    add(Tab(Routes.TODAY, R.string.nav_today, ApexIcons.Today, ApexIcons.Today))
+    add(Tab(Routes.PLAN, R.string.nav_plan, ApexIcons.Plan, ApexIcons.Plan))
     // The Money tab exists only while the money phase is switched on (gradle.properties: phase.money).
-    if (FeatureFlags.MONEY) add(Tab(Routes.MONEY, R.string.nav_money, Icons.Filled.ShoppingCart, Icons.Outlined.ShoppingCart))
-    add(Tab(Routes.SETTINGS, R.string.nav_settings, Icons.Filled.Settings, Icons.Outlined.Settings))
+    if (FeatureFlags.MONEY) add(Tab(Routes.MONEY, R.string.nav_money, ApexIcons.Money, ApexIcons.Money))
+    add(Tab(Routes.INBOX, R.string.nav_inbox, ApexIcons.Inbox, ApexIcons.Inbox))
 }
 
 /**
@@ -82,57 +82,146 @@ private val TABS = buildList {
  * destinations layered on top. [startRoute] comes from the launch intent (a notification tap).
  */
 @Composable
+@Suppress("CyclomaticComplexMethod") // the app's one navigation graph: one branch per destination
 fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
     val showBar = currentRoute in TABS.map { it.route }
+    val haptics = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val reduced = app.assistant.ui.designsystem.LocalReducedMotion.current
+    val transitions = androidx.compose.runtime.remember(reduced) { CredTransitions(TABS.map { it.route }.toSet(), reduced) }
 
+    androidx.compose.runtime.LaunchedEffect(startRoute) {
+        if (startRoute != null && startRoute.startsWith("share?")) runCatching { nav.navigate(startRoute) }
+    }
     Scaffold(
+        containerColor = app.assistant.ui.designsystem.AssistantColors.Ground,
         bottomBar = {
-            if (showBar) {
-                NavigationBar {
-                    val dest = backStack?.destination
-                    TABS.forEach { tab ->
-                        val selected = dest?.hierarchy?.any { it.route == tab.route } == true
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                nav.navigate(tab.route) {
-                                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = { Icon(if (selected) tab.selected else tab.unselected, contentDescription = null) },
-                            label = { Text(stringResource(tab.labelRes)) },
-                        )
-                    }
-                }
+            androidx.compose.animation.AnimatedVisibility(
+                visible = showBar,
+                enter = androidx.compose.animation.slideInVertically { it } + androidx.compose.animation.fadeIn(),
+                exit = androidx.compose.animation.slideOutVertically { it } + androidx.compose.animation.fadeOut(),
+            ) {
+                val selectedKey = TABS.firstOrNull { tab -> backStack?.destination?.hierarchy?.any { it.route == tab.route } == true }?.route
+                CredBottomBar(
+                    items = TABS.map { CredBarItem(it.route, stringResource(it.labelRes), it.selected, it.unselected) },
+                    selectedKey = selectedKey,
+                    center = {
+                        app.assistant.ui.designsystem.SignalButton(ApexIcons.Mic, stringResource(R.string.ask_entry), onClick = {
+                            nav.navigate("ask?voice=true")
+                        })
+                    },
+                    onSelect = { route ->
+                        haptics.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                        nav.navigate(route) {
+                            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
             }
         },
     ) { padding ->
         NavHost(
             navController = nav,
-            startDestination = startRoute?.takeIf {
-                it.startsWith("review/") || it == Routes.GOALS || it == Routes.TASKS || (FeatureFlags.MONEY && it == Routes.MONEY)
+            // Older deep links ("goals", "tasks") land on the Plan tab that now holds both.
+            startDestination = startRoute?.let { if (it == Routes.GOALS || it == Routes.TASKS) Routes.PLAN else it }?.takeIf {
+                it.startsWith("review/") ||
+                    it == Routes.ASK ||
+                    it == Routes.WEEK_PLAN ||
+                    it == Routes.PLAN ||
+                    it == Routes.INBOX ||
+                    (FeatureFlags.MONEY && it == Routes.MONEY)
             } ?: Routes.TODAY,
             modifier = Modifier.fillMaxSize().padding(padding),
+            enterTransition = { transitions.enter(this) },
+            exitTransition = { transitions.exit(this) },
+            popEnterTransition = { transitions.popEnter(this) },
+            popExitTransition = { transitions.popExit(this) },
         ) {
             composable(Routes.TODAY) {
-                TodayScreen(onOpenReview = { date -> nav.navigate(Routes.review(date)) })
+                TodayScreen(onOpenReview = { date ->
+                    nav.navigate(Routes.review(date))
+                }, onOpenSettings = {
+                    nav.navigate(Routes.SETTINGS)
+                }, onOpenFocus = { nav.navigate(Routes.FOCUS) }, bodyTiles = {
+                    androidx.compose.foundation.layout.Column(
+                        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(androidx.compose.ui.unit.Dp(12f)),
+                    ) {
+                        app.assistant.ui.today.HorizonTodayPanel(onOpenPlanner = { nav.navigate(Routes.HORIZON) })
+                        app.assistant.ui.settings.ConnectSourcesPanel(onOpen = { source -> sourceRoute(source)?.let(nav::navigate) })
+                        app.assistant.ui.health.BodyTiles()
+                    }
+                })
             }
             composable(Routes.TASKS) { TasksScreen() }
+            composable(Routes.PLAN) { PlanHost(onOpenWeek = { nav.navigate(Routes.WEEK_PLAN) }) }
+            composable(Routes.WEEK_PLAN) { app.assistant.ui.life.WeekPlanScreen(onBack = { if (!nav.popBackStack()) nav.navigate(Routes.TODAY) }) }
+            composable(Routes.FOCUS) { app.assistant.ui.life.FocusScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.YEAR) { app.assistant.ui.life.YearScreen(onBack = { nav.popBackStack() }) }
+            composable(
+                Routes.SHARE,
+                arguments = listOf(
+                    androidx.navigation.navArgument("text") {
+                        type = androidx.navigation.NavType.StringType
+                        defaultValue = ""
+                    },
+                ),
+            ) { entry ->
+                app.assistant.ui.share.ShareScreen(entry.arguments?.getString("text").orEmpty(), onDone = {
+                    if (!nav.popBackStack()) nav.navigate(Routes.TODAY)
+                })
+            }
+            composable(
+                Routes.ASK_VOICE,
+                arguments = listOf(
+                    androidx.navigation.navArgument("voice") {
+                        type = androidx.navigation.NavType.BoolType
+                        defaultValue = false
+                    },
+                ),
+            ) { entry ->
+                app.assistant.ui.ask.AskScreen(onBack = { nav.popBackStack() }, startVoice = entry.arguments?.getBoolean("voice") == true)
+            }
+            composable(Routes.INBOX) {
+                InboxHost(
+                    onCreateTask = { subject -> nav.navigate(Routes.taskPrefill(subject)) },
+                    onCreateBill = { if (FeatureFlags.MONEY) nav.navigate(Routes.MONEY) },
+                    onOpenVault = { nav.navigate(Routes.VAULT) },
+                )
+            }
+            composable(Routes.BODY) { app.assistant.ui.health.BodyConnectScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.HORIZON) { app.assistant.ui.today.HorizonPlanScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.CRASH) { app.assistant.ui.settings.CrashReportScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.VAULT) { app.assistant.ui.life.VaultScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.ASK) {
+                app.assistant.ui.ask.AskScreen(
+                    onBack = {
+                        // Opened from the widget, Ask is the first screen: back goes to Today instead of closing the app.
+                        if (nav.previousBackStackEntry == null) {
+                            nav.navigate(Routes.TODAY) { popUpTo(Routes.ASK) { inclusive = true } }
+                        } else {
+                            nav.popBackStack()
+                        }
+                    },
+                )
+            }
             composable(
                 Routes.TASK_PREFILL,
-                arguments = listOf(androidx.navigation.navArgument("title") { type = androidx.navigation.NavType.StringType; defaultValue = "" }),
+                arguments = listOf(
+                    androidx.navigation.navArgument("title") {
+                        type = androidx.navigation.NavType.StringType
+                        defaultValue = ""
+                    },
+                ),
             ) { entry ->
                 TasksScreen(prefillTitle = entry.arguments?.getString("title"))
             }
             composable(Routes.GOALS) { GoalsScreen() }
             composable(Routes.SETTINGS) {
                 SettingsScreen(
-                    onBack = { nav.navigate(Routes.TODAY) { launchSingleTop = true } },
                     onOpenAuditLog = { nav.navigate(Routes.AUDIT_LOG) },
                     onOpenNotifications = { nav.navigate(Routes.NOTIFICATIONS) },
                     onOpenCalendars = { nav.navigate(Routes.CALENDAR_SETTINGS) },
@@ -141,6 +230,13 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onOpenMail = { nav.navigate(Routes.MAIL) },
                     onOpenTransfer = { nav.navigate(Routes.TRANSFER) },
                     onOpenHealth = { nav.navigate(Routes.HEALTH) },
+                    onOpenReminders = { nav.navigate(Routes.REMINDERS) },
+                    onOpenYear = { nav.navigate(Routes.YEAR) },
+                    onOpenVault = { nav.navigate(Routes.VAULT) },
+                    onOpenBody = { nav.navigate(Routes.BODY) },
+                    onOpenCrash = { nav.navigate(Routes.CRASH) },
+                    onOpenSource = { source -> sourceRoute(source)?.let { route -> { nav.navigate(route) } } },
+                    onBack = { nav.popBackStack() },
                     onDeleteEverything = onDeleteEverything,
                 )
             }
@@ -156,6 +252,9 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             }
             composable(Routes.TRANSFER) {
                 app.assistant.ui.transfer.DataTransferScreen(onBack = { nav.popBackStack() })
+            }
+            composable(Routes.REMINDERS) {
+                app.assistant.ui.reminders.RemindersScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.HEALTH) {
                 app.assistant.ui.health.HealthScreen(onBack = { nav.popBackStack() })
@@ -184,4 +283,15 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
             }
         }
     }
+}
+
+/** The page that connects each data source, or null when it has none. */
+private fun sourceRoute(source: app.assistant.domain.model.DataSource): String? = when (source) {
+    app.assistant.domain.model.DataSource.SMS,
+    app.assistant.domain.model.DataSource.APP_NOTIFICATIONS,
+    -> if (FeatureFlags.MONEY) Routes.MONEY_SETTINGS else null
+    app.assistant.domain.model.DataSource.CALENDAR -> Routes.CALENDAR_SETTINGS
+    app.assistant.domain.model.DataSource.MAILBOX -> Routes.MAIL
+    app.assistant.domain.model.DataSource.AI_PROVIDER -> Routes.AI_SETTINGS
+    else -> null
 }

@@ -1,19 +1,14 @@
 package app.assistant.ui.designsystem
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -24,14 +19,9 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun CredCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-    ) {
-        Column(Modifier.padding(18.dp)) { content() }
-    }
+    Column(
+        modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large).padding(18.dp),
+    ) { content() }
 }
 
 /**
@@ -41,19 +31,10 @@ fun CredCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
  */
 @Composable
 fun HeroCard(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    val scheme = MaterialTheme.colorScheme
     Box(
         modifier
             .fillMaxWidth()
-            .clip(MaterialTheme.shapes.extraLarge)
-            .background(
-                Brush.linearGradient(
-                    listOf(
-                        scheme.primaryContainer,
-                        scheme.surfaceVariant,
-                    ),
-                ),
-            )
+            .raisedPanel(MaterialTheme.shapes.extraLarge, elevation = 20.dp)
             .padding(20.dp),
     ) {
         Column { content() }
@@ -98,4 +79,13 @@ fun EmptyState(text: String, modifier: Modifier = Modifier) {
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
     }
+}
+
+/** A raised CRED surface with no inner padding: a drop-in for Material's Card where rows bring their own padding. */
+@Composable
+fun CredSurface(modifier: Modifier = Modifier, content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit) {
+    Column(
+        modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large),
+        content = content,
+    )
 }

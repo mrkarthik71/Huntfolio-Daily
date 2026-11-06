@@ -33,7 +33,7 @@ class SpendingReportsScreenTest {
     val compose = createAndroidComposeRule<ComponentActivity>()
 
     private fun show(repository: FakeMoneyReportRepository) {
-        val viewModel = SpendingReportsViewModel(repository, FakeTimeSource())
+        val viewModel = SpendingReportsViewModel(repository, FakeTimeSource(), app.assistant.domain.port.Advisor.Disabled)
         compose.setContent {
             AssistantTheme { SpendingReportsScreen(viewModel = viewModel) }
         }

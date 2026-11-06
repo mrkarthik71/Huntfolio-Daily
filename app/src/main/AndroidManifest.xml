@@ -16,15 +16,35 @@
     <!-- Phase 2 calendar reading (Requirement 22.1); requested at runtime only when the User
          opens calendar settings. Read-only — the app never writes to the calendar. -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <!-- Asked only when the User taps "Import birthdays from contacts". -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <!-- Read-only Health Connect data, asked only when the User taps Connect. -->
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
+    <!-- Apex smart reminders: asked only when the user adds a place or car reminder. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Network is used only for what the User connects: their own mailbox (IMAP over TLS) and the AI
+         provider they turn on. No analytics, no ads; cleartext is blocked by the network security config. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries>
+        <package android:name="com.google.android.apps.healthdata" />
+    </queries>
 
     <application
+        android:localeConfig="@xml/locales_config"
         android:name=".app.AssistantApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
         android:hasFragileUserData="false"
-        android:icon="@drawable/ic_launcher"
-        android:roundIcon="@drawable/ic_launcher"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
@@ -74,6 +94,7 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="app.assistant.action.SNOOZE" />
+                <action android:name="app.assistant.action.DONE" />
             </intent-filter>
         </receiver>
 
@@ -91,6 +112,15 @@
         </receiver>
 
         <!-- Home-screen widget (design: Today_Widget). -->
+        <!-- Smart reminders: place alerts (explicit PendingIntent) and car Bluetooth connections. -->
+        <receiver
+            android:name=".data.planner.ReminderEventReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".widget.TodayWidgetReceiver"
             android:exported="true">
@@ -120,6 +150,38 @@
             </intent-filter>
         </service>
 
+        <!-- "Share › Apex" from any app: text only, handed to MainActivity so the app lock applies. -->
+        <activity
+            android:name=".ui.share.ShareActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
+            android:label="@string/share_target_label">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+        <!-- Health Connect shows this page to explain how Apex uses sleep and steps. -->
+        <activity
+            android:name=".ui.health.HealthPrivacyActivity"
+            android:exported="true"
+            android:label="@string/hc_privacy_title">
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
+            </intent-filter>
+        </activity>
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".ui.health.HealthPrivacyActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE" />
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS" />
+            </intent-filter>
+        </activity-alias>
     </application>
 
 </manifest>

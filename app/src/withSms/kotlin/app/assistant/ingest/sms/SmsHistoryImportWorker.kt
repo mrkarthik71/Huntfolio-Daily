@@ -40,9 +40,10 @@ class SmsHistoryImportWorker @AssistedInject constructor(
         val flags = readerState.current()
         if (!flags.smsEnabled) return Result.success()
         reporter.state.value = HistoryImportState.Running
-        val enabledOn = (flags.smsEnabledAt ?: flags.smsCursor)?.let { java.time.LocalDate.ofInstant(it, java.time.ZoneId.systemDefault()) }
-            ?: java.time.LocalDate.now()
-        val summary = core.historyImport(enabledOn)
+        val summary = runCatching { core.importAll() }.getOrElse {
+            reporter.state.value = HistoryImportState.None
+            return Result.failure()
+        }
         readerState.markHistoryImportOffered()
         reporter.state.value = HistoryImportState.Done(
             HistoryImportSummary(smsRead = summary.smsRead, transactionsCreated = summary.transactionsCreated, reviewItems = summary.reviewItemsAdded),

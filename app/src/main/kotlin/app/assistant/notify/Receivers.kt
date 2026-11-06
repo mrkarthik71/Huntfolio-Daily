@@ -63,15 +63,27 @@ internal fun rescheduleReasonFor(action: String?): RescheduleReason? = when (act
     else -> null
 }
 
-/** The Snooze button on a notification (Requirement 18.5). */
+/** The Snooze (Requirement 18.5) and Done buttons on a notification. */
 @AndroidEntryPoint
 class NotificationActionReceiver : BroadcastReceiver() {
     @Inject lateinit var scheduler: NotificationScheduling
+
+    @Inject lateinit var life: LifeNotifications
 
     @Inject @ApplicationScope
     lateinit var scope: CoroutineScope
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == NotifyTargets.ACTION_DONE) {
+            val ref = intent.getStringExtra(NotifyTargets.EXTRA_REF) ?: return
+            val id = intent.getLongExtra(NotifyTargets.EXTRA_LOG_ID, -1L)
+            async(scope) {
+                life.done(ref)
+                scheduler.refresh()
+            }
+            if (id >= 0) androidx.core.app.NotificationManagerCompat.from(context).cancel(id.toInt())
+            return
+        }
         if (intent.action != NotifyTargets.ACTION_SNOOZE) return
         val logId = intent.getLongExtra(NotifyTargets.EXTRA_LOG_ID, -1L)
         val minutes = intent.getIntExtra(NotifyTargets.EXTRA_MINUTES, Notifier.SNOOZE_MINUTES)

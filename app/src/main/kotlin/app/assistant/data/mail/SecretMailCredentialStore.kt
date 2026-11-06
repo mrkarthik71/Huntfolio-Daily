@@ -15,10 +15,7 @@ import javax.inject.Singleton
  * password is returned as a fresh CharArray the caller clears.
  */
 @Singleton
-class SecretMailCredentialStore @Inject constructor(
-    private val holder: DatabaseHolder,
-    private val keyManager: KeyManager,
-) : MailCredentialStore {
+class SecretMailCredentialStore @Inject constructor(private val holder: DatabaseHolder, private val keyManager: KeyManager) : MailCredentialStore {
     private val gson = Gson()
 
     override suspend fun config(): ImapConfig? {

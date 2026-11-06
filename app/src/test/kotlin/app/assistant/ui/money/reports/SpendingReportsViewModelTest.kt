@@ -50,7 +50,7 @@ class SpendingReportsViewModelTest {
     fun opensOnTheLatestReport_andShowsItsCategories() {
         val repository = FakeMoneyReportRepository(months = mapOf(october to monthly(october, 120_000)), latestMonth = october)
 
-        val ui = SpendingReportsViewModel(repository, FakeTimeSource()).state.value
+        val ui = SpendingReportsViewModel(repository, FakeTimeSource(), app.assistant.domain.port.Advisor.Disabled).state.value
 
         assertFalse(ui.loading)
         assertEquals(october, ui.selection.month)
@@ -61,7 +61,7 @@ class SpendingReportsViewModelTest {
 
     @Test
     fun withoutAnyReport_opensOnTheCurrentMonth_andIsEmpty() {
-        val vm = SpendingReportsViewModel(FakeMoneyReportRepository(), FakeTimeSource())
+        val vm = SpendingReportsViewModel(FakeMoneyReportRepository(), FakeTimeSource(), app.assistant.domain.port.Advisor.Disabled)
 
         assertEquals(november, vm.state.value.selection.month)
         assertTrue(vm.state.value.isEmpty)
@@ -71,7 +71,7 @@ class SpendingReportsViewModelTest {
     @Test
     fun periodNavigation_movesBackAndStopsAtTheCurrentPeriod() {
         val repository = FakeMoneyReportRepository(months = mapOf(october to monthly(october, 50_000)))
-        val vm = SpendingReportsViewModel(repository, FakeTimeSource())
+        val vm = SpendingReportsViewModel(repository, FakeTimeSource(), app.assistant.domain.port.Advisor.Disabled)
 
         vm.next()
         assertEquals(november, vm.state.value.selection.month)
@@ -89,7 +89,7 @@ class SpendingReportsViewModelTest {
         val week = PeriodInstance(GoalPeriod.WEEK, LocalDate.of(2026, 10, 26), LocalDate.of(2026, 11, 1))
         val report = WeeklySpendingReport(week, Paise(90_000), listOf(CategorySpend(CategoryId(2), "Food", Paise(90_000))), Paise.ZERO, Paise.ZERO)
         val repository = FakeMoneyReportRepository(weeks = mapOf(week.first to report), latestWeek = week)
-        val vm = SpendingReportsViewModel(repository, FakeTimeSource())
+        val vm = SpendingReportsViewModel(repository, FakeTimeSource(), app.assistant.domain.port.Advisor.Disabled)
 
         vm.setMode(ReportMode.WEEKLY)
 

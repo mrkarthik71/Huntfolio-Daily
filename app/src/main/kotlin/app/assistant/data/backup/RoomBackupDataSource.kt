@@ -8,7 +8,6 @@ import app.assistant.data.settings.proto.SettingsProto
 import app.assistant.domain.error.Outcome
 import app.assistant.security.keys.KeyManager
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import java.io.File
@@ -35,6 +34,7 @@ class RoomBackupDataSource @Inject constructor(
     private val settings: DataStore<SettingsProto>,
 ) : BackupDataSource {
 
+    @Suppress("NestedBlockDepth") // streams every table row by row
     override suspend fun dumpData(out: OutputStream) {
         val db = holder.database().openHelper.readableDatabase
         val writer = out.bufferedWriter()
@@ -49,7 +49,10 @@ class RoomBackupDataSource @Inject constructor(
                                 android.database.Cursor.FIELD_TYPE_NULL -> add(name, null)
                                 android.database.Cursor.FIELD_TYPE_INTEGER -> addProperty(name, c.getLong(i))
                                 android.database.Cursor.FIELD_TYPE_FLOAT -> addProperty(name, c.getDouble(i))
-                                android.database.Cursor.FIELD_TYPE_BLOB -> addProperty(name, android.util.Base64.encodeToString(c.getBlob(i), android.util.Base64.NO_WRAP) + BLOB_TAG)
+                                android.database.Cursor.FIELD_TYPE_BLOB -> addProperty(
+                                    name,
+                                    android.util.Base64.encodeToString(c.getBlob(i), android.util.Base64.NO_WRAP) + BLOB_TAG,
+                                )
                                 else -> addProperty(name, c.getString(i))
                             }
                         }
@@ -109,12 +112,14 @@ class RoomBackupDataSource @Inject constructor(
         marker.delete()
     }
 
+    private fun isUserTable(name: String): Boolean = name !in EXCLUDED && SYSTEM_PREFIXES.none { name.startsWith(it) }
+
     private fun userTables(db: androidx.sqlite.db.SupportSQLiteDatabase): List<String> {
         val tables = mutableListOf<String>()
         db.query("SELECT name FROM sqlite_master WHERE type='table'").use { c ->
             while (c.moveToNext()) {
                 val name = c.getString(0)
-                if (name !in EXCLUDED && !name.startsWith("sqlite_") && !name.startsWith("android_") && !name.startsWith("room_")) tables += name
+                if (isUserTable(name)) tables += name
             }
         }
         return tables
@@ -124,6 +129,7 @@ class RoomBackupDataSource @Inject constructor(
         const val STAGING = "assistant-staging.db"
         const val RESTORE_MARKER = "restore.marker"
         const val BLOB_TAG = "::b64blob"
+        private val SYSTEM_PREFIXES = listOf("sqlite_", "android_", "room_")
         val EXCLUDED = setOf("secret", "sqlite_sequence", "room_master_table")
     }
 }

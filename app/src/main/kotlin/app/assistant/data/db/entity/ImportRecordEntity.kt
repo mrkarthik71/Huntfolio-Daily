@@ -9,7 +9,4 @@ import androidx.room.PrimaryKey
  * nothing new (Property 78).
  */
 @Entity(tableName = "import_record")
-data class ImportRecordEntity(
-    @PrimaryKey val key: String,
-    @androidx.room.ColumnInfo(name = "imported_at") val importedAt: Long,
-)
+data class ImportRecordEntity(@PrimaryKey val key: String, @androidx.room.ColumnInfo(name = "imported_at") val importedAt: Long)

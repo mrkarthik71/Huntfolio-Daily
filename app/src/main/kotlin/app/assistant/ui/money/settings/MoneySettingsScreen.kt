@@ -1,5 +1,13 @@
 package app.assistant.ui.money.settings
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +37,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,10 +44,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -53,6 +62,7 @@ import app.assistant.domain.port.HistoryImportState
 import app.assistant.domain.port.MoneyReaderState
 import app.assistant.domain.port.SenderRules
 import app.assistant.ui.designsystem.CredCard
+import app.assistant.ui.designsystem.CredTopBar
 import app.assistant.ui.designsystem.SectionHeader
 
 private const val MIN_TOUCH_DP = 48
@@ -74,7 +84,7 @@ fun MoneySettingsScreen(onBack: () -> Unit, viewModel: MoneySettingsViewModel = 
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CredTopBar(
                 title = { Text(stringResource(R.string.money_settings_title), style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -132,7 +142,13 @@ fun MoneySettingsScreen(onBack: () -> Unit, viewModel: MoneySettingsViewModel = 
 
 @Composable
 private fun SmsSection(state: MoneyReaderState, importState: HistoryImportState, viewModel: MoneySettingsViewModel) {
+    val context = LocalContext.current
     var rationale by remember { mutableStateOf(false) }
+    var blocked by remember { mutableStateOf(false) }
+    // Android asks for the permission only after the User confirms the rationale (Requirement 26.1).
+    val request = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+        if (result[Manifest.permission.READ_SMS] == true) viewModel.enableSms() else blocked = true
+    }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionHeader(stringResource(R.string.money_settings_sms_header))
         if (state == MoneyReaderState.NOT_AVAILABLE) {
@@ -144,11 +160,15 @@ private fun SmsSection(state: MoneyReaderState, importState: HistoryImportState,
                 checked = state != MoneyReaderState.OFF,
                 onToggle = { on -> if (on) rationale = true else viewModel.disableSms() },
             )
-            HistoryImportCard(importState, onStart = viewModel::runHistoryImport, onSkip = viewModel::declineHistoryImport)
+            if (state == MoneyReaderState.NEEDS_PERMISSION) {
+                RestrictedHint(onAsk = { rationale = true }, onOpen = { openAppInfo(context) })
+            }
+            if (state == MoneyReaderState.ACTIVE) {
+                HistoryImportCard(importState, onStart = viewModel::runHistoryImport, onSkip = viewModel::declineHistoryImport)
+            }
         }
     }
     if (rationale) {
-        // The rationale comes first; the permission is requested only from the confirm button (Requirement 26.1).
         AlertDialog(
             onDismissRequest = { rationale = false },
             title = { Text(stringResource(R.string.money_settings_sms_rationale_title)) },
@@ -156,10 +176,58 @@ private fun SmsSection(state: MoneyReaderState, importState: HistoryImportState,
             confirmButton = {
                 TextButton(onClick = {
                     rationale = false
-                    viewModel.enableSms()
+                    if (hasSms(context)) {
+                        viewModel.enableSms()
+                    } else {
+                        runCatching { request.launch(arrayOf(Manifest.permission.READ_SMS, Manifest.permission.RECEIVE_SMS)) }
+                            .onFailure { blocked = true }
+                    }
                 }) { Text(stringResource(R.string.money_settings_sms_rationale_continue)) }
             },
             dismissButton = { TextButton(onClick = { rationale = false }) { Text(stringResource(R.string.money_settings_sms_rationale_cancel)) } },
+        )
+    }
+    if (blocked) {
+        AlertDialog(
+            onDismissRequest = { blocked = false },
+            title = { Text(stringResource(R.string.money_settings_blocked_title)) },
+            text = { Text(stringResource(R.string.money_settings_restricted_hint)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    blocked = false
+                    openAppInfo(context)
+                }) { Text(stringResource(R.string.money_settings_open_app_info)) }
+            },
+            dismissButton = { TextButton(onClick = { blocked = false }) { Text(stringResource(R.string.money_settings_sms_rationale_cancel)) } },
+        )
+    }
+}
+
+/** Sideloaded apps on Android 13+ must have "restricted settings" allowed before SMS or notification access can be granted. */
+@Composable
+private fun RestrictedHint(onAsk: (() -> Unit)?, onOpen: () -> Unit) {
+    Text(
+        stringResource(R.string.money_settings_restricted_hint),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (onAsk != null) {
+            Button(onClick = onAsk, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) { Text(stringResource(R.string.money_settings_ask_again)) }
+        }
+        OutlinedButton(onClick = onOpen, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
+            Text(stringResource(R.string.money_settings_open_app_info))
+        }
+    }
+}
+
+private fun hasSms(context: Context) = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_SMS) == PackageManager.PERMISSION_GRANTED
+
+private fun openAppInfo(context: Context) {
+    runCatching {
+        context.startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null))
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
         )
     }
 }
@@ -167,8 +235,7 @@ private fun SmsSection(state: MoneyReaderState, importState: HistoryImportState,
 @Composable
 private fun HistoryImportCard(state: HistoryImportState, onStart: () -> Unit, onSkip: () -> Unit) {
     when (state) {
-        HistoryImportState.None -> Unit
-        HistoryImportState.Offered -> CredCard(Modifier.fillMaxWidth()) {
+        HistoryImportState.None, HistoryImportState.Offered -> CredCard(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.money_settings_import_title), style = MaterialTheme.typography.titleSmall)
                 Text(stringResource(R.string.money_settings_import_body), style = MaterialTheme.typography.bodyMedium)
@@ -176,22 +243,29 @@ private fun HistoryImportCard(state: HistoryImportState, onStart: () -> Unit, on
                     Button(onClick = onStart, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
                         Text(stringResource(R.string.money_settings_import_start))
                     }
-                    OutlinedButton(onClick = onSkip, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
-                        Text(stringResource(R.string.money_settings_import_skip))
+                    if (state == HistoryImportState.Offered) {
+                        OutlinedButton(onClick = onSkip, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
+                            Text(stringResource(R.string.money_settings_import_skip))
+                        }
                     }
                 }
             }
         }
         HistoryImportState.Running -> Text(stringResource(R.string.money_settings_import_running), style = MaterialTheme.typography.bodyMedium)
-        is HistoryImportState.Done -> Text(
-            stringResource(
-                R.string.money_settings_import_done,
-                state.summary.smsRead,
-                state.summary.transactionsCreated,
-                state.summary.reviewItems,
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        is HistoryImportState.Done -> Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(
+                    R.string.money_settings_import_done,
+                    state.summary.smsRead,
+                    state.summary.transactionsCreated,
+                    state.summary.reviewItems,
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            OutlinedButton(onClick = onStart, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
+                Text(stringResource(R.string.money_settings_import_again))
+            }
+        }
     }
 }
 
@@ -263,6 +337,8 @@ private fun NotificationSection(state: MoneyReaderState, viewModel: MoneySetting
             Button(onClick = viewModel::openNotificationAccessSettings, modifier = Modifier.heightIn(min = MIN_TOUCH_DP.dp)) {
                 Text(stringResource(R.string.money_settings_notifications_open))
             }
+            val context = LocalContext.current
+            RestrictedHint(onAsk = null, onOpen = { openAppInfo(context) })
         }
     }
 }

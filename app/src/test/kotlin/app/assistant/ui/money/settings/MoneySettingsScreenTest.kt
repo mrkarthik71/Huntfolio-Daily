@@ -61,6 +61,9 @@ class MoneySettingsScreenTest {
         compose.onNodeWithText("Allow reading bank SMS?").assertIsDisplayed()
         assertEquals("nothing is enabled before the User confirms", 0, controls.smsEnables)
 
+        // Android's own dialog is not shown under Robolectric, so the permission is granted here.
+        org.robolectric.Shadows.shadowOf(compose.activity.application)
+            .grantPermissions(android.Manifest.permission.READ_SMS, android.Manifest.permission.RECEIVE_SMS)
         compose.onNodeWithText("Continue").performClick()
         compose.waitForIdle()
         assertEquals(1, controls.smsEnables)
@@ -91,15 +94,27 @@ class MoneySettingsScreenTest {
     fun theHistoryImportOfferAndSummaryAreShown() {
         val controls = FakeMoneyReaderControls(sms = MoneyReaderState.ACTIVE, history = HistoryImportState.Offered)
         show(controls)
-        compose.onNodeWithText("Read the bank SMS from the last 3 months once, so your history is filled in.").assertIsDisplayed()
+        compose.onNodeWithText("Read all earlier bank SMS").assertIsDisplayed()
 
-        compose.onNodeWithText("Read last 3 months").performClick()
+        compose.onNodeWithText("Read all earlier SMS").performClick()
         compose.waitForIdle()
         assertEquals(1, controls.imports)
 
         controls.setHistory(HistoryImportState.Done(HistoryImportSummary(smsRead = 40, transactionsCreated = 31, reviewItems = 4)))
         compose.waitForIdle()
         compose.onNodeWithText("Import finished: 40 SMS read, 31 transactions created, 4 added to the review list.").assertIsDisplayed()
+        compose.onNodeWithText("Read again").performClick()
+        compose.waitForIdle()
+        assertEquals(2, controls.imports)
+    }
+
+    @Test
+    fun theReadAllButtonIsThereWheneverSmsReadingIsOn() {
+        val controls = FakeMoneyReaderControls(sms = MoneyReaderState.ACTIVE, history = HistoryImportState.None)
+        show(controls)
+        compose.onNodeWithText("Read all earlier SMS").performClick()
+        compose.waitForIdle()
+        assertEquals(1, controls.imports)
     }
 
     @Test

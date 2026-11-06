@@ -1,0 +1,11 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "865240 is your OTP for a transaction of Rs 2500.0 at Store Two. Valid for 10 mins.",
+  "expected": {
+    "result": "OTP"
+  }
+}

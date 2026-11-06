@@ -28,12 +28,15 @@ class AssistantApplication :
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
 
+    @Inject lateinit var crashes: app.assistant.security.crash.CrashRecorder
+
     /** WorkManager is initialised on demand with the Hilt factory (see the manifest provider removal). */
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
     override fun onCreate() {
         super.onCreate()
+        crashes.install()
         safeLog.addSink(diagnosticSink)
         if (BuildConfig.DEBUG) safeLog.addSink(LogcatSink())
         // The whole process going to the background starts the Lock_Timeout (Requirement 6.2).

@@ -11,10 +11,10 @@ import app.assistant.domain.engine.quality.QualityStore
 import app.assistant.domain.port.BillAlarmSync
 import app.assistant.domain.port.BillRepository
 import app.assistant.domain.port.BudgetRepository
+import app.assistant.domain.port.PersistedMessage
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.SpendingReportRepository
 import app.assistant.domain.port.TimeSource
-import app.assistant.ingest.pipeline.PersistedMessage
-import app.assistant.ingest.pipeline.PostCommitHook
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

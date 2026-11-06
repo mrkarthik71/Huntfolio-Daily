@@ -13,7 +13,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -56,9 +55,14 @@ fun TasksScreen(prefillTitle: String? = null, viewModel: TasksViewModel = hiltVi
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = { editing = EditorTarget.New }) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.tasks_add))
-            }
+            androidx.compose.material3.ExtendedFloatingActionButton(
+                onClick = { editing = EditorTarget.New },
+                containerColor = MaterialTheme.colorScheme.onBackground,
+                contentColor = MaterialTheme.colorScheme.background,
+                shape = androidx.compose.foundation.shape.CircleShape,
+                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                text = { Text(stringResource(R.string.tasks_add)) },
+            )
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {

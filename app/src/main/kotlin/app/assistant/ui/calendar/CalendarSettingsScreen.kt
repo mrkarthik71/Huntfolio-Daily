@@ -19,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.assistant.R
+import app.assistant.ui.designsystem.CredTopBar
 
 /**
  * The calendar-selection list (Requirement 22.1, 22.8). When the calendar permission is not
@@ -44,7 +44,7 @@ fun CalendarSettingsScreen(onBack: () -> Unit, viewModel: CalendarSettingsViewMo
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CredTopBar(
                 title = { Text(stringResource(R.string.calendar_settings_title), style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

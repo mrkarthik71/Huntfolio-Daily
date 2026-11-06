@@ -1,9 +1,6 @@
 package app.assistant.ui.mail
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -19,18 +18,21 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import app.assistant.R
 import app.assistant.ui.designsystem.CredCard
+import app.assistant.ui.designsystem.CredTopBar
 import app.assistant.ui.designsystem.SectionHeader
 
 /**
@@ -42,7 +44,7 @@ import app.assistant.ui.designsystem.SectionHeader
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MailScreen(
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     onCreateTask: (subject: String) -> Unit,
     onCreateBill: (subject: String) -> Unit,
     viewModel: MailViewModel = hiltViewModel(),
@@ -50,54 +52,86 @@ fun MailScreen(
     val ui by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Mail") }, navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") } }) },
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
+        topBar = {
+            // Embedded in the Inbox tab (onBack == null) the host provides the header.
+            if (onBack != null) {
+                CredTopBar(title = {
+                    Text(stringResource(R.string.mail_title))
+                }, navigationIcon = {
+                    IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
+                })
+            }
+        },
     ) { padding ->
         LazyColumn(
             Modifier.fillMaxSize().padding(padding),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item { SectionHeader(if (ui.connected) "Mailbox: connected" else "Connect your mailbox") }
+            item { SectionHeader(stringResource(if (ui.connected) R.string.mail_header_connected else R.string.mail_header_connect).uppercase()) }
             item { ConnectCard(ui, viewModel) }
 
-            item { SectionHeader("Shortlist rules") }
+            item { SectionHeader(stringResource(R.string.mail_rules).uppercase()) }
             if (ui.rulesEmpty) {
-                item { CredCard { Column(Modifier.padding(16.dp)) { Text("No rules yet — add one to start shortlisting mail. With no rules, nothing is read by AI.", style = MaterialTheme.typography.bodySmall) } } }
+                item { CredCard { Column { Text(stringResource(R.string.mail_rules_empty), style = MaterialTheme.typography.bodyMedium) } } }
             }
             items(ui.rules, key = { it.id }) { rule ->
                 CredCard {
-                    Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("from: ${rule.senderContains.ifBlank { "any" }}  ·  subject: ${rule.subjectContains.ifBlank { "any" }}", style = MaterialTheme.typography.bodyMedium)
-                            Text("score ${rule.score}", style = MaterialTheme.typography.bodySmall)
+                            val any = stringResource(R.string.mail_rule_any)
+                            Text(
+                                stringResource(
+                                    R.string.mail_rule_summary,
+                                    rule.senderContains.ifBlank {
+                                        any
+                                    },
+                                    rule.subjectContains.ifBlank { any },
+                                ),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            Text(
+                                stringResource(R.string.mail_rule_score, rule.score),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
-                        TextButton(onClick = { viewModel.deleteRule(rule.id) }) { Text("Remove") }
+                        TextButton(onClick = { viewModel.deleteRule(rule.id) }) { Text(stringResource(R.string.mail_rule_remove)) }
                     }
                 }
             }
             item { AddRuleCard(viewModel) }
 
-            item { SectionHeader("Quality (last 8 weeks)") }
+            item { SectionHeader(stringResource(R.string.mail_quality).uppercase()) }
             item {
                 CredCard {
-                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("Notifications: ${ui.notifications8w}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Marked not important: ${ui.wrongAlerts8w}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Average per day (7 days): ${"%.1f".format(ui.avgNotificationsPerDay)}", style = MaterialTheme.typography.bodySmall)
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(stringResource(R.string.mail_quality_notifications, ui.notifications8w), style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(R.string.mail_quality_wrong, ui.wrongAlerts8w), style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            stringResource(R.string.mail_quality_average, ui.avgNotificationsPerDay),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
 
-            item { SectionHeader("Inbox") }
+            item { SectionHeader(stringResource(R.string.mail_inbox).uppercase()) }
             items(ui.inbox, key = { it.id }) { row ->
                 CredCard {
-                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(row.subject, style = MaterialTheme.typography.titleSmall)
-                        Text("${row.sender} · ${row.category} · score ${row.finalScore}", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(R.string.mail_inbox_meta, row.sender, row.category, row.finalScore),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            TextButton(onClick = { onCreateTask(row.subject) }) { Text("Create task") }
-                            if (row.category == "BILL") TextButton(onClick = { onCreateBill(row.subject) }) { Text("Create bill") }
-                            TextButton(onClick = { viewModel.notImportant(row) }) { Text("Not important") }
+                            TextButton(onClick = { onCreateTask(row.subject) }) { Text(stringResource(R.string.mail_create_task)) }
+                            if (row.category == "BILL") TextButton(onClick = { onCreateBill(row.subject) }) { Text(stringResource(R.string.mail_create_bill)) }
+                            TextButton(onClick = { viewModel.notImportant(row) }) { Text(stringResource(R.string.mail_not_important)) }
                         }
                     }
                 }
@@ -109,23 +143,51 @@ fun MailScreen(
 @Composable
 private fun ConnectCard(ui: MailUi, viewModel: MailViewModel) {
     CredCard {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (ui.connected) {
-                Text("Your mailbox is connected.", style = MaterialTheme.typography.bodyMedium)
-                TextButton(onClick = { viewModel.disconnect() }) { Text("Disconnect") }
+                Text(stringResource(R.string.mail_connected_body), style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = { viewModel.disconnect() }) { Text(stringResource(R.string.mail_disconnect)) }
                 return@Column
             }
             var host by remember { mutableStateOf("") }
             var port by remember { mutableStateOf("993") }
             var user by remember { mutableStateOf("") }
             var pass by remember { mutableStateOf("") }
-            OutlinedTextField(host, { host = it }, label = { Text("IMAP host") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(port, { port = it.filter(Char::isDigit) }, label = { Text("Port") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(user, { user = it }, label = { Text("Email / username") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(pass, { pass = it }, label = { Text("App password") }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
-            ui.testError?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
+            val context = androidx.compose.ui.platform.LocalContext.current
+            // Gmail in one tap: fills Google's IMAP server; the User signs in with a Google app password.
+            Text(stringResource(R.string.mail_gmail_title), style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.mail_gmail_steps), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                androidx.compose.material3.Button(onClick = {
+                    host = GMAIL_HOST
+                    port = "993"
+                }) { Text(stringResource(R.string.mail_gmail_use)) }
+                androidx.compose.material3.OutlinedButton(onClick = {
+                    runCatching {
+                        context.startActivity(
+                            android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(GMAIL_APP_PASSWORDS))
+                                .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
+                        )
+                    }
+                }) { Text(stringResource(R.string.mail_gmail_password)) }
+            }
+            OutlinedTextField(host, {
+                host = it
+            }, label = { Text(stringResource(R.string.mail_imap_host)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(port, {
+                port = it.filter(Char::isDigit)
+            }, label = { Text(stringResource(R.string.mail_port)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(user, {
+                user = it
+            }, label = { Text(stringResource(R.string.mail_username)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(pass, {
+                pass = it
+            }, label = {
+                Text(stringResource(R.string.mail_app_password))
+            }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
+            ui.testError?.let { Text(stringResource(it), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) }
             TextButton(enabled = !ui.testing, onClick = { viewModel.connect(host, port.toIntOrNull() ?: 993, user, pass) }) {
-                Text(if (ui.testing) "Testing…" else "Connect")
+                Text(stringResource(if (ui.testing) R.string.mail_testing else R.string.mail_connect))
             }
         }
     }
@@ -134,17 +196,30 @@ private fun ConnectCard(ui: MailUi, viewModel: MailViewModel) {
 @Composable
 private fun AddRuleCard(viewModel: MailViewModel) {
     CredCard {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             var sender by remember { mutableStateOf("") }
             var subject by remember { mutableStateOf("") }
             var score by remember { mutableStateOf("5") }
-            OutlinedTextField(sender, { sender = it }, label = { Text("Sender contains") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(subject, { subject = it }, label = { Text("Subject contains") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(score, { score = it.filter(Char::isDigit) }, label = { Text("Score (1-10)") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(sender, {
+                sender = it
+            }, label = { Text(stringResource(R.string.mail_sender_contains)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(subject, {
+                subject = it
+            }, label = { Text(stringResource(R.string.mail_subject_contains)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(score, {
+                score = it.filter(Char::isDigit)
+            }, label = { Text(stringResource(R.string.mail_score)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             TextButton(onClick = {
                 viewModel.addRule(sender, subject, score.toIntOrNull() ?: 5)
-                sender = ""; subject = ""; score = "5"
-            }) { Text("Add rule") }
+                sender = ""
+                subject = ""
+                score = "5"
+            }) { Text(stringResource(R.string.mail_add_rule)) }
         }
     }
 }
+
+private const val GMAIL_HOST = "imap.gmail.com"
+
+/** Google's own page for creating an app password; a fixed address, opened only when the User taps the button. */
+private const val GMAIL_APP_PASSWORDS = "https://myaccount.google.com/apppasswords"

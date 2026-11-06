@@ -69,6 +69,18 @@ class BillDueNotificationTest {
             Notifier(context),
             AlarmArmer(context, time),
             { bills },
+            { app.assistant.domain.port.LifeAlarms {} },
+            {
+                LifeNotifications(
+                    context,
+                    app.assistant.data.repo.RoomHabitStore(provider),
+                    app.assistant.data.repo.RoomDateStore(provider),
+                    app.assistant.data.repo.RoomFollowUpStore(provider),
+                    app.assistant.data.repo.RoomReflectionStore(provider),
+                    time,
+                    app.assistant.data.repo.RoomHoldingStore(provider),
+                )
+            },
         )
     }
 

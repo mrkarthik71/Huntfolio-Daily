@@ -19,6 +19,7 @@ import app.assistant.domain.port.AlarmStore
 import app.assistant.domain.port.BillRepository
 import app.assistant.domain.port.CalendarRepository
 import app.assistant.domain.port.GoalRepository
+import app.assistant.domain.port.ImmediateAlert
 import app.assistant.domain.port.LogDecision
 import app.assistant.domain.port.LogEntry
 import app.assistant.domain.port.NotificationLog
@@ -61,9 +62,39 @@ class AndroidNotificationScheduler @Inject constructor(
     private val armer: AlarmArmer,
     /** Lazy because the Bill repository syncs bill alarms through this scheduler. */
     private val bills: Lazy<BillRepository>,
+    /** Lazy: the whole-day planner and content read stores that are only needed when those types are on. */
+    private val lifeAlarms: Lazy<app.assistant.domain.port.LifeAlarms>,
+    private val life: Lazy<LifeNotifications>,
 ) : NotificationScheduling {
 
     override fun hasExactAlarmAccess(): Boolean = armer.hasExactAccess()
+
+    override suspend fun offerNow(alert: ImmediateAlert) {
+        val s = settings.current()
+        val now = time.now()
+        val zone = time.zone()
+        val today = now.atZone(zone).toLocalDate()
+        val content = NotificationContent(alert.title, alert.text, alert.route)
+        val candidate = Candidate(alert.type, alert.refKey, now, isSnoozeRepeat = false)
+        val ruleId = "now.${alert.type.name.lowercase()}"
+        fun entry(decision: LogDecision, counted: Boolean, typeCounted: Boolean) =
+            LogEntry(0, today.toString(), alert.type, alert.refKey, decision, ruleId, now, counted, typeCounted, content.text)
+        when (val decision = NotificationPolicy.decide(candidate, log.stateFor(today), governor(s), now, zone)) {
+            Decision.Drop -> Unit
+            // Quiet hours or a full cap: the alert waits in the inbox instead of interrupting.
+            is Decision.Hold, is Decision.ToInbox -> log.record(entry(LogDecision.INBOX, counted = false, typeCounted = false))
+            Decision.Show, is Decision.ShowUncounted -> {
+                if (!notifier.canPost()) {
+                    log.record(entry(LogDecision.INBOX, counted = false, typeCounted = false))
+                } else {
+                    val counted = decision == Decision.Show
+                    val typeCounted = counted || (decision is Decision.ShowUncounted && decision.countsForType)
+                    val id = log.record(entry(if (counted) LogDecision.SHOWN else LogDecision.SHOWN_UNCOUNTED, counted, typeCounted))
+                    notifier.post(id, alert.type, content)
+                }
+            }
+        }
+    }
 
     override suspend fun refresh() {
         val s = settings.current()
@@ -84,6 +115,7 @@ class AndroidNotificationScheduler @Inject constructor(
             }
         }
         refreshEventReminders()
+        runCatching { lifeAlarms.get().sync() }
         armer.arm(alarms.earliest())
     }
 
@@ -242,7 +274,8 @@ class AndroidNotificationScheduler @Inject constructor(
                 } else {
                     context.resources.getQuantityString(R.plurals.brief_text, brief.priorityCount, brief.priorityCount, brief.firstTitle)
                 }
-                NotificationContent(context.getString(R.string.brief_title), text, routeFor(row.type, today))
+                val extras = runCatching { life.get().briefExtras(today) }.getOrNull()
+                NotificationContent(context.getString(R.string.brief_title), if (extras == null) text else "$text\n$extras", routeFor(row.type, today))
             }
             NotificationType.GOAL_NUDGE -> {
                 val nudge = BriefContent.goalNudge(goals.statusesNow(today)) ?: return null
@@ -256,7 +289,7 @@ class AndroidNotificationScheduler @Inject constructor(
                 NotificationContent(context.getString(R.string.review_title), context.getString(R.string.review_text), routeFor(row.type, today))
             NotificationType.EVENT_REMINDER -> eventContent(row, zone)
             NotificationType.BILL_DUE -> billContent(row)
-            else -> null
+            else -> life.get().content(row)
         }
     }
 
@@ -285,6 +318,10 @@ class AndroidNotificationScheduler @Inject constructor(
     private fun routeFor(type: NotificationType, today: LocalDate): String = when (type) {
         NotificationType.EVENING_REVIEW -> "review/$today"
         NotificationType.GOAL_NUDGE -> "goals"
+        NotificationType.HABIT_CHECK -> "plan"
+        NotificationType.IMPORTANT_DATE, NotificationType.FOLLOW_UP -> "inbox"
+        NotificationType.BUDGET_ALERT, NotificationType.MONEY_DUE -> "money"
+        NotificationType.WEEKLY_PLAN -> "weekplan"
         else -> "today"
     }
 

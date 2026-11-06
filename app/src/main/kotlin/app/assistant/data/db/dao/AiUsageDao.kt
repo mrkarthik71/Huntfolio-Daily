@@ -16,7 +16,10 @@ interface AiUsageDao {
     @Query("SELECT attempts FROM ai_usage WHERE month = :month")
     suspend fun attempts(month: String): Int?
 
-    @Query("INSERT INTO ai_usage(month, spentPaise, attempts) VALUES(:month, :paise, :attempts) ON CONFLICT(month) DO UPDATE SET spentPaise = spentPaise + :paise, attempts = attempts + :attempts")
+    @Query(
+        "INSERT INTO ai_usage(month, spentPaise, attempts) VALUES(:month, :paise, :attempts) ON " +
+            "CONFLICT(month) DO UPDATE SET spentPaise = spentPaise + :paise, attempts = attempts + :attempts",
+    )
     suspend fun add(month: String, paise: Long, attempts: Int)
 
     /**

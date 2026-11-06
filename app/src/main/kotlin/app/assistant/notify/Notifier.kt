@@ -25,9 +25,12 @@ object NotifyTargets {
     const val EXTRA_LOG_ID = "log_id"
     const val EXTRA_MINUTES = "minutes"
     const val ACTION_SNOOZE = "app.assistant.action.SNOOZE"
+    const val ACTION_DONE = "app.assistant.action.DONE"
+    const val EXTRA_REF = "ref"
 }
 
-data class NotificationContent(val title: String, val text: String, val route: String?)
+/** [actionRef], when set, adds a "Done" button that applies to that item (a habit slot or a follow-up). */
+data class NotificationContent(val title: String, val text: String, val route: String?, val actionRef: String? = null)
 
 /** Creates one channel per Notification_Type and shows notifications that the governor allowed. */
 @Singleton
@@ -85,12 +88,21 @@ class Notifier @Inject constructor(@param:ApplicationContext private val context
             .setContentIntent(PendingIntent.getActivity(context, id * 3, open, FLAGS))
             .addAction(0, context.getString(R.string.action_why), PendingIntent.getActivity(context, id * 3 + 1, why, FLAGS))
             .addAction(0, context.getString(R.string.action_snooze), PendingIntent.getBroadcast(context, id * 3 + 2, snooze, FLAGS))
+            .let { b ->
+                val ref = content.actionRef ?: return@let b
+                val done = Intent(NotifyTargets.ACTION_DONE).setPackage(context.packageName)
+                    .setClassName(context.packageName, "app.assistant.notify.NotificationActionReceiver")
+                    .putExtra(NotifyTargets.EXTRA_LOG_ID, logId).putExtra(NotifyTargets.EXTRA_REF, ref)
+                // The request code space after the three per-notification intents keeps Done distinct.
+                b.addAction(0, context.getString(R.string.action_done), PendingIntent.getBroadcast(context, id * 3 + DONE_OFFSET, done, FLAGS))
+            }
             .build()
         NotificationManagerCompat.from(context).notify(id, n)
     }
 
     companion object {
         const val SNOOZE_MINUTES = 60
+        private const val DONE_OFFSET = 1_000_000_000
         private const val FLAGS = PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
 
         fun channelId(type: NotificationType) = "type_${type.name.lowercase()}"
@@ -107,6 +119,13 @@ class Notifier @Inject constructor(@param:ApplicationContext private val context
             NotificationType.SUBSCRIPTION_USAGE_CHECK -> R.string.channel_subscription_usage_check
             NotificationType.HEALTH_WARNING -> R.string.channel_health_warning
             NotificationType.IMPORTANT_DATE -> R.string.channel_important_date
+            NotificationType.SMART_REMINDER -> R.string.channel_smart_reminder
+            NotificationType.HABIT_CHECK -> R.string.channel_habit_check
+            NotificationType.FOLLOW_UP -> R.string.channel_follow_up
+            NotificationType.BUDGET_ALERT -> R.string.channel_budget_alert
+            NotificationType.FOCUS_END -> R.string.channel_focus_end
+            NotificationType.WEEKLY_PLAN -> R.string.channel_weekly_plan
+            NotificationType.MONEY_DUE -> R.string.channel_money_due
         }
     }
 }

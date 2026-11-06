@@ -18,7 +18,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.assistant.R
 import app.assistant.domain.model.AuditEntry
 import app.assistant.domain.model.AuditKind
+import app.assistant.ui.designsystem.CredTopBar
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -42,7 +42,7 @@ fun AuditLogScreen(onBack: () -> Unit, viewModel: AuditLogViewModel = hiltViewMo
     val entries by viewModel.entries.collectAsStateWithLifecycle()
     Scaffold(
         topBar = {
-            TopAppBar(
+            CredTopBar(
                 title = { Text(stringResource(R.string.audit_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

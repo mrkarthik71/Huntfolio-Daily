@@ -45,6 +45,27 @@ enum class NotificationType {
     SUBSCRIPTION_USAGE_CHECK,
     HEALTH_WARNING,
 
+    /** Apex smart reminders (time, place, phone state). */
+    SMART_REMINDER,
+
+    /** Habit and medicine check-ins, with a Done button. */
+    HABIT_CHECK,
+
+    /** "Waiting for" follow-up nudges. */
+    FOLLOW_UP,
+
+    /** A category passing 80% or 100% of its budget. */
+    BUDGET_ALERT,
+
+    /** A focus block reaching its end. */
+    FOCUS_END,
+
+    /** The weekly planning ritual on the last day of the week. */
+    WEEKLY_PLAN,
+
+    /** A SIP, EMI or card payment due tomorrow or today. */
+    MONEY_DUE,
+
     /** Only where important dates are enabled (Requirement 68). */
     IMPORTANT_DATE,
 }
@@ -58,6 +79,12 @@ enum class PromptType {
     MONTHLY_MONEY_REVIEW,
     MAIL_CLASSIFIER,
     SMS_FALLBACK_PARSER,
+
+    /** Ask Apex: a short answer to a question, grounded in facts the app computed. */
+    ASSISTANT_ANSWER,
+
+    /** Plan ahead: break each goal into a few concrete steps, sized S, M or L. */
+    GOAL_BREAKDOWN,
 }
 
 enum class SuggestionResponse { ACCEPTED, DISMISSED, IGNORED }
