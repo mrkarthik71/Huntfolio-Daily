@@ -88,10 +88,10 @@
     <string name="ask_did_spend">Logged %1$s spent on %2$s</string>
     <string name="ask_did_list">Added %1$s to %2$s</string>
     <string name="ask_did_task">Task added: %1$s, for %2$s</string>
-    <string name="ask_did_move">Moved "%1$s" to %2$s</string>
+    <string name="ask_did_move">Moved \"%1$s\" to %2$s</string>
     <string name="ask_did_talked">Marked: you talked to %1$s today</string>
     <string name="ask_did_journal">Added to today\'s journal</string>
-    <string name="ask_did_no_task">No open task matches "%1$s".</string>
+    <string name="ask_did_no_task">No open task matches \"%1$s\".</string>
     <string name="ask_did_no_person">%1$s is not on your Keep in touch list yet. Add them under Inbox › People.</string>
     <string name="ask_did_failed">That could not be saved. Check the amount or wording and try again.</string>
     <string name="tile_ask">Ask Apex</string>
@@ -146,7 +146,7 @@
     <string name="search_hint">Search notes, tasks, payments, trips…</string>
     <string name="search_indexing">READING YOUR DATA…</string>
     <string name="search_intro">Finds notes, tasks, lists, journal pages, people, trips, orders, payments from the last year, bills, things you asked Apex to remember, and important dates. Nothing leaves your phone.</string>
-    <string name="search_none">Nothing matches "%1$s".</string>
+    <string name="search_none">Nothing matches \"%1$s\".</string>
     <string name="search_count">%1$d FOUND</string>
     <string name="search_k_note">NOTE</string>
     <string name="search_k_task">TASK</string>
