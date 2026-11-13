@@ -123,6 +123,14 @@ fun MoneySettingsScreen(onBack: () -> Unit, viewModel: MoneySettingsViewModel = 
             }
             if (ui.messages.app == AddAppResult.INVALID) item { ErrorLine(stringResource(R.string.money_settings_apps_invalid)) }
             if (!ui.loading && ui.apps.isEmpty()) item { Text(stringResource(R.string.money_settings_apps_empty)) }
+            val upi = viewModel.unlistedUpiApps(ui.apps)
+            if (upi.isNotEmpty()) {
+                item {
+                    Button(onClick = { viewModel.listAllUpiApps(ui.apps) }, modifier = Modifier.fillMaxWidth().heightIn(min = MIN_TOUCH_DP.dp)) {
+                        Text(stringResource(R.string.money_settings_all_upi, upi.size))
+                    }
+                }
+            }
             items(ui.apps, key = { "app-" + it.packageName }) { appRow ->
                 SwitchRow(
                     label = appRow.label,

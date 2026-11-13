@@ -52,4 +52,5 @@
     <string name="money_settings_open_app_info">Open App info</string>
     <string name="money_settings_ask_again">Ask again</string>
     <string name="money_settings_import_again">Read again</string>
+    <string name="money_settings_all_upi">Read all my UPI apps (%1$d found)</string>
 </resources>

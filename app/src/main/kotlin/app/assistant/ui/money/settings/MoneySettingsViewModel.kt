@@ -71,7 +71,9 @@ class MoneySettingsViewModel @Inject constructor(
     private val appRows: Flow<List<MoneyAppRow>> = combine(appStore.apps(), launcherApps) { listed, launchable ->
         val known = launchable.orEmpty()
         val knownPackages = known.map { it.packageName }.toSet()
+        // Known UPI apps first, so they are easy to find in a long list.
         val installedRows = known.map { MoneyAppRow(it.packageName, it.label, it.packageName in listed) }
+            .sortedBy { it.packageName !in app.assistant.domain.model.KnownUpiApps.PACKAGES }
         val missingRows = listed.filter { it !in knownPackages }.sorted().map { MoneyAppRow(it, installed.label(it) ?: it, listed = true) }
         missingRows + installedRows
     }
@@ -141,6 +143,15 @@ class MoneySettingsViewModel @Inject constructor(
 
     fun clearSenderMessage() {
         messages.update { it.copy(sender = null) }
+    }
+
+    /** The known UPI apps installed on this phone and not yet listed. */
+    fun unlistedUpiApps(rows: List<MoneyAppRow>): List<MoneyAppRow> =
+        rows.filter { !it.listed && it.packageName in app.assistant.domain.model.KnownUpiApps.PACKAGES }
+
+    /** Lists every installed known UPI app in one go (the User tapped the button, which says exactly this). */
+    fun listAllUpiApps(rows: List<MoneyAppRow>) {
+        unlistedUpiApps(rows).forEach { setApp(it.packageName, true) }
     }
 
     fun setApp(packageName: String, listed: Boolean) {

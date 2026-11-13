@@ -1,6 +1,7 @@
 package app.assistant.ingest.pipeline
 
 import app.assistant.domain.error.Outcome
+import app.assistant.domain.model.SourceKind
 import app.assistant.domain.port.IngestLedger
 import app.assistant.domain.port.MoneyAppList
 import app.assistant.domain.port.RefState
@@ -62,7 +63,14 @@ class ParseStage(private val registry: ParserRegistry, private val time: TimeSou
 
     override suspend fun process(ctx: IngestContext): StageResult {
         val message = checkNotNull(ctx.message)
-        val result = MessageParser.parse(message.text, message.origin, message.receivedAt, time.zone(), registry)
+        val exact = MessageParser.parse(message.text, message.origin, message.receivedAt, time.zone(), registry)
+        // A payment-app notification no exact format knows gets one more, strict, try with the common UPI phrasings;
+        // whatever that cannot read still goes to the Review_Queue.
+        val result = if (exact is ParseResult.Unknown && message.sourceKind == SourceKind.APP) {
+            app.assistant.parse.money.UpiNotificationParser.parse(message.text, message.receivedAt.atZone(time.zone()).toLocalDateTime()) ?: exact
+        } else {
+            exact
+        }
         return StageResult.Continue(ctx.copy(parse = result, message = if (result is ParseResult.Unknown) message else null))
     }
 }

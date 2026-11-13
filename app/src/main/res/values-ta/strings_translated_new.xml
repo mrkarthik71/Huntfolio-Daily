@@ -225,4 +225,5 @@
     <string name="crash_relaunch_title">Apex எதிர்பாராமல் மூடிவிட்டது</string>
     <string name="crash_relaunch_body">என்ன தவறு நடந்தது என்பது இதோ. நகலெடுத்து டெவலப்பருக்கு அனுப்புங்கள். இதில் நிரலின் இடங்கள் மட்டுமே உள்ளன, உங்கள் தரவு ஒருபோதும் இல்லை.</string>
     <string name="crash_continue">தொடர்க</string>
+    <string name="money_settings_all_upi">என் எல்லா UPI ஆப்களையும் படி (%1$d கிடைத்தன)</string>
 </resources>

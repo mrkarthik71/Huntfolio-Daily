@@ -225,4 +225,5 @@
     <string name="crash_relaunch_title">Apex अचानक बंद हो गया</string>
     <string name="crash_relaunch_body">यह रही गड़बड़ी की जानकारी। Copy दबाएँ और डेवलपर को भेजें। इसमें सिर्फ़ कोड की जगहें हैं, आपका डेटा कभी नहीं।</string>
     <string name="crash_continue">आगे बढ़ें</string>
+    <string name="money_settings_all_upi">मेरे सभी UPI ऐप पढ़ें (%1$d मिले)</string>
 </resources>
