@@ -20,6 +20,10 @@ import app.assistant.ui.designsystem.consoleGround
 
 /** The page Health Connect opens to explain what Apex reads and why (required by Health Connect). */
 class HealthPrivacyActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(app.assistant.ui.locale.AppLocale.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

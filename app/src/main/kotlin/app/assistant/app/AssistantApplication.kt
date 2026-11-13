@@ -34,6 +34,10 @@ class AssistantApplication :
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder().setWorkerFactory(workerFactory).build()
 
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(app.assistant.ui.locale.AppLocale.wrap(newBase))
+    }
+
     override fun onCreate() {
         super.onCreate()
         crashes.install()

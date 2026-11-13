@@ -41,6 +41,10 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class WhyActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(app.assistant.ui.locale.AppLocale.wrap(newBase))
+    }
+
     @Inject lateinit var log: NotificationLog
 
     @Inject lateinit var settings: SettingsStore

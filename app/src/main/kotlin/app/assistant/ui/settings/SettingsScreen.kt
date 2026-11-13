@@ -2,8 +2,10 @@ package app.assistant.ui.settings
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -85,6 +87,7 @@ fun SettingsScreen(
                 ScreenTitle(stringResource(R.string.settings_title))
             }
         }
+        item { LanguageGroup() }
         onOpenYear?.let { open ->
             item {
                 CredGroup(null) {
@@ -212,4 +215,61 @@ internal fun DataSource.icon(): ImageVector = when (this) {
     DataSource.AI_PROVIDER -> Icons.Outlined.Star
     DataSource.HUNTFOLIO -> Icons.Outlined.AccountCircle
     DataSource.MANUAL -> Icons.Outlined.Edit
+}
+
+/** Settings › Language: the phone's language, English, Hindi or Tamil, for Apex only. */
+@androidx.compose.runtime.Composable
+private fun LanguageGroup() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val activity = androidx.activity.compose.LocalActivity.current
+    var picking by rememberSaveable { mutableStateOf(false) }
+    val current = app.assistant.ui.locale.AppLocale.current(context)
+    // The heading is the same in every language, so someone who picked one they cannot read can still find their way back.
+    CredGroup(stringResource(R.string.lang_all)) {
+        CredRow(
+            stringResource(R.string.settings_language),
+            Icons.Outlined.Info,
+            supporting = stringResource(languageLabel(current)),
+            onClick = { picking = true },
+        )
+    }
+    if (picking) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { picking = false },
+            title = { androidx.compose.material3.Text(stringResource(R.string.settings_language)) },
+            text = {
+                androidx.compose.foundation.layout.Column {
+                    app.assistant.ui.locale.AppLocale.CHOICES.forEach { tag ->
+                        androidx.compose.foundation.layout.Row(
+                            Modifier.fillMaxSize().heightIn(min = 48.dp)
+                                .selectable(selected = tag == current, role = androidx.compose.ui.semantics.Role.RadioButton) {
+                                    picking = false
+                                    if (tag != current && activity != null) app.assistant.ui.locale.AppLocale.set(activity, tag)
+                                },
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                        ) {
+                            androidx.compose.material3.RadioButton(selected = tag == current, onClick = null)
+                            androidx.compose.material3.Text(stringResource(languageLabel(tag)), Modifier.padding(start = 12.dp))
+                        }
+                    }
+                    androidx.compose.material3.Text(
+                        stringResource(R.string.settings_language_note),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { picking = false }) { androidx.compose.material3.Text(stringResource(R.string.life_cancel)) }
+            },
+        )
+    }
+}
+
+private fun languageLabel(tag: String): Int = when (tag) {
+    "en" -> R.string.lang_en
+    "hi" -> R.string.lang_hi
+    "ta" -> R.string.lang_ta
+    else -> R.string.settings_language_system
 }

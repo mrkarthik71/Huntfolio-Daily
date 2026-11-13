@@ -159,4 +159,12 @@
     <string name="search_k_bill">BILL</string>
     <string name="search_k_memory">MEMORY</string>
     <string name="search_k_date">DATE</string>
+
+    <string name="settings_language">Language</string>
+    <string name="settings_language_system">Same as the phone</string>
+    <string name="settings_language_note">Only Apex changes; the rest of your phone stays as it is. Voice commands still work in English and Hinglish.</string>
+    <string name="lang_all" translatable="false">Language · भाषा · மொழி</string>
+    <string name="lang_en" translatable="false">English</string>
+    <string name="lang_hi" translatable="false">हिन्दी</string>
+    <string name="lang_ta" translatable="false">தமிழ்</string>
 </resources>

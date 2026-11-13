@@ -219,4 +219,7 @@
     <string name="mail_gmail_steps">1. Use Gmail दबाएँ। 2. Create app password दबाएँ और Google में साइन इन करें (2-Step Verification चालू होना चाहिए)। उसका नाम Apex रखें और 16 अक्षरों का पासवर्ड कॉपी करें। 3. नीचे अपना Gmail पता और वह पासवर्ड डालें, फिर Connect दबाएँ। Apex सिर्फ़ मेल पढ़ता है; कभी कुछ भेजता, मिटाता या मार्क नहीं करता।</string>
     <string name="mail_gmail_use">Use Gmail</string>
     <string name="mail_gmail_password">Create app password</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_system">फ़ोन जैसी</string>
+    <string name="settings_language_note">सिर्फ़ Apex बदलेगा; आपका बाकी फ़ोन जैसा है वैसा रहेगा। आवाज़ वाले निर्देश अब भी अंग्रेज़ी और हिंग्लिश में काम करते हैं।</string>
 </resources>
