@@ -140,4 +140,23 @@
     <string name="weekahead_k_date">DATE</string>
     <string name="weekahead_k_delivery">ORDER</string>
     <string name="weekahead_k_follow">CHASE</string>
+
+    <string name="search_button">Search</string>
+    <string name="search_caption">SEARCH · ON THIS PHONE</string>
+    <string name="search_hint">Search notes, tasks, payments, trips…</string>
+    <string name="search_indexing">READING YOUR DATA…</string>
+    <string name="search_intro">Finds notes, tasks, lists, journal pages, people, trips, orders, payments from the last year, bills, things you asked Apex to remember, and important dates. Nothing leaves your phone.</string>
+    <string name="search_none">Nothing matches "%1$s".</string>
+    <string name="search_count">%1$d FOUND</string>
+    <string name="search_k_note">NOTE</string>
+    <string name="search_k_task">TASK</string>
+    <string name="search_k_list">LIST</string>
+    <string name="search_k_journal">JOURNAL</string>
+    <string name="search_k_person">PERSON</string>
+    <string name="search_k_trip">TRIP</string>
+    <string name="search_k_order">ORDER</string>
+    <string name="search_k_payment">PAYMENT</string>
+    <string name="search_k_bill">BILL</string>
+    <string name="search_k_memory">MEMORY</string>
+    <string name="search_k_date">DATE</string>
 </resources>

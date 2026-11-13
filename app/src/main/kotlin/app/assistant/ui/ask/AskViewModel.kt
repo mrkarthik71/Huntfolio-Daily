@@ -102,7 +102,8 @@ class AskViewModel @Inject constructor(
         viewModelScope.launch {
             val zone = time.zone()
             val now = time.now().atZone(zone).toLocalDateTime()
-            val action = app.assistant.domain.engine.ask.AskActions.parse(text, now.toLocalDate())
+            // A typed question mark means a question, never a command ("buy or rent?").
+            val action = if (raw.trim().endsWith("?")) null else app.assistant.domain.engine.ask.AskActions.parse(text, now.toLocalDate())
             val answer = if (action != null) carryOut(action) else AskEngine.answer(AskParser.parse(text, now), snapshot())
             val id = nextId++
             var saved = false

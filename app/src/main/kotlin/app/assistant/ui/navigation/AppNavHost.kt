@@ -1,7 +1,6 @@
 package app.assistant.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -66,6 +65,7 @@ object Routes {
     const val TRIPS = "trips"
     const val PLANS = "plans"
     const val WEEK_AHEAD = "weekahead"
+    const val SEARCH = "search"
     const val ORDERS = "orders"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
@@ -169,11 +169,21 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: app.assistant.ui.Star
                     androidx.compose.foundation.layout.Column(
                         verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(androidx.compose.ui.unit.Dp(12f)),
                     ) {
-                        app.assistant.ui.designsystem.PillButton(
-                            stringResource(R.string.weekahead_button),
-                            onClick = { nav.navigate(Routes.WEEK_AHEAD) },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
+                        androidx.compose.foundation.layout.Row(
+                            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(androidx.compose.ui.unit.Dp(8f)),
+                        ) {
+                            app.assistant.ui.designsystem.PillButton(
+                                stringResource(R.string.weekahead_button),
+                                onClick = { nav.navigate(Routes.WEEK_AHEAD) },
+                                modifier = Modifier.weight(1f),
+                            )
+                            app.assistant.ui.designsystem.PillButton(
+                                stringResource(R.string.search_button),
+                                onClick = { nav.navigate(Routes.SEARCH) },
+                                container = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                                content = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
                         app.assistant.ui.today.HorizonTodayPanel(onOpenPlanner = { nav.navigate(Routes.HORIZON) }, onOpenPlans = { nav.navigate(Routes.PLANS) })
                         app.assistant.ui.settings.ConnectSourcesPanel(onOpen = { source -> sourceRoute(source)?.let(nav::navigate) })
                         app.assistant.ui.health.BodyTiles()
@@ -223,6 +233,19 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: app.assistant.ui.Star
                 app.assistant.ui.life.ListsScreen(onBack = { nav.popBackStack() }, onOpenReminders = { nav.navigate(Routes.REMINDERS) })
             }
             composable(Routes.JOURNAL) { app.assistant.ui.life.JournalScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.SEARCH) {
+                app.assistant.ui.search.SearchScreen(onBack = { nav.popBackStack() }, onOpen = { route ->
+                    if (route in TABS.map { it.route }) {
+                        nav.navigate(route) {
+                            popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    } else {
+                        nav.navigate(route)
+                    }
+                })
+            }
             composable(Routes.WEEK_AHEAD) { app.assistant.ui.today.WeekAheadScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.PLANS) {
                 app.assistant.ui.today.PlansScreen(
@@ -349,6 +372,6 @@ internal fun isOpenableRoute(route: String): Boolean {
 
 private val OPENABLE = setOf(
     "today", "tasks", "plan", "money", "inbox", "ask", "share", "review", "settings", "goals", "subscriptions",
-    "weekplan", "weekahead", "plans", "horizon", "trips", "orders", "people", "notes", "lists", "journal", "focus", "year", "vault", "body",
+    "weekplan", "weekahead", "search", "plans", "horizon", "trips", "orders", "people", "notes", "lists", "journal", "focus", "year", "vault", "body",
 )
 private const val MAX_ROUTE = 2_000
