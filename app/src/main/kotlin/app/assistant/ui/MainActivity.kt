@@ -31,7 +31,8 @@ class MainActivity : FragmentActivity() {
 
     private val appViewModel: AppViewModel by viewModels()
 
-    private val startRoute = androidx.compose.runtime.mutableStateOf<String?>(null)
+    private val startRoute = androidx.compose.runtime.mutableStateOf<StartRoute?>(null)
+    private var launches = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // FLAG_SECURE keeps user data out of screenshots and the recent-apps preview (Requirement
@@ -43,7 +44,7 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         permissions.attach(this)
-        startRoute.value = intent?.getStringExtra(EXTRA_ROUTE)
+        startRoute.value = intent?.getStringExtra(EXTRA_ROUTE)?.let { StartRoute(it, launches++) }
         setContent {
             AssistantTheme {
                 AssistantApp(
@@ -63,7 +64,7 @@ class MainActivity : FragmentActivity() {
         super.onNewIntent(intent)
         setIntent(intent)
         // A notification tapped while the app is running routes after the next unlock.
-        intent.getStringExtra(EXTRA_ROUTE)?.let { startRoute.value = it }
+        intent.getStringExtra(EXTRA_ROUTE)?.let { startRoute.value = StartRoute(it, launches++) }
     }
 
     private companion object {
@@ -76,3 +77,6 @@ class MainActivity : FragmentActivity() {
         permissions.checkRevocations()
     }
 }
+
+/** A screen to open on launch; [nonce] makes a second tap on the same notification or tile open it again. */
+data class StartRoute(val route: String, val nonce: Long)

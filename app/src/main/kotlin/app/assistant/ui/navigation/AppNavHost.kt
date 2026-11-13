@@ -90,7 +90,7 @@ private val TABS = buildList {
  */
 @Composable
 @Suppress("CyclomaticComplexMethod") // the app's one navigation graph: one branch per destination
-fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
+fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: app.assistant.ui.StartRoute?) {
     val nav = rememberNavController()
     val backStack by nav.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
@@ -99,8 +99,24 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
     val reduced = app.assistant.ui.designsystem.LocalReducedMotion.current
     val transitions = androidx.compose.runtime.remember(reduced) { CredTransitions(TABS.map { it.route }.toSet(), reduced) }
 
+    // Notification taps, the quick-settings tile and the widget open their screen. Tabs replace the stack;
+    // anything else is pushed over Today. A route the graph does not know is ignored.
     androidx.compose.runtime.LaunchedEffect(startRoute) {
-        if (startRoute != null && startRoute.startsWith("share?")) runCatching { nav.navigate(startRoute) }
+        // Older deep links ("goals", "tasks") land on the Plan tab that now holds both.
+        val route = startRoute?.route?.let { if (it == Routes.GOALS || it == Routes.TASKS) Routes.PLAN else it } ?: return@LaunchedEffect
+        if (route == Routes.MONEY && !FeatureFlags.MONEY) return@LaunchedEffect
+        if (!isOpenableRoute(route)) return@LaunchedEffect
+        runCatching {
+            if (route in TABS.map { it.route }) {
+                nav.navigate(route) {
+                    popUpTo(nav.graph.findStartDestination().id) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            } else {
+                nav.navigate(route) { launchSingleTop = true }
+            }
+        }
     }
     Scaffold(
         containerColor = app.assistant.ui.designsystem.AssistantColors.Ground,
@@ -133,15 +149,9 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
     ) { padding ->
         NavHost(
             navController = nav,
-            // Older deep links ("goals", "tasks") land on the Plan tab that now holds both.
-            startDestination = startRoute?.let { if (it == Routes.GOALS || it == Routes.TASKS) Routes.PLAN else it }?.takeIf {
-                it.startsWith("review/") ||
-                    it == Routes.ASK ||
-                    it == Routes.WEEK_PLAN ||
-                    it == Routes.PLAN ||
-                    it == Routes.INBOX ||
-                    (FeatureFlags.MONEY && it == Routes.MONEY)
-            } ?: Routes.TODAY,
+            // Always Today: a launch route is opened on top of it (see the effect above), so a second
+            // notification tap never rebuilds the graph.
+            startDestination = Routes.TODAY,
             modifier = Modifier.fillMaxSize().padding(padding),
             enterTransition = { transitions.enter(this) },
             exitTransition = { transitions.exit(this) },
@@ -318,3 +328,19 @@ private fun sourceRoute(source: app.assistant.domain.model.DataSource): String? 
     app.assistant.domain.model.DataSource.AI_PROVIDER -> Routes.AI_SETTINGS
     else -> null
 }
+
+/**
+ * Routes another app may open through the launch intent. MainActivity is exported, so this is an
+ * allow-list: only screens that change nothing by themselves (share and the task form still wait for
+ * the User to save).
+ */
+internal fun isOpenableRoute(route: String): Boolean {
+    val base = route.substringBefore('?').substringBefore('/')
+    return base in OPENABLE && route.length <= MAX_ROUTE
+}
+
+private val OPENABLE = setOf(
+    "today", "tasks", "plan", "money", "inbox", "ask", "share", "review", "settings", "goals", "subscriptions",
+    "weekplan", "plans", "horizon", "trips", "orders", "people", "notes", "lists", "journal", "focus", "year", "vault", "body",
+)
+private const val MAX_ROUTE = 2_000

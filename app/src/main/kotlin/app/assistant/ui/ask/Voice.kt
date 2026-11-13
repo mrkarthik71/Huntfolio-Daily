@@ -13,28 +13,25 @@ import app.assistant.R
 
 /**
  * Voice input through the phone's own speech recogniser (the system dialog; Apex never records
- * audio itself, so no microphone permission is needed). Offline recognition is preferred when the
- * phone has it. Returns a function that starts listening; [onText] gets what was heard.
+ * audio itself, so no microphone permission is needed). Returns a function that starts listening;
+ * [onText] gets the recogniser's guesses, best first.
  */
 @Composable
-fun rememberVoiceInput(onText: (String) -> Unit): () -> Unit {
+fun rememberVoiceInput(onText: (List<String>) -> Unit): () -> Unit {
     val context = LocalContext.current
     val prompt = stringResource(R.string.voice_prompt)
     val unavailable = stringResource(R.string.voice_unavailable)
-    val language = when (androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language) {
-        "hi" -> "hi-IN"
-        "ta" -> "ta-IN"
-        else -> "en-IN"
-    }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.takeIf { it.isNotBlank() }?.let(onText)
+        // Every guess the recogniser offers, best first; Ask picks the one it can act on.
+        result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.filter { it.isNotBlank() }?.takeIf { it.isNotEmpty() }?.let(onText)
     }
     return {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            .putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            // Listen in the app's language (English, Hindi or Tamil, as spoken in India).
-            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, language)
+            .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, MAX_GUESSES)
+            // Indian English: it also writes Hinglish in Latin letters, which is what Ask's rules read.
+            // (Hindi or Tamil script would only reach the AI, which answers but cannot act.)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN")
             .putExtra(RecognizerIntent.EXTRA_PROMPT, prompt)
         try {
             launcher.launch(intent)
@@ -43,3 +40,5 @@ fun rememberVoiceInput(onText: (String) -> Unit): () -> Unit {
         }
     }
 }
+
+private const val MAX_GUESSES = 5

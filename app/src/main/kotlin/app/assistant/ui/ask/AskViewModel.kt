@@ -89,8 +89,14 @@ class AskViewModel @Inject constructor(
     val ui: StateFlow<AskUi> = _ui.asStateFlow()
     private var nextId = 0
 
+    /** Voice: of the recogniser's guesses, asks the one Ask can act on (see [app.assistant.domain.engine.ask.SpokenText.best]). */
+    fun askSpoken(guesses: List<String>) {
+        val now = time.now().atZone(time.zone()).toLocalDateTime()
+        app.assistant.domain.engine.ask.SpokenText.best(guesses, now)?.let(::ask)
+    }
+
     fun ask(raw: String) {
-        val text = raw.trim()
+        val text = app.assistant.domain.engine.ask.SpokenText.normalise(raw)
         if (text.isEmpty() || _ui.value.busy) return
         _ui.update { it.copy(busy = true) }
         viewModelScope.launch {

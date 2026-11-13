@@ -103,7 +103,7 @@ private val GROUPS = listOf(
 @Composable
 fun AskScreen(onBack: () -> Unit, initialQuestion: String? = null, startVoice: Boolean = false, viewModel: AskViewModel = hiltViewModel()) {
     val ui by viewModel.ui.collectAsStateWithLifecycle()
-    val voice = rememberVoiceInput { viewModel.ask(it) }
+    val voice = rememberVoiceInput(viewModel::askSpoken)
     AskContent(ui, onBack = onBack, onAsk = viewModel::ask, onClear = viewModel::clear, onVoice = voice)
     LaunchedEffect(initialQuestion) { if (!initialQuestion.isNullOrBlank()) viewModel.ask(initialQuestion) }
     // The centre mic key opens Ask listening; only once, not again after rotation.

@@ -22,7 +22,7 @@ import app.assistant.ui.startup.CannotUnlockScreen
  * the App_Lock is unlocked, so no user data is loaded into UI state while locked (design: App_Lock).
  */
 @Composable
-fun AssistantApp(viewModel: AppViewModel, startRoute: String?, onUnlock: () -> Unit, onOpenSecuritySettings: () -> Unit) {
+fun AssistantApp(viewModel: AppViewModel, startRoute: app.assistant.ui.StartRoute?, onUnlock: () -> Unit, onOpenSecuritySettings: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     when (val s = state) {
         AppUiState.Starting -> Loading()
