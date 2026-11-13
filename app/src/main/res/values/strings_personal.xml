@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="life_add">Add</string>
+
+    <string name="notes_button">Notes</string>
+    <string name="notes_caption">NOTES · ON THIS PHONE</string>
+    <string name="notes_title">Notes</string>
+    <string name="notes_search">Search notes</string>
+    <string name="notes_empty">Jot down anything you want to remember: a policy number, a recipe, what the plumber said.</string>
+    <string name="notes_no_match">No note has all of those words.</string>
+    <string name="notes_pinned">PINNED</string>
+    <string name="notes_new">New note</string>
+    <string name="notes_edit">Edit note</string>
+    <string name="notes_field_title">Title</string>
+    <string name="notes_field_body">Note</string>
+    <string name="notes_pin">Pin to top</string>
+
+    <string name="journal_button">Journal</string>
+    <string name="journal_caption">JOURNAL</string>
+    <string name="journal_title">Today\'s page</string>
+    <string name="journal_prompt">What went well, what was hard, what is on your mind?</string>
+    <string name="journal_past">EARLIER</string>
+
+    <string name="lists_button">Lists</string>
+    <string name="lists_caption">LISTS</string>
+    <string name="lists_title">Lists</string>
+    <string name="lists_empty">Groceries, packing, things to buy. Items you buy often can come back by themselves.</string>
+    <string name="lists_count">%1$s · %2$d LEFT</string>
+    <string name="lists_every">Every %1$d days</string>
+    <string name="lists_once">Once</string>
+    <string name="lists_add">Add to a list</string>
+    <string name="lists_item">Item</string>
+    <string name="lists_list_name">List (for example %1$s)</string>
+    <string name="lists_default">Groceries</string>
+    <string name="lists_repeat">COMES BACK</string>
+    <string name="lists_place">Remind me when I am at a shop</string>
+
+    <string name="people_button">People</string>
+    <string name="people_caption">KEEP IN TOUCH</string>
+    <string name="people_title">Keep in touch</string>
+    <string name="people_empty">Add the people you want to call or message regularly. Apex shows who is due.</string>
+    <string name="people_never">Not marked yet</string>
+    <string name="people_since">%1$d days ago · every %2$d days</string>
+    <string name="people_talked">Talked today</string>
+    <string name="people_add">Keep in touch with</string>
+    <string name="people_name">Name</string>
+    <string name="people_every_caption">HOW OFTEN</string>
+
+    <string name="trips_button">Trips</string>
+    <string name="trips_caption">TRIPS · FROM YOUR MAIL</string>
+    <string name="trips_title">Trips</string>
+    <string name="trips_empty">Train, flight, bus and hotel bookings from your connected mail appear here, with reminders the evening before.</string>
+    <string name="trips_notify">Remind me before trips</string>
+    <string name="trips_notify_reason">The evening before, and three hours before a trip with a time.</string>
+    <string name="trip_train">TRAIN</string>
+    <string name="trip_flight">FLIGHT</string>
+    <string name="trip_bus">BUS</string>
+    <string name="trip_hotel">HOTEL</string>
+    <string name="trip_notif_tomorrow">Tomorrow: %1$s %2$s</string>
+    <string name="trip_notif_soon">Leaving soon: %1$s %2$s</string>
+    <string name="trip_notif_ref">PNR / booking %1$s</string>
+    <string name="channel_travel">Trips</string>
+
+    <string name="orders_button">Orders</string>
+    <string name="orders_caption">ORDERS · FROM YOUR MAIL</string>
+    <string name="orders_title">Orders</string>
+    <string name="orders_empty">Online orders from your connected mail appear here: on the way, delivered, and when returns close.</string>
+    <string name="orders_notify">Delivery and return reminders</string>
+    <string name="orders_notify_reason">On the day an order should arrive, and the day before a return window closes.</string>
+    <string name="orders_expected">Expected %1$s</string>
+    <string name="orders_return_by">Return by %1$s</string>
+    <string name="order_ordered">ORDERED</string>
+    <string name="order_shipped">ON THE WAY</string>
+    <string name="order_out">OUT FOR DELIVERY</string>
+    <string name="order_delivered">DELIVERED</string>
+    <string name="order_cancelled">CANCELLED</string>
+    <string name="order_notif_today">%1$s order arriving today</string>
+    <string name="order_notif_return">Last day tomorrow to return your %1$s order</string>
+    <string name="order_notif_ref">Order %1$s</string>
+    <string name="channel_delivery">Deliveries and returns</string>
+
+    <string name="touch_notify">Remind me to keep in touch</string>
+    <string name="touch_notify_reason">One morning note on days someone is due.</string>
+    <string name="touch_notif_title">%1$d people to catch up with</string>
+    <string name="channel_keep_in_touch">Keep in touch</string>
+
+    <string name="ask_did_eyebrow">DONE</string>
+    <string name="ask_did_spend">Logged %1$s spent on %2$s</string>
+    <string name="ask_did_list">Added %1$s to %2$s</string>
+    <string name="ask_did_task">Task added: %1$s, for %2$s</string>
+    <string name="ask_did_move">Moved "%1$s" to %2$s</string>
+    <string name="ask_did_talked">Marked: you talked to %1$s today</string>
+    <string name="ask_did_journal">Added to today\'s journal</string>
+    <string name="ask_did_no_task">No open task matches "%1$s".</string>
+    <string name="ask_did_no_person">%1$s is not on your Keep in touch list yet. Add them under Inbox › People.</string>
+    <string name="ask_did_failed">That could not be saved. Check the amount or wording and try again.</string>
+    <string name="tile_ask">Ask Apex</string>
+
+    <string name="plans_button">My plans</string>
+    <string name="plans_caption">PLANS · WEEK MONTH YEAR</string>
+    <string name="plans_title">My plans</string>
+    <string name="plans_empty">No plans yet. Tell Apex what you want to finish and it will spread the work over your days.</string>
+    <string name="plans_checkin">WEEKLY CHECK-IN</string>
+    <string name="plans_checkin_none">Nothing planned ahead yet.</string>
+    <string name="plans_checkin_good">Everything is on track.</string>
+    <string name="plans_checkin_behind">%1$d steps behind · %2$d plans finishing late. Catch up from Today, or move steps below.</string>
+    <string name="plans_pace">Your tasks take about %1$d%% of what you estimate. New plans and Plan my day allow for it.</string>
+    <string name="plans_pace_learning">Use Focus on your tasks and Apex will learn how long things really take you.</string>
+    <string name="plans_progress">%1$d of %2$d steps done</string>
+    <string name="plans_finish">Finishes %1$s</string>
+    <string name="plans_finish_late">Finishes %1$s, after the deadline</string>
+    <string name="plans_edit_step">Edit step</string>
+    <string name="plans_step_title">Step</string>
+    <string name="plans_step_minutes">Minutes</string>
+    <string name="plans_remove_step">Remove step</string>
+    <string name="plans_add_step">Add a step</string>
+    <string name="plans_end">End this plan</string>
+    <string name="plans_earlier">Earlier</string>
+    <string name="plans_later">Later</string>
+    <string name="horizon_pace_note">Allowing for your pace: you usually need %1$d%% of your estimates.</string>
+</resources>

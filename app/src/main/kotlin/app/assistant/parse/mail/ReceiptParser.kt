@@ -18,11 +18,14 @@ data class Receipt(val merchant: String, val amountPaise: Long, val dueDate: Loc
 object ReceiptParser {
     private val billWords = Regex(
         "\\b(bill|invoice|statement|payment due|amount due|total due|amount payable|due date|renewal|" +
-            "renews|subscription|auto-?debit|autopay|e-?mandate|membership|premium due|receipt)\\b",
+            "renews|subscription|auto-?debit|autopay|e-?mandate|membership|premium due|receipt|emi|instal?ment|loan repayment)\\b",
         RegexOption.IGNORE_CASE,
     )
     private val recurringWords =
-        Regex("\\b(subscription|renewal|renews|auto-?renew|membership|monthly plan|annual plan|auto-?debit|autopay|e-?mandate)\\b", RegexOption.IGNORE_CASE)
+        Regex(
+            "\\b(subscription|renewal|renews|auto-?renew|membership|monthly plan|annual plan|auto-?debit|autopay|e-?mandate|emi|instal?ment)\\b",
+            RegexOption.IGNORE_CASE,
+        )
     private val paidWords =
         Regex(
             "\\b(payment (received|successful)|successfully paid|thank you for your payment|has been paid|paid on|payment confirmation)\\b",
@@ -87,7 +90,8 @@ object ReceiptParser {
         return rupees * HUNDRED + frac
     }
 
-    private fun parseDate(s: String, received: LocalDate): LocalDate? {
+    /** A date written in the usual ways ("15 Dec 2026", "15/12/2026", "Dec 15, 2026", "15th Dec"). */
+    fun parseDate(s: String, received: LocalDate): LocalDate? {
         val norm = s.replace(Regex("\\s+"), " ").replace(Regex("(\\d)(st|nd|rd|th)\\b"), "$1")
         for (f in dateFormats) runCatching { return LocalDate.parse(norm, f) }
         for (f in noYear) {

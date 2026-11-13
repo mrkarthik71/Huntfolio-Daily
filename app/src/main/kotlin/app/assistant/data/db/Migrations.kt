@@ -305,3 +305,22 @@ private val V13_SQL = listOf(
     "CREATE TABLE IF NOT EXISTS `vault_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date_id` INTEGER, `file_name` TEXT NOT NULL, `mime` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
     "CREATE INDEX IF NOT EXISTS `index_vault_item_date_id` ON `vault_item` (`date_id`)",
 )
+
+/** v14: notes, journal, lists, keep in touch, trips and orders. New tables only; nothing existing changes. */
+val MIGRATION_13_14: Migration = object : Migration(13, 14) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V14_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V14_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `body` TEXT NOT NULL, `pinned` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `journal_entry` (`date` TEXT NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`date`))",
+    "CREATE TABLE IF NOT EXISTS `list_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `list_name` TEXT NOT NULL, `title` TEXT NOT NULL, `done` INTEGER NOT NULL, `repeat_days` INTEGER, `done_on` TEXT)",
+    "CREATE INDEX IF NOT EXISTS `index_list_item_list_name` ON `list_item` (`list_name`)",
+    "CREATE TABLE IF NOT EXISTS `keep_in_touch` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `every_days` INTEGER NOT NULL, `last_talked` TEXT)",
+    "CREATE TABLE IF NOT EXISTS `trip` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kind` TEXT NOT NULL, `title` TEXT NOT NULL, `ref_code` TEXT, `starts_at` INTEGER NOT NULL, `from_place` TEXT, `to_place` TEXT, `source_ref` TEXT NOT NULL)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS `index_trip_source_ref` ON `trip` (`source_ref`)",
+    "CREATE TABLE IF NOT EXISTS `order_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `merchant` TEXT NOT NULL, `order_ref` TEXT NOT NULL, `status` TEXT NOT NULL, `expected_on` TEXT, `return_by` TEXT, `updated_at` INTEGER NOT NULL)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS `index_order_item_order_ref` ON `order_item` (`order_ref`)",
+)

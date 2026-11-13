@@ -71,6 +71,7 @@ class LifeAlarmPlanner @Inject constructor(
     private val followUps: FollowUpStore,
     private val reflection: ReflectionStore,
     private val holdings: app.assistant.domain.port.HoldingStore,
+    private val personal: app.assistant.domain.port.PersonalStore,
     private val armer: AlarmArmer,
 ) : LifeAlarms {
 
@@ -99,6 +100,18 @@ class LifeAlarmPlanner @Inject constructor(
         plan(NotificationType.MONEY_DUE, NotificationType.MONEY_DUE in s.enabledTypes) {
             app.assistant.domain.engine.life.NetWorthRules.dueAlerts(holdings.holdingsNow(), today, today.plusDays(1))
                 .associate { it.refKey to at(it.on.minusDays(it.leadDays.toLong()), morning, zone, now) }
+        }
+        plan(NotificationType.TRAVEL, NotificationType.TRAVEL in s.enabledTypes) {
+            app.assistant.domain.engine.life.TripRules.alerts(personal.trips().first(), now, zone).associate { it.refKey to it.at }
+        }
+        plan(NotificationType.DELIVERY, NotificationType.DELIVERY in s.enabledTypes) {
+            app.assistant.domain.engine.life.OrderRules.alerts(personal.orders().first(), today)
+                .filter { !it.second.isAfter(today.plusDays(1)) }
+                .associate { (ref, day) -> ref to at(day, morning, zone, now) }
+        }
+        plan(NotificationType.KEEP_IN_TOUCH, NotificationType.KEEP_IN_TOUCH in s.enabledTypes) {
+            val due = app.assistant.domain.engine.life.TouchAlerts.due(personal.people().first(), today)
+            if (due.isEmpty()) emptyMap() else mapOf("touch:$today" to at(today, morning, zone, now))
         }
         plan(NotificationType.FOCUS_END, NotificationType.FOCUS_END in s.enabledTypes) {
             reflection.running()?.let { mapOf(LifeRefs.focus(it.id) to it.startedAt.plus(Duration.ofMinutes(it.plannedMinutes.toLong()))) } ?: emptyMap()

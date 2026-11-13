@@ -86,6 +86,9 @@ abstract class LifeBindingsModule {
     abstract fun holdingStore(impl: app.assistant.data.repo.RoomHoldingStore): app.assistant.domain.port.HoldingStore
 
     @Binds
+    abstract fun personalStore(impl: app.assistant.data.repo.RoomPersonalStore): app.assistant.domain.port.PersonalStore
+
+    @Binds
     abstract fun vaultStore(impl: app.assistant.data.repo.RoomVaultStore): app.assistant.domain.port.VaultStore
 
     @Binds

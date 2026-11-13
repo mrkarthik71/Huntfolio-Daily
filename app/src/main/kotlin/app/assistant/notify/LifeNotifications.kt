@@ -32,6 +32,7 @@ class LifeNotifications @Inject constructor(
     private val reflection: ReflectionStore,
     private val time: TimeSource,
     private val holdings: app.assistant.domain.port.HoldingStore,
+    private val personal: app.assistant.domain.port.PersonalStore,
 ) {
     /** Null means there is nothing to say any more (done, deleted or switched off). */
     suspend fun content(row: QueuedAlarm): NotificationContent? = when (row.type) {
@@ -40,10 +41,13 @@ class LifeNotifications @Inject constructor(
         NotificationType.FOLLOW_UP -> followUp(row.refKey)
         NotificationType.FOCUS_END -> focus(row.refKey)
         NotificationType.MONEY_DUE -> moneyDue(row.refKey)
+        NotificationType.TRAVEL -> travel(row.refKey)
+        NotificationType.DELIVERY -> delivery(row.refKey)
+        NotificationType.KEEP_IN_TOUCH -> touch()
         NotificationType.WEEKLY_PLAN -> NotificationContent(
             context.getString(R.string.week_notif_title),
             context.getString(R.string.week_notif_text),
-            "weekplan",
+            "plans",
         )
         else -> null
     }
@@ -98,8 +102,58 @@ class LifeNotifications @Inject constructor(
         )
     }
 
+    private suspend fun travel(ref: String): NotificationContent? {
+        val p = ref.split(':').takeIf { it.size == 3 && it[0] == "trip" } ?: return null
+        val t = personal.trips().first().firstOrNull { it.id == p[1].toLongOrNull() } ?: return null
+        val zone = time.zone()
+        val clock = if (app.assistant.domain.engine.life.TripRules.hasTime(t, zone)) {
+            java.time.format.DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT).format(t.startsAt.atZone(zone))
+        } else {
+            ""
+        }
+        val title = context.getString(if (p[2] == "eve") R.string.trip_notif_tomorrow else R.string.trip_notif_soon, t.title, clock).trim()
+        val text = listOfNotNull(
+            t.ref?.let { context.getString(R.string.trip_notif_ref, it) },
+            if (t.from != null && t.to != null) "${t.from} → ${t.to}" else null,
+        ).joinToString(" · ")
+        return NotificationContent(title, text, "trips")
+    }
+
+    private suspend fun delivery(ref: String): NotificationContent? {
+        val p = ref.split(':').takeIf { it.size == ORDER_PARTS && it[0] == "order" } ?: return null
+        val o = personal.orders().first().firstOrNull { it.id == p[1].toLongOrNull() } ?: return null
+        return when (p[2]) {
+            "eta" -> if (o.status == app.assistant.domain.model.OrderStatus.DELIVERED || o.status == app.assistant.domain.model.OrderStatus.CANCELLED) {
+                null
+            } else {
+                NotificationContent(
+                    context.getString(R.string.order_notif_today, o.merchant),
+                    context.getString(R.string.order_notif_ref, o.orderRef),
+                    "orders",
+                )
+            }
+            else -> NotificationContent(
+                context.getString(R.string.order_notif_return, o.merchant),
+                context.getString(R.string.order_notif_ref, o.orderRef),
+                "orders",
+            )
+        }
+    }
+
+    private suspend fun touch(): NotificationContent? {
+        val due = app.assistant.domain.engine.life.TouchAlerts.due(personal.people().first(), time.today())
+        if (due.isEmpty()) return null
+        return NotificationContent(
+            context.getString(R.string.touch_notif_title, due.size),
+            due.take(TOUCH_NAMES).joinToString(", ") { it.name },
+            "people",
+        )
+    }
+
     private companion object {
         const val DUE_PARTS = 4
+        const val ORDER_PARTS = 4
+        const val TOUCH_NAMES = 4
     }
 
     private suspend fun followUp(ref: String): NotificationContent? {

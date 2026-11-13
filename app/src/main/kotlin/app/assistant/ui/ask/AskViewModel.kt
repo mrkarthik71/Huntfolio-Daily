@@ -83,6 +83,7 @@ class AskViewModel @Inject constructor(
     private val habitStore: app.assistant.domain.port.HabitStore,
     private val followUps: app.assistant.domain.port.FollowUpStore,
     private val notify: app.assistant.ui.life.NotifySwitch,
+    private val personal: app.assistant.domain.port.PersonalStore,
 ) : ViewModel() {
     private val _ui = MutableStateFlow(AskUi())
     val ui: StateFlow<AskUi> = _ui.asStateFlow()
@@ -95,8 +96,8 @@ class AskViewModel @Inject constructor(
         viewModelScope.launch {
             val zone = time.zone()
             val now = time.now().atZone(zone).toLocalDateTime()
-            val query = AskParser.parse(text, now)
-            val answer = AskEngine.answer(query, snapshot())
+            val action = app.assistant.domain.engine.ask.AskActions.parse(text, now.toLocalDate())
+            val answer = if (action != null) carryOut(action) else AskEngine.answer(AskParser.parse(text, now), snapshot())
             val id = nextId++
             var saved = false
             when (answer) {
@@ -122,6 +123,47 @@ class AskViewModel @Inject constructor(
             if (answer is AskAnswer.Unknown) {
                 val ai = aiAnswer(text)
                 _ui.update { s -> s.copy(turns = s.turns.map { if (it.id == id) it.copy(ai = ai) else it }, busy = false) }
+            }
+        }
+    }
+
+    /** Carries out a command the User typed or said; the answer shows exactly what changed. */
+    @Suppress("CyclomaticComplexMethod") // one branch per command
+    private suspend fun carryOut(a: app.assistant.domain.engine.ask.AskAction): AskAnswer.Did {
+        val today = time.today()
+        val now = time.now()
+        return when (a) {
+            is app.assistant.domain.engine.ask.AskAction.LogSpend -> {
+                val merchant = a.what.ifBlank { "Cash" }.take(app.assistant.domain.engine.transactions.TransactionValidator.MERCHANT_MAX)
+                val r = transactions.addManual(
+                    app.assistant.domain.engine.transactions.ManualTransactionInput(app.assistant.domain.model.TxnType.DEBIT, a.amount, now, merchant),
+                )
+                AskAnswer.Did(a, r is app.assistant.domain.error.Outcome.Ok)
+            }
+            is app.assistant.domain.engine.ask.AskAction.AddToList -> {
+                a.items.forEach { personal.addListItem(a.list, it, null) }
+                AskAnswer.Did(a, true)
+            }
+            is app.assistant.domain.engine.ask.AskAction.AddTask -> {
+                val r = tasks.save(app.assistant.domain.engine.tasks.TaskInput(a.title, plannedDate = a.on), now = now, today = today)
+                AskAnswer.Did(a, r is app.assistant.domain.error.Outcome.Ok)
+            }
+            is app.assistant.domain.engine.ask.AskAction.MoveTask -> {
+                val q = a.query.lowercase()
+                val match = tasks.openTasks().first().firstOrNull { it.title.lowercase().contains(q) }
+                val ok = match != null && tasks.move(match.id, a.to, today) is app.assistant.domain.error.Outcome.Ok
+                AskAnswer.Did(a, ok, match?.title.orEmpty())
+            }
+            is app.assistant.domain.engine.ask.AskAction.Talked -> {
+                val name = a.name.lowercase()
+                val person = personal.people().first().firstOrNull { it.name.lowercase() == name || it.name.lowercase().startsWith(name) }
+                if (person != null) personal.talkedTo(person.id, today)
+                AskAnswer.Did(a, person != null, person?.name.orEmpty())
+            }
+            is app.assistant.domain.engine.ask.AskAction.Journal -> {
+                val old = personal.journal().first().firstOrNull { it.date == today }?.text
+                personal.saveJournal(today, listOfNotNull(old, a.text).joinToString("\n"))
+                AskAnswer.Did(a, true)
             }
         }
     }

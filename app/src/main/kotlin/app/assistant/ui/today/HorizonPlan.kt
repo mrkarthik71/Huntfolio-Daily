@@ -78,7 +78,7 @@ sealed interface HorizonStage {
 
     data object Thinking : HorizonStage
 
-    data class Proposal(val plan: HorizonPlan, val aiSteps: Boolean, val summary: String?) : HorizonStage
+    data class Proposal(val plan: HorizonPlan, val aiSteps: Boolean, val summary: String?, val pace: Double? = null) : HorizonStage
 
     data class Saved(val goals: Int, val sessions: Int) : HorizonStage
 }
@@ -98,6 +98,7 @@ class HorizonPlanViewModel @Inject constructor(
     private val planner: PlannerRepository,
     private val advisor: Advisor,
     private val time: TimeSource,
+    private val pace: PaceReader,
 ) : ViewModel() {
     private val _stage = MutableStateFlow<HorizonStage>(HorizonStage.Editing)
     val stage: StateFlow<HorizonStage> = _stage.asStateFlow()
@@ -135,14 +136,17 @@ class HorizonPlanViewModel @Inject constructor(
                 val size = runCatching { StepSize.valueOf(s.size) }.getOrNull() ?: return@mapNotNull null
                 HorizonStep(s.handle, s.title, size)
             }
-            val plan = HorizonPlanner.plan(horizon, time.today(), list, steps, daysPerWeek, maxDailyMinutes) { g ->
+            // The User's hours, stretched to their learned pace when Apex has one.
+            val factor = pace.factor()
+            val paced = list.map { g -> g.copy(hours = ((g.hours * (factor ?: 1.0)) + HALF).toInt().coerceAtLeast(1)) }
+            val plan = HorizonPlanner.plan(horizon, time.today(), paced, steps, daysPerWeek, maxDailyMinutes) { g ->
                 listOf(
                     HorizonStep(g.key, words.start.format(g.name), StepSize.S),
                     HorizonStep(g.key, words.work.format(g.name), StepSize.L),
                     HorizonStep(g.key, words.finish.format(g.name), StepSize.S),
                 )
             }
-            _stage.value = HorizonStage.Proposal(plan, steps.isNotEmpty(), (advice as? BreakdownAdvice.Steps)?.summary)
+            _stage.value = HorizonStage.Proposal(plan, steps.isNotEmpty(), (advice as? BreakdownAdvice.Steps)?.summary, factor)
         }
     }
 
@@ -191,6 +195,7 @@ class HorizonPlanViewModel @Inject constructor(
         const val MAX_HOURS = 2_000
         const val MAX_PRIORITY = 5
         const val TASKS_UNIT = "tasks"
+        const val HALF = 0.5
     }
 }
 
@@ -341,6 +346,13 @@ private fun androidx.compose.foundation.lazy.LazyListScope.proposal(s: HorizonSt
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             s.summary?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface) }
+            s.pace?.let {
+                Text(
+                    stringResource(R.string.horizon_pace_note, app.assistant.domain.engine.schedule.PaceRules.percent(it)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
             Text(
                 stringResource(if (s.aiSteps) R.string.horizon_steps_ai else R.string.horizon_steps_rules),
                 style = MaterialTheme.typography.bodySmall,

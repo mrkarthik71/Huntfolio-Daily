@@ -17,6 +17,7 @@ import app.assistant.domain.port.MailConnector
 import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.SettingsStore
 import app.assistant.domain.port.TimeSource
+import app.assistant.parse.mail.toTrip
 import app.assistant.security.refs.SourceRefFactory
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,6 +31,7 @@ import javax.inject.Singleton
  * written per sync. An email at or above the Importance_Threshold raises a notification.
  */
 @Singleton
+@Suppress("LongParameterList") // one port per thing a mail can become: inbox item, bill, trip or order
 class MailSync @Inject constructor(
     private val holder: DatabaseHolder,
     private val connector: MailConnector,
@@ -42,6 +44,7 @@ class MailSync @Inject constructor(
     private val notify: MailNotifier,
     private val accountId: MailAccountId,
     private val billProposals: app.assistant.domain.port.BillProposals,
+    private val personal: app.assistant.domain.port.PersonalStore,
 ) {
     data class SyncResult(val fetched: Int, val stored: Int, val notified: Int, val error: Boolean)
 
@@ -68,6 +71,7 @@ class MailSync @Inject constructor(
                     fetched++
                     if (MailTriage.isOtp(message.header, otpPatterns.patterns())) continue
                     proposeBill(message)
+                    captureTripOrOrder(message)
                     if (!MailTriage.shortlisted(message.header, rules)) continue
                     val outcome = scoreAndStore(message, rules, cfg.mailImportanceThreshold, dao, db)
                     if (outcome != null) {
@@ -134,6 +138,26 @@ class MailSync @Inject constructor(
         val r = app.assistant.parse.mail.ReceiptParser.parse(h.from, h.subject, message.snippet, received) ?: return
         val due = r.dueDate ?: if (r.recurring) received.plusMonths(1) else null
         runCatching { billProposals.propose(r.merchant, app.assistant.domain.model.Paise(r.amountPaise), due) }
+    }
+
+    /**
+     * Bookings and order updates become Trips and Orders: only the booking reference, dates, places,
+     * shop and order number are kept, never the message. A later mail about the same booking or order
+     * updates it.
+     */
+    private suspend fun captureTripOrOrder(message: MailMessage) {
+        val h = message.header
+        val zone = time.zone()
+        val received = h.receivedAt.atZone(zone).toLocalDate()
+        runCatching {
+            app.assistant.parse.mail.TripParser.parse(h.from, h.subject, message.snippet, received)?.let { t ->
+                personal.upsertTrip(t.toTrip(zone))
+            } ?: app.assistant.parse.mail.OrderParser.parse(h.from, h.subject, message.snippet, received)?.let { o ->
+                personal.upsertOrder(
+                    app.assistant.domain.model.Order(0, o.merchant, o.orderRef, o.status, o.expectedOn, o.returnBy, h.receivedAt),
+                )
+            }
+        }
     }
 
     /** The classifier for shortlisted mail; falls back to (Rule_Score, OTHER) when AI is off or fails. */

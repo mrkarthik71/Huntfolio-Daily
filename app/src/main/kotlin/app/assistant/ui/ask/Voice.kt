@@ -21,6 +21,11 @@ fun rememberVoiceInput(onText: (String) -> Unit): () -> Unit {
     val context = LocalContext.current
     val prompt = stringResource(R.string.voice_prompt)
     val unavailable = stringResource(R.string.voice_unavailable)
+    val language = when (androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language) {
+        "hi" -> "hi-IN"
+        "ta" -> "ta-IN"
+        else -> "en-IN"
+    }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()?.takeIf { it.isNotBlank() }?.let(onText)
     }
@@ -28,8 +33,8 @@ fun rememberVoiceInput(onText: (String) -> Unit): () -> Unit {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             .putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            // Ask understands English and Hinglish, so listen in Indian English whatever the app language.
-            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-IN")
+            // Listen in the app's language (English, Hindi or Tamil, as spoken in India).
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, language)
             .putExtra(RecognizerIntent.EXTRA_PROMPT, prompt)
         try {
             launcher.launch(intent)

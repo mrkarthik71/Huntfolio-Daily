@@ -65,6 +65,7 @@ class PlanDayViewModel @Inject constructor(
     private val settings: SettingsStore,
     private val body: BodySignals,
     private val time: TimeSource,
+    private val pace: PaceReader,
 ) : ViewModel() {
     private val _proposal = MutableStateFlow<DayProposal?>(null)
     val proposal: StateFlow<DayProposal?> = _proposal.asStateFlow()
@@ -96,7 +97,20 @@ class PlanDayViewModel @Inject constructor(
                         (t.plannedDate != null && t.plannedDate.isBefore(today)) ||
                         (t.dueDate != null && !t.dueDate.isAfter(today.plusDays(2)))
                     )
-        }.map { PlanTask(it.id.value, it.title, it.estimateMinutes ?: DayPlanner.DEFAULT_MINUTES, it.priority, it.energy, it.dueDate) }
+        }.let { list ->
+            // Estimates stretched (or shrunk) to how long the User's tasks really take.
+            val factor = pace.factor()
+            list.map {
+                PlanTask(
+                    it.id.value,
+                    it.title,
+                    app.assistant.domain.engine.schedule.PaceRules.adjust(it.estimateMinutes ?: DayPlanner.DEFAULT_MINUTES, factor),
+                    it.priority,
+                    it.energy,
+                    it.dueDate,
+                )
+            }
+        }
         val meetings = runCatching { calendar.eventsOn(today).first().timed.mapNotNull { f -> f.timed } }.getOrDefault(emptyList())
         val routines = runCatching { planner.routines().first() }.getOrDefault(emptyList()).filter { it.active && today.dayOfWeek in it.days }
         val busy = meetings.map { Span(minute(it.start), maxOf(minute(it.start), minute(it.end))) } +

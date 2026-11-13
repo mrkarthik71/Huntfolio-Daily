@@ -79,6 +79,7 @@ class BillDueNotificationTest {
                     app.assistant.data.repo.RoomReflectionStore(provider),
                     time,
                     app.assistant.data.repo.RoomHoldingStore(provider),
+                    app.assistant.data.repo.RoomPersonalStore(provider),
                 )
             },
         )

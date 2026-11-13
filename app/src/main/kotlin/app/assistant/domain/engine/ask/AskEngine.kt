@@ -122,6 +122,9 @@ sealed interface AskAnswer {
 
     data class Habits(val items: List<HabitFact>) : AskAnswer
 
+    /** A command the User gave ([AskAction]) and whether it was carried out ([done] false: nothing matched, e.g. no such task). */
+    data class Did(val action: AskAction, val done: Boolean, val detail: String = "") : AskAnswer
+
     /** Rules have no answer; the caller may ask the AI with redacted facts. */
     data class Unknown(val text: String) : AskAnswer
 }

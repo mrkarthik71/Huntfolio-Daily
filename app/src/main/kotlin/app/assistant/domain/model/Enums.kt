@@ -66,6 +66,15 @@ enum class NotificationType {
     /** A SIP, EMI or card payment due tomorrow or today. */
     MONEY_DUE,
 
+    /** A train, flight, bus or hotel booking: the evening before and three hours before. */
+    TRAVEL,
+
+    /** An order arriving today, or a return window about to close. */
+    DELIVERY,
+
+    /** Someone the User wants to keep in touch with is due. */
+    KEEP_IN_TOUCH,
+
     /** Only where important dates are enabled (Requirement 68). */
     IMPORTANT_DATE,
 }

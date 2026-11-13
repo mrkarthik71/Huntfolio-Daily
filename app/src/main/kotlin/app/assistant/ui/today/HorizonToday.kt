@@ -88,7 +88,7 @@ class HorizonTodayViewModel @Inject constructor(private val tasks: TaskRepositor
 
 /** The Today panel: "Today for your plan", with a Done button per step and Catch up when steps were missed. */
 @Composable
-fun HorizonTodayPanel(onOpenPlanner: () -> Unit, viewModel: HorizonTodayViewModel = hiltViewModel()) {
+fun HorizonTodayPanel(onOpenPlanner: () -> Unit, onOpenPlans: () -> Unit = {}, viewModel: HorizonTodayViewModel = hiltViewModel()) {
     val s by viewModel.state.collectAsStateWithLifecycle()
     Column(
         Modifier.fillMaxWidth().raisedPanel(MaterialTheme.shapes.large).padding(16.dp),
@@ -114,13 +114,21 @@ fun HorizonTodayPanel(onOpenPlanner: () -> Unit, viewModel: HorizonTodayViewMode
                 PillButton(stringResource(R.string.horizon_catch_up), onClick = viewModel::catchUp)
             }
         }
-        PillButton(
-            stringResource(R.string.horizon_open),
-            onClick = onOpenPlanner,
-            modifier = Modifier.fillMaxWidth(),
-            container = MaterialTheme.colorScheme.surfaceVariant,
-            content = MaterialTheme.colorScheme.onSurface,
-        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PillButton(
+                stringResource(R.string.horizon_open),
+                onClick = onOpenPlanner,
+                modifier = Modifier.weight(1f),
+                container = MaterialTheme.colorScheme.surfaceVariant,
+                content = MaterialTheme.colorScheme.onSurface,
+            )
+            PillButton(
+                stringResource(R.string.plans_button),
+                onClick = onOpenPlans,
+                container = MaterialTheme.colorScheme.surfaceVariant,
+                content = MaterialTheme.colorScheme.onSurface,
+            )
+        }
     }
 }
 

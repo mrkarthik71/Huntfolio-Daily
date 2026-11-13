@@ -293,6 +293,7 @@ private fun AnswerCard(turn: AskTurn, modifier: Modifier = Modifier, onAsk: (Str
                 Body(stringResource(R.string.ask_remind_need_time))
             }
             is AskAnswer.Unknown -> AiAnswer(turn.ai, onAsk)
+            is AskAnswer.Did -> DidAnswer(a)
             is AskAnswer.FollowUp -> {
                 SavedHeader(stringResource(R.string.ask_follow_saved))
                 Text(a.person, style = MaterialTheme.typography.titleLarge, color = scheme.onSurface)
@@ -337,6 +338,33 @@ private fun AnswerCard(turn: AskTurn, modifier: Modifier = Modifier, onAsk: (Str
 }
 
 private val REMIND_FORMAT = DateTimeFormatter.ofPattern("EEE d MMM · h:mm a", Locale.getDefault())
+
+/** What Ask just did for a command, or why it could not. */
+@Composable
+private fun DidAnswer(a: AskAnswer.Did) {
+    val act = a.action
+    if (!a.done) {
+        Body(
+            when (act) {
+                is app.assistant.domain.engine.ask.AskAction.MoveTask -> stringResource(R.string.ask_did_no_task, act.query)
+                is app.assistant.domain.engine.ask.AskAction.Talked -> stringResource(R.string.ask_did_no_person, act.name)
+                else -> stringResource(R.string.ask_did_failed)
+            },
+        )
+        return
+    }
+    SavedHeader(stringResource(R.string.ask_did_eyebrow))
+    val line = when (act) {
+        is app.assistant.domain.engine.ask.AskAction.LogSpend ->
+            stringResource(R.string.ask_did_spend, app.assistant.domain.format.MoneyFormatter.format(act.amount), act.what.ifBlank { "-" })
+        is app.assistant.domain.engine.ask.AskAction.AddToList -> stringResource(R.string.ask_did_list, act.items.joinToString(", "), act.list)
+        is app.assistant.domain.engine.ask.AskAction.AddTask -> stringResource(R.string.ask_did_task, act.title, formatShortDate(act.on))
+        is app.assistant.domain.engine.ask.AskAction.MoveTask -> stringResource(R.string.ask_did_move, a.detail, formatShortDate(act.to))
+        is app.assistant.domain.engine.ask.AskAction.Talked -> stringResource(R.string.ask_did_talked, a.detail)
+        is app.assistant.domain.engine.ask.AskAction.Journal -> stringResource(R.string.ask_did_journal)
+    }
+    Text(line, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
+}
 
 @Composable
 private fun SavedHeader(text: String) {

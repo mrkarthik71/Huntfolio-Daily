@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,7 +55,7 @@ fun PlanHost(onOpenWeek: () -> Unit = {}) {
 
 /** Inbox: smart reminders and the mail that needs action, in one tab. */
 @Composable
-fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit, onOpenVault: () -> Unit = {}) {
+fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit, onOpenVault: () -> Unit = {}, onOpen: (String) -> Unit = {}) {
     SegmentedHost(
         listOf(
             stringResource(R.string.reminders_title),
@@ -62,7 +63,23 @@ fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit, on
             stringResource(R.string.waiting_tab),
             stringResource(R.string.mail_title),
         ),
-        action = { app.assistant.ui.designsystem.PillButton(stringResource(R.string.vault_button), onClick = onOpenVault) },
+        action = {
+            // Shortcuts to the personal screens, in one scrolling row.
+            androidx.compose.foundation.layout.Row(
+                Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+            ) {
+                PERSONAL_SHORTCUTS.forEach { (label, route) ->
+                    app.assistant.ui.designsystem.PillButton(
+                        stringResource(label),
+                        onClick = { onOpen(route) },
+                        container = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                        content = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                app.assistant.ui.designsystem.PillButton(stringResource(R.string.vault_button), onClick = onOpenVault)
+            }
+        },
     ) { i ->
         when (i) {
             0 -> app.assistant.ui.reminders.RemindersScreen(onBack = null)
@@ -72,3 +89,13 @@ fun InboxHost(onCreateTask: (String) -> Unit, onCreateBill: (String) -> Unit, on
         }
     }
 }
+
+/** Inbox shortcuts: label and route. */
+private val PERSONAL_SHORTCUTS = listOf(
+    R.string.notes_button to Routes.NOTES,
+    R.string.lists_button to Routes.LISTS,
+    R.string.journal_button to Routes.JOURNAL,
+    R.string.people_button to Routes.PEOPLE,
+    R.string.trips_button to Routes.TRIPS,
+    R.string.orders_button to Routes.ORDERS,
+)

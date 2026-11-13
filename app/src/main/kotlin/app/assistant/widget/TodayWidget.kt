@@ -83,6 +83,12 @@ class TodayWidget : GlanceAppWidget() {
                 WidgetModel(taskId = it.id.value, title = it.title, done = it.status == app.assistant.domain.model.TaskStatus.DONE)
             }
         }.getOrDefault(emptyList())
+        // Today's steps from week/month/year plans, after the priorities (titles and done flags only).
+        val steps = runCatching {
+            ep.tasks().plannedOn(today).first().filter { it.goalId != null && it.status != app.assistant.domain.model.TaskStatus.DROPPED }
+                .map { WidgetModel(taskId = it.id.value, title = it.title, done = it.status == app.assistant.domain.model.TaskStatus.DONE) }
+        }.getOrDefault(emptyList())
+        val items = (priorities + steps).distinctBy { it.taskId }
         val nextEvent = runCatching { nextEventText(ep, today) }.getOrNull()
         val openToday = Intent(context, app.assistant.ui.MainActivity::class.java)
             .putExtra("route", "today")
@@ -91,9 +97,9 @@ class TodayWidget : GlanceAppWidget() {
             .putExtra("route", "tasks")
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val openAsk = Intent(context, app.assistant.ui.MainActivity::class.java)
-            .putExtra("route", "ask")
+            .putExtra("route", "ask?voice=true")
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        provideContent { WidgetContent(priorities, nextEvent, openToday, openTasks, openAsk) }
+        provideContent { WidgetContent(items, nextEvent, openToday, openTasks, openAsk) }
     }
 
     /** The next timed event today as "HH:mm Title", or null when none is left (Requirement 21.5). */
@@ -147,7 +153,7 @@ class TodayWidget : GlanceAppWidget() {
             if (priorities.isEmpty()) {
                 Text(ctx.getString(app.assistant.R.string.widget_no_priorities), style = TextStyle(color = Muted))
             } else {
-                priorities.take(3).forEach { model ->
+                priorities.take(SHOWN).forEach { model ->
                     Row(
                         modifier = GlanceModifier.fillMaxWidth().padding(vertical = 4.dp)
                             .clickable(
@@ -203,3 +209,5 @@ class CompleteTaskAction : ActionCallback {
 class TodayWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TodayWidget()
 }
+
+private const val SHOWN = 4

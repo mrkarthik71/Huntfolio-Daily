@@ -58,6 +58,13 @@ object Routes {
     const val BODY = "body"
     const val CRASH = "crash"
     const val HORIZON = "horizon"
+    const val NOTES = "notes"
+    const val LISTS = "lists"
+    const val JOURNAL = "journal"
+    const val PEOPLE = "people"
+    const val TRIPS = "trips"
+    const val PLANS = "plans"
+    const val ORDERS = "orders"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
     const val TASK_PREFILL = "tasks/new?title={title}"
@@ -150,7 +157,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     androidx.compose.foundation.layout.Column(
                         verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(androidx.compose.ui.unit.Dp(12f)),
                     ) {
-                        app.assistant.ui.today.HorizonTodayPanel(onOpenPlanner = { nav.navigate(Routes.HORIZON) })
+                        app.assistant.ui.today.HorizonTodayPanel(onOpenPlanner = { nav.navigate(Routes.HORIZON) }, onOpenPlans = { nav.navigate(Routes.PLANS) })
                         app.assistant.ui.settings.ConnectSourcesPanel(onOpen = { source -> sourceRoute(source)?.let(nav::navigate) })
                         app.assistant.ui.health.BodyTiles()
                     }
@@ -190,9 +197,25 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: String?) {
                     onCreateTask = { subject -> nav.navigate(Routes.taskPrefill(subject)) },
                     onCreateBill = { if (FeatureFlags.MONEY) nav.navigate(Routes.MONEY) },
                     onOpenVault = { nav.navigate(Routes.VAULT) },
+                    onOpen = { route -> nav.navigate(route) },
                 )
             }
             composable(Routes.BODY) { app.assistant.ui.health.BodyConnectScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.NOTES) { app.assistant.ui.life.NotesScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.LISTS) {
+                app.assistant.ui.life.ListsScreen(onBack = { nav.popBackStack() }, onOpenReminders = { nav.navigate(Routes.REMINDERS) })
+            }
+            composable(Routes.JOURNAL) { app.assistant.ui.life.JournalScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.PLANS) {
+                app.assistant.ui.today.PlansScreen(
+                    onBack = { nav.popBackStack() },
+                    onNewPlan = { nav.navigate(Routes.HORIZON) },
+                    onWeek = { nav.navigate(Routes.WEEK_PLAN) },
+                )
+            }
+            composable(Routes.TRIPS) { app.assistant.ui.life.TripsScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.ORDERS) { app.assistant.ui.life.OrdersScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.PEOPLE) { app.assistant.ui.life.PeopleScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.HORIZON) { app.assistant.ui.today.HorizonPlanScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.CRASH) { app.assistant.ui.settings.CrashReportScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.VAULT) { app.assistant.ui.life.VaultScreen(onBack = { nav.popBackStack() }) }

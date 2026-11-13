@@ -163,6 +163,18 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity>
+        <!-- "Ask Apex" quick-settings tile: opens Ask listening by voice. -->
+        <service
+            android:name=".ui.tile.AskTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_ask"
+            android:label="@string/tile_ask"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
         <!-- Health Connect shows this page to explain how Apex uses sleep and steps. -->
         <activity
             android:name=".ui.health.HealthPrivacyActivity"
