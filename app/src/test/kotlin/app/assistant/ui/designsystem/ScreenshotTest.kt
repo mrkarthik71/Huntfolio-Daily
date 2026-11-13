@@ -444,6 +444,34 @@ class ScreenshotTest {
     }
 
     @Test
+    fun weekAhead() {
+        fun i(
+            kind: app.assistant.domain.engine.plan.AgendaKind,
+            title: String,
+            d: Long,
+            h: Int? = null,
+            m: Int? = null,
+            detail: String? = null,
+            done: Boolean = false,
+        ) = app.assistant.domain.engine.plan.AgendaItem(kind, title, today.plusDays(d), h?.let { java.time.LocalTime.of(it, 0) }, m, detail, done)
+        val items = listOf(
+            i(app.assistant.domain.engine.plan.AgendaKind.MEETING, "Design review", 0, 10, 60),
+            i(app.assistant.domain.engine.plan.AgendaKind.BLOCK, "Write the quarterly report", 0, 14, 90),
+            i(app.assistant.domain.engine.plan.AgendaKind.STEP, "Course: Watch a module", 0, m = 60),
+            i(app.assistant.domain.engine.plan.AgendaKind.TASK, "Call the bank", 0, m = 15, done = true),
+            i(app.assistant.domain.engine.plan.AgendaKind.BILL, "Electricity", 0, detail = "₹2,340"),
+            i(app.assistant.domain.engine.plan.AgendaKind.DATE, "Amma", 0, detail = "BIRTHDAY"),
+            i(app.assistant.domain.engine.plan.AgendaKind.TRIP, "12627 KARNATAKA EXP", 2, 19, detail = "KSR BENGALURU → NEW DELHI"),
+            i(app.assistant.domain.engine.plan.AgendaKind.MEETING, "Client workshop", 3, 9, 240),
+            i(app.assistant.domain.engine.plan.AgendaKind.STEP, "Report: Draft the summary", 3, m = 300),
+            i(app.assistant.domain.engine.plan.AgendaKind.DELIVERY, "Amazon.in", 4, detail = "402-1234567-7654321"),
+            i(app.assistant.domain.engine.plan.AgendaKind.FOLLOW_UP, "Ravi", 5, detail = "invoice"),
+        )
+        val ui = app.assistant.ui.today.WeekUi(app.assistant.domain.engine.plan.AgendaRules.week(today, items), loading = false)
+        capture("16-week-ahead") { app.assistant.ui.today.WeekAheadContent(ui, {}, { null }, { _, _ -> }) }
+    }
+
+    @Test
     fun weekPlan() {
         fun t(id: Long, title: String, p: Int, due: LocalDate?) =
             app.assistant.domain.engine.schedule.PlanTask(id, title, 60, p, app.assistant.domain.model.EnergyTag.DEEP_WORK, due)

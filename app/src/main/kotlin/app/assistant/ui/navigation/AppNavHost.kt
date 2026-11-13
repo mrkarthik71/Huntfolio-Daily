@@ -1,6 +1,7 @@
 package app.assistant.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -64,6 +65,7 @@ object Routes {
     const val PEOPLE = "people"
     const val TRIPS = "trips"
     const val PLANS = "plans"
+    const val WEEK_AHEAD = "weekahead"
     const val ORDERS = "orders"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
@@ -167,6 +169,11 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: app.assistant.ui.Star
                     androidx.compose.foundation.layout.Column(
                         verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(androidx.compose.ui.unit.Dp(12f)),
                     ) {
+                        app.assistant.ui.designsystem.PillButton(
+                            stringResource(R.string.weekahead_button),
+                            onClick = { nav.navigate(Routes.WEEK_AHEAD) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                         app.assistant.ui.today.HorizonTodayPanel(onOpenPlanner = { nav.navigate(Routes.HORIZON) }, onOpenPlans = { nav.navigate(Routes.PLANS) })
                         app.assistant.ui.settings.ConnectSourcesPanel(onOpen = { source -> sourceRoute(source)?.let(nav::navigate) })
                         app.assistant.ui.health.BodyTiles()
@@ -216,6 +223,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: app.assistant.ui.Star
                 app.assistant.ui.life.ListsScreen(onBack = { nav.popBackStack() }, onOpenReminders = { nav.navigate(Routes.REMINDERS) })
             }
             composable(Routes.JOURNAL) { app.assistant.ui.life.JournalScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.WEEK_AHEAD) { app.assistant.ui.today.WeekAheadScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.PLANS) {
                 app.assistant.ui.today.PlansScreen(
                     onBack = { nav.popBackStack() },
@@ -341,6 +349,6 @@ internal fun isOpenableRoute(route: String): Boolean {
 
 private val OPENABLE = setOf(
     "today", "tasks", "plan", "money", "inbox", "ask", "share", "review", "settings", "goals", "subscriptions",
-    "weekplan", "plans", "horizon", "trips", "orders", "people", "notes", "lists", "journal", "focus", "year", "vault", "body",
+    "weekplan", "weekahead", "plans", "horizon", "trips", "orders", "people", "notes", "lists", "journal", "focus", "year", "vault", "body",
 )
 private const val MAX_ROUTE = 2_000

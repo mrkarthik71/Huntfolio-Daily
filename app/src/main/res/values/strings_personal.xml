@@ -118,4 +118,26 @@
     <string name="plans_earlier">Earlier</string>
     <string name="plans_later">Later</string>
     <string name="horizon_pace_note">Allowing for your pace: you usually need %1$d%% of your estimates.</string>
+
+    <string name="weekahead_button">Week ahead</string>
+    <string name="weekahead_caption">NEXT 7 DAYS</string>
+    <string name="weekahead_title">Week ahead</string>
+    <string name="weekahead_load">%1$s PLANNED · %2$d DUE</string>
+    <string name="weekahead_busiest">%1$s is your busiest day: %2$s</string>
+    <string name="weekahead_light">A light week. Nothing that takes time is planned yet.</string>
+    <string name="weekahead_over">More than a full working day on %1$s. Move something or use Catch up.</string>
+    <string name="weekahead_day_cd">%1$s, %2$s planned, %3$d due</string>
+    <string name="weekahead_today">TODAY</string>
+    <string name="weekahead_free">Nothing on this day.</string>
+    <string name="weekahead_birthday">Birthday</string>
+    <string name="weekahead_anniversary">Anniversary</string>
+    <string name="weekahead_date">Important date</string>
+    <string name="weekahead_k_trip">TRIP</string>
+    <string name="weekahead_k_allday">DAY</string>
+    <string name="weekahead_k_task">TASK</string>
+    <string name="weekahead_k_step">PLAN</string>
+    <string name="weekahead_k_bill">BILL</string>
+    <string name="weekahead_k_date">DATE</string>
+    <string name="weekahead_k_delivery">ORDER</string>
+    <string name="weekahead_k_follow">CHASE</string>
 </resources>
