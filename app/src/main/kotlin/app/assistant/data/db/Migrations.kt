@@ -324,3 +324,16 @@ private val V14_SQL = listOf(
     "CREATE TABLE IF NOT EXISTS `order_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `merchant` TEXT NOT NULL, `order_ref` TEXT NOT NULL, `status` TEXT NOT NULL, `expected_on` TEXT, `return_by` TEXT, `updated_at` INTEGER NOT NULL)",
     "CREATE UNIQUE INDEX IF NOT EXISTS `index_order_item_order_ref` ON `order_item` (`order_ref`)",
 )
+
+/** v15: task repeat rules and money owed. New tables only. */
+val MIGRATION_14_15: Migration = object : Migration(14, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V15_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V15_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `task_repeat` (`task_id` INTEGER NOT NULL, `rule` TEXT NOT NULL, `every` INTEGER NOT NULL, PRIMARY KEY(`task_id`))",
+    "CREATE TABLE IF NOT EXISTS `iou` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `person` TEXT NOT NULL, `amount_paise` INTEGER NOT NULL, `they_owe` INTEGER NOT NULL, `note` TEXT NOT NULL, `created_on` TEXT NOT NULL, `settled_on` TEXT)",
+    "CREATE INDEX IF NOT EXISTS `index_iou_person` ON `iou` (`person`)",
+)

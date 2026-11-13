@@ -348,6 +348,7 @@ private fun DidAnswer(a: AskAnswer.Did) {
             when (act) {
                 is app.assistant.domain.engine.ask.AskAction.MoveTask -> stringResource(R.string.ask_did_no_task, act.query)
                 is app.assistant.domain.engine.ask.AskAction.Talked -> stringResource(R.string.ask_did_no_person, act.name)
+                is app.assistant.domain.engine.ask.AskAction.Settle -> stringResource(R.string.ask_did_no_owed, act.person)
                 else -> stringResource(R.string.ask_did_failed)
             },
         )
@@ -358,10 +359,17 @@ private fun DidAnswer(a: AskAnswer.Did) {
         is app.assistant.domain.engine.ask.AskAction.LogSpend ->
             stringResource(R.string.ask_did_spend, app.assistant.domain.format.MoneyFormatter.format(act.amount), act.what.ifBlank { "-" })
         is app.assistant.domain.engine.ask.AskAction.AddToList -> stringResource(R.string.ask_did_list, act.items.joinToString(", "), act.list)
-        is app.assistant.domain.engine.ask.AskAction.AddTask -> stringResource(R.string.ask_did_task, act.title, formatShortDate(act.on))
+        is app.assistant.domain.engine.ask.AskAction.AddTask -> stringResource(R.string.ask_did_task, act.title, formatShortDate(act.on)) +
+            (act.repeat?.let { " · " + stringResource(app.assistant.ui.tasks.repeatLabel(it.rule)) } ?: "")
         is app.assistant.domain.engine.ask.AskAction.MoveTask -> stringResource(R.string.ask_did_move, a.detail, formatShortDate(act.to))
         is app.assistant.domain.engine.ask.AskAction.Talked -> stringResource(R.string.ask_did_talked, a.detail)
         is app.assistant.domain.engine.ask.AskAction.Journal -> stringResource(R.string.ask_did_journal)
+        is app.assistant.domain.engine.ask.AskAction.Owe -> stringResource(
+            if (act.theyOwe) R.string.ask_did_they_owe else R.string.ask_did_i_owe,
+            act.person,
+            app.assistant.domain.format.MoneyFormatter.format(act.amount),
+        )
+        is app.assistant.domain.engine.ask.AskAction.Settle -> stringResource(R.string.ask_did_settled, act.person)
     }
     Text(line, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
 }

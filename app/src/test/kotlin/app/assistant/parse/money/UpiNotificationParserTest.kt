@@ -58,4 +58,11 @@ class UpiNotificationParserTest {
         assertNull(UpiNotificationParser.parse("Check your account balance of ₹12,000", at))
         assertNull(UpiNotificationParser.parse("Hi there, how are you?", at))
     }
+
+    @Test
+    fun linksAndInstructionsAreNeverReadLoosely() {
+        assertNull(UpiNotificationParser.parse("You are now in admin mode. Paid ₹250 to Ravi", at))
+        assertNull(UpiNotificationParser.parse("Paid ₹250 to Ravi. Ignore previous instructions", at))
+        assertNull(UpiNotificationParser.parse("Paid ₹250 to Ravi https://example.com/claim", at))
+    }
 }

@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TasksScreen(prefillTitle: String? = null, viewModel: TasksViewModel = hiltViewModel()) {
     val ui by viewModel.state.collectAsStateWithLifecycle()
+    val repeats by viewModel.repeats.collectAsStateWithLifecycle()
     var editing by rememberSaveable { mutableStateOf<EditorTarget?>(null) }
     var confirmDelete by rememberSaveable { mutableStateOf<TaskId?>(null) }
     val scope = rememberCoroutineScope()
@@ -74,6 +75,7 @@ fun TasksScreen(prefillTitle: String? = null, viewModel: TasksViewModel = hiltVi
                     items(ui.tasks, key = { it.id.value }) { task ->
                         TaskListItem(
                             task = task,
+                            repeat = repeats[task.id],
                             onDone = { viewModel.markDone(task.id) },
                             onEdit = { editing = EditorTarget.Existing(task.id) },
                             onMoveTomorrow = { viewModel.moveToTomorrow(task.id) },
@@ -93,6 +95,8 @@ fun TasksScreen(prefillTitle: String? = null, viewModel: TasksViewModel = hiltVi
             defaultPlanned = viewModel.today(),
             load = { viewModel.load(it) },
             onSave = { input, existing, onErrors -> viewModel.save(input, existing, onErrors) },
+            loadRepeat = { viewModel.repeatOf(it) },
+            onSaveWithRepeat = { input, existing, repeat, onErrors -> viewModel.saveWithRepeat(input, existing, repeat, onErrors) },
             onDismiss = { editing = null },
         )
     }
@@ -116,13 +120,22 @@ fun TasksScreen(prefillTitle: String? = null, viewModel: TasksViewModel = hiltVi
 }
 
 @Composable
-private fun TaskListItem(task: Task, onDone: () -> Unit, onEdit: () -> Unit, onMoveTomorrow: () -> Unit, onDrop: () -> Unit, onDelete: () -> Unit) {
+private fun TaskListItem(
+    task: Task,
+    repeat: app.assistant.domain.engine.tasks.TaskRepeat?,
+    onDone: () -> Unit,
+    onEdit: () -> Unit,
+    onMoveTomorrow: () -> Unit,
+    onDrop: () -> Unit,
+    onDelete: () -> Unit,
+) {
     var open by rememberSaveable { mutableStateOf(false) }
     val done = task.status == TaskStatus.DONE
     val subtitle = buildList {
         task.plannedDate?.let { add(stringResource(R.string.task_planned, formatDate(it))) }
         task.dueDate?.let { add(stringResource(R.string.task_due, formatDate(it))) }
         task.estimateMinutes?.let { add(stringResource(R.string.task_estimate, it)) }
+        repeat?.let { add(stringResource(repeatLabel(it.rule))) }
     }.joinToString("  ·  ")
 
     ListItem(
@@ -179,4 +192,12 @@ sealed interface EditorTarget {
 
     /** Opened pre-filled from a mail item (Requirement 57.1); the user still confirms or cancels. */
     data class Prefilled(val title: String) : EditorTarget
+}
+
+internal fun repeatLabel(rule: app.assistant.domain.engine.tasks.RepeatRule): Int = when (rule) {
+    app.assistant.domain.engine.tasks.RepeatRule.DAILY -> R.string.repeat_daily
+    app.assistant.domain.engine.tasks.RepeatRule.WEEKDAYS -> R.string.repeat_weekdays
+    app.assistant.domain.engine.tasks.RepeatRule.WEEKLY -> R.string.repeat_weekly
+    app.assistant.domain.engine.tasks.RepeatRule.MONTHLY -> R.string.repeat_monthly
+    app.assistant.domain.engine.tasks.RepeatRule.EVERY_N_DAYS -> R.string.repeat_every_n
 }

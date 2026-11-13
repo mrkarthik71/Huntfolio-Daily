@@ -98,4 +98,5 @@ private val PERSONAL_SHORTCUTS = listOf(
     R.string.people_button to Routes.PEOPLE,
     R.string.trips_button to Routes.TRIPS,
     R.string.orders_button to Routes.ORDERS,
+    R.string.owed_button to Routes.OWED,
 )

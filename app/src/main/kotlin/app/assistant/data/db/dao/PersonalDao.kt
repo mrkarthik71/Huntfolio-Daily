@@ -82,4 +82,31 @@ interface PersonalDao {
 
     @Query("DELETE FROM order_item WHERE id = :id")
     suspend fun deleteOrder(id: Long)
+
+    @Query("SELECT * FROM task_repeat")
+    fun repeats(): Flow<List<app.assistant.data.db.entity.TaskRepeatEntity>>
+
+    @Query("SELECT * FROM task_repeat WHERE task_id = :taskId")
+    suspend fun repeatOf(taskId: Long): app.assistant.data.db.entity.TaskRepeatEntity?
+
+    @Upsert
+    suspend fun upsertRepeat(r: app.assistant.data.db.entity.TaskRepeatEntity)
+
+    @Query("DELETE FROM task_repeat WHERE task_id = :taskId")
+    suspend fun deleteRepeat(taskId: Long)
+
+    @Query("SELECT * FROM iou ORDER BY created_on DESC, id DESC")
+    fun ious(): Flow<List<app.assistant.data.db.entity.IouEntity>>
+
+    @Upsert
+    suspend fun upsertIou(i: app.assistant.data.db.entity.IouEntity): Long
+
+    @Query("UPDATE iou SET settled_on = :on WHERE id = :id AND settled_on IS NULL")
+    suspend fun settleIou(id: Long, on: String)
+
+    @Query("UPDATE iou SET settled_on = :on WHERE LOWER(TRIM(person)) = LOWER(TRIM(:person)) AND settled_on IS NULL")
+    suspend fun settlePerson(person: String, on: String): Int
+
+    @Query("DELETE FROM iou WHERE id = :id")
+    suspend fun deleteIou(id: Long)
 }

@@ -10,7 +10,13 @@ sealed interface AskAction {
 
     data class AddToList(val list: String, val items: List<String>) : AskAction
 
-    data class AddTask(val title: String, val on: LocalDate) : AskAction
+    data class AddTask(val title: String, val on: LocalDate, val repeat: app.assistant.domain.engine.tasks.TaskRepeat? = null) : AskAction
+
+    /** "Ravi owes me 500 for dinner" ([theyOwe] true) or "I owe Priya 200" (false). */
+    data class Owe(val person: String, val amount: Paise, val theyOwe: Boolean, val note: String) : AskAction
+
+    /** "Ravi paid me back", "settled with Priya". */
+    data class Settle(val person: String) : AskAction
 
     data class MoveTask(val query: String, val to: LocalDate) : AskAction
 
@@ -40,6 +46,13 @@ object AskActions {
     private val task = Regex("^(?:add (?:a )?task|new task|todo|to-do|task)\\s*[:,-]?\\s+(.+)$", opt)
     private val move = Regex("^(?:move|shift|push|postpone|reschedule)\\s+(.+?)\\s+to\\s+(.+)$", opt)
     private val talked = Regex("^(?:i\\s+)?(?:talked|spoke|called|met|caught up)\\s+(?:to|with)?\\s*(.+)$", opt)
+    private val theyOwe = Regex("^(.+?)\\s+owes\\s+me\\s+(?:rs\\.?|₹)?\\s*$AMOUNT\\s*(?:rs|rupees)?\\s*(?:for\\s+(.+))?$", opt)
+    private val iOwe = Regex("^i\\s+owe\\s+(.+?)\\s+(?:rs\\.?|₹)?\\s*$AMOUNT\\s*(?:rs|rupees)?\\s*(?:for\\s+(.+))?$", opt)
+    private val settled = Regex("^(?:(.+?)\\s+paid\\s+me\\s+back|settled?\\s+(?:up\\s+)?with\\s+(.+)|i\\s+paid\\s+(.+?)\\s+back)$", opt)
+    private val repeatTail = Regex(
+        "\\s+(every day|daily|every weekday|on weekdays|every week|weekly|every month|monthly|every (\\d{1,3}) days)\\s*$",
+        opt,
+    )
     private val journal = Regex("^(?:journal|dear diary|diary)\\s*[:,-]?\\s+(.+)$", opt)
     private val dayTail =
         Regex(
@@ -53,11 +66,18 @@ object AskActions {
     fun parse(raw: String, today: LocalDate): AskAction? {
         val text = raw.trim().trimEnd('.', '!')
         journal.find(text)?.let { return AskAction.Journal(it.groupValues[1].trim()) }
+        theyOwe.find(text)?.let { m -> amount(m.groupValues[2])?.let { return AskAction.Owe(m.groupValues[1].trim(), it, true, m.groupValues[3].trim()) } }
+        iOwe.find(text)?.let { m -> amount(m.groupValues[2])?.let { return AskAction.Owe(m.groupValues[1].trim(), it, false, m.groupValues[3].trim()) } }
+        settled.find(text)?.let { m ->
+            val who = (1..3).map { m.groupValues[it].trim() }.firstOrNull { it.isNotBlank() }
+            if (who != null && who.length <= NAME_MAX) return AskAction.Settle(who)
+        }
         spent.find(text)?.let { m -> amount(m.groupValues[1])?.let { return AskAction.LogSpend(it, m.groupValues[2].trim().ifBlank { "" }) } }
         spentAfter.find(text)?.let { m -> amount(m.groupValues[2])?.let { return AskAction.LogSpend(it, m.groupValues[1].trim()) } }
         task.find(text)?.let { m ->
-            val (title, day) = splitDay(m.groupValues[1], today)
-            if (title.isNotBlank()) return AskAction.AddTask(title, day ?: today)
+            val (body, repeat) = splitRepeat(m.groupValues[1])
+            val (title, day) = splitDay(body, today)
+            if (title.isNotBlank()) return AskAction.AddTask(title, day ?: today, repeat)
         }
         move.find(text)?.let { m ->
             val to =
@@ -74,6 +94,31 @@ object AskActions {
         }
         talked.find(text)?.let { m -> m.groupValues[1].trim().takeIf { it.isNotBlank() && it.length <= NAME_MAX }?.let { return AskAction.Talked(it) } }
         return null
+    }
+
+    /** "pay rent every month" → ("pay rent", MONTHLY). */
+    private fun splitRepeat(s: String): Pair<String, app.assistant.domain.engine.tasks.TaskRepeat?> {
+        val m = repeatTail.find(s) ?: return s to null
+        val rule = when (
+            m.groupValues[1].lowercase(Locale.ROOT).substringBefore(' ').let {
+                if (it ==
+                    "every"
+                ) {
+                    m.groupValues[1].lowercase(Locale.ROOT)
+                } else {
+                    it
+                }
+            }
+        ) {
+            "daily", "every day" -> app.assistant.domain.engine.tasks.TaskRepeat(app.assistant.domain.engine.tasks.RepeatRule.DAILY)
+            "every weekday", "on" -> app.assistant.domain.engine.tasks.TaskRepeat(app.assistant.domain.engine.tasks.RepeatRule.WEEKDAYS)
+            "weekly", "every week" -> app.assistant.domain.engine.tasks.TaskRepeat(app.assistant.domain.engine.tasks.RepeatRule.WEEKLY)
+            "monthly", "every month" -> app.assistant.domain.engine.tasks.TaskRepeat(app.assistant.domain.engine.tasks.RepeatRule.MONTHLY)
+            else -> m.groupValues[2].toIntOrNull()?.let {
+                app.assistant.domain.engine.tasks.TaskRepeat(app.assistant.domain.engine.tasks.RepeatRule.EVERY_N_DAYS, it)
+            }
+        }
+        return s.substring(0, m.range.first).trim() to rule
     }
 
     /** "call the bank tomorrow" → ("call the bank", tomorrow). */

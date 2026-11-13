@@ -66,6 +66,7 @@ object Routes {
     const val PLANS = "plans"
     const val WEEK_AHEAD = "weekahead"
     const val SEARCH = "search"
+    const val OWED = "owed"
     const val ORDERS = "orders"
     const val SHARE = "share?text={text}"
     const val ASK_VOICE = "ask?voice={voice}"
@@ -233,6 +234,7 @@ fun AppNavHost(onDeleteEverything: () -> Unit, startRoute: app.assistant.ui.Star
                 app.assistant.ui.life.ListsScreen(onBack = { nav.popBackStack() }, onOpenReminders = { nav.navigate(Routes.REMINDERS) })
             }
             composable(Routes.JOURNAL) { app.assistant.ui.life.JournalScreen(onBack = { nav.popBackStack() }) }
+            composable(Routes.OWED) { app.assistant.ui.life.OwedScreen(onBack = { nav.popBackStack() }) }
             composable(Routes.SEARCH) {
                 app.assistant.ui.search.SearchScreen(onBack = { nav.popBackStack() }, onOpen = { route ->
                     if (route in TABS.map { it.route }) {
@@ -372,6 +374,6 @@ internal fun isOpenableRoute(route: String): Boolean {
 
 private val OPENABLE = setOf(
     "today", "tasks", "plan", "money", "inbox", "ask", "share", "review", "settings", "goals", "subscriptions",
-    "weekplan", "weekahead", "search", "plans", "horizon", "trips", "orders", "people", "notes", "lists", "journal", "focus", "year", "vault", "body",
+    "weekplan", "weekahead", "search", "owed", "plans", "horizon", "trips", "orders", "people", "notes", "lists", "journal", "focus", "year", "vault", "body",
 )
 private const val MAX_ROUTE = 2_000

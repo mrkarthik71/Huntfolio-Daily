@@ -43,4 +43,17 @@ class AskActionsTest {
         assertNull(AskActions.parse("what bills are due", today))
         assertNull(AskActions.parse("move fast", today))
     }
+
+    @Test
+    fun moneyOwedAndRepeats() {
+        assertEquals(AskAction.Owe("Ravi", Paise(50_000), true, "dinner"), AskActions.parse("Ravi owes me 500 for dinner", today))
+        assertEquals(AskAction.Owe("Priya", Paise(20_000), false, ""), AskActions.parse("I owe Priya ₹200", today))
+        assertEquals(AskAction.Settle("Ravi"), AskActions.parse("Ravi paid me back", today))
+        assertEquals(AskAction.Settle("Priya"), AskActions.parse("settled with Priya", today))
+        val rent = AskActions.parse("add task pay rent every month", today) as AskAction.AddTask
+        assertEquals("pay rent", rent.title)
+        assertEquals(app.assistant.domain.engine.tasks.RepeatRule.MONTHLY, rent.repeat?.rule)
+        val plants = AskActions.parse("todo water the plants every 3 days", today) as AskAction.AddTask
+        assertEquals(3, plants.repeat?.every)
+    }
 }

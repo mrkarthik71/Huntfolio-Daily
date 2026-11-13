@@ -48,10 +48,17 @@ object UpiNotificationParser {
         )
     private val acct = Regex("(?:a/c|account|acct|bank)\\s*(?:no\\.?)?\\s*(?:x+|\\*+|ending\\s*(?:with)?\\s*)([0-9]{4})\\b", opt)
 
+    /** Links and instruction-like wording: such a notification is never read loosely; it goes to review. */
+    private val suspicious = Regex(
+        "(https?://|www\\.|\\b[a-z0-9-]+\\.(?:com|in|net|org|xyz|link|ly|io)/|\\b(?:ignore|disregard|forget)\\b.{0,40}\\b(?:instruction|rule|previous)|" +
+            "\\byou\\s+are\\s+now\\b|\\b(?:system|assistant|developer)\\s*:|\\badmin mode\\b)",
+        opt,
+    )
+
     @Suppress("ReturnCount") // each early return rejects one kind of notification that is not a completed payment
     fun parse(text: String, at: LocalDateTime): ParseResult? {
         val t = text.replace(Regex("\\s+"), " ").trim()
-        if (t.isEmpty()) return null
+        if (t.isEmpty() || suspicious.containsMatchIn(t)) return null
         val amountMatch = amount.find(t) ?: return null
         if (failed.containsMatchIn(t)) return ParseResult.FailedPayment(FORMAT_FAILED)
         if (skip.containsMatchIn(t)) return null

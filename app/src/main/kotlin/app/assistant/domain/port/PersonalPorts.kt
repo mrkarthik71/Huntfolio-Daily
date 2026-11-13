@@ -50,4 +50,15 @@ interface PersonalStore {
     suspend fun upsertOrder(order: Order): Long
 
     suspend fun deleteOrder(id: Long)
+
+    fun ious(): Flow<List<app.assistant.domain.engine.tasks.Iou>>
+
+    suspend fun addIou(person: String, amount: app.assistant.domain.model.Paise, theyOwe: Boolean, note: String, on: LocalDate): Long
+
+    suspend fun settleIou(id: Long, on: LocalDate)
+
+    /** Settles everything open with [person]; returns how many entries were settled. */
+    suspend fun settlePerson(person: String, on: LocalDate): Int
+
+    suspend fun deleteIou(id: Long)
 }

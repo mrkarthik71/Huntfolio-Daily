@@ -153,7 +153,16 @@ class AskViewModel @Inject constructor(
             }
             is app.assistant.domain.engine.ask.AskAction.AddTask -> {
                 val r = tasks.save(app.assistant.domain.engine.tasks.TaskInput(a.title, plannedDate = a.on), now = now, today = today)
+                if (r is app.assistant.domain.error.Outcome.Ok && a.repeat != null) tasks.setRepeat(r.value, a.repeat)
                 AskAnswer.Did(a, r is app.assistant.domain.error.Outcome.Ok)
+            }
+            is app.assistant.domain.engine.ask.AskAction.Owe -> {
+                personal.addIou(a.person, a.amount, a.theyOwe, a.note, today)
+                AskAnswer.Did(a, true)
+            }
+            is app.assistant.domain.engine.ask.AskAction.Settle -> {
+                val n = personal.settlePerson(a.person, today)
+                AskAnswer.Did(a, n > 0)
             }
             is app.assistant.domain.engine.ask.AskAction.MoveTask -> {
                 val q = a.query.lowercase()

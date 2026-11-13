@@ -63,10 +63,20 @@ class ParseStage(private val registry: ParserRegistry, private val time: TimeSou
 
     override suspend fun process(ctx: IngestContext): StageResult {
         val message = checkNotNull(ctx.message)
-        val exact = MessageParser.parse(message.text, message.origin, message.receivedAt, time.zone(), registry)
-        // A payment-app notification no exact format knows gets one more, strict, try with the common UPI phrasings;
-        // whatever that cannot read still goes to the Review_Queue.
-        val result = if (exact is ParseResult.Unknown && message.sourceKind == SourceKind.APP) {
+        // The origin's formats are read once and reused, so a message reaches the Parser_Registry exactly once (Property 2).
+        val formats = registry.formatsFor(message.origin)
+        val once = object : ParserRegistry {
+            override fun formatsFor(origin: String): List<app.assistant.parse.money.BankFormat> =
+                if (origin == message.origin) formats else registry.formatsFor(origin)
+
+            override val otpKeywords: List<String> get() = registry.otpKeywords
+        }
+        val exact = MessageParser.parse(message.text, message.origin, message.receivedAt, time.zone(), once)
+        // A notification from a payment app that has NO exact formats gets one more, strict, try with the common UPI
+        // phrasings. Where exact formats exist they are the authority: a message that does not match them (changed
+        // wording, or inserted text) goes to the Review_Queue rather than being read loosely (Property 4).
+        val hasExactFormats = formats.any { it.kind.type != null }
+        val result = if (exact is ParseResult.Unknown && message.sourceKind == SourceKind.APP && !hasExactFormats) {
             app.assistant.parse.money.UpiNotificationParser.parse(message.text, message.receivedAt.atZone(time.zone()).toLocalDateTime()) ?: exact
         } else {
             exact

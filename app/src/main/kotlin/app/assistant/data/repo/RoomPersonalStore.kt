@@ -140,6 +140,30 @@ class RoomPersonalStore @Inject constructor(private val holder: DbProvider) : Pe
 
     override suspend fun deleteOrder(id: Long) = dao.deleteOrder(id)
 
+    override fun ious(): Flow<List<app.assistant.domain.engine.tasks.Iou>> = dao.ious().map { l ->
+        l.map {
+            app.assistant.domain.engine.tasks.Iou(
+                it.id,
+                it.person,
+                app.assistant.domain.model.Paise(it.amountPaise),
+                it.theyOwe,
+                it.note,
+                LocalDate.parse(it.createdOn),
+                it.settledOn?.let(LocalDate::parse),
+            )
+        }
+    }
+
+    override suspend fun addIou(person: String, amount: app.assistant.domain.model.Paise, theyOwe: Boolean, note: String, on: LocalDate): Long = dao.upsertIou(
+        app.assistant.data.db.entity.IouEntity(0, person.trim().take(LIST_MAX), amount.value, theyOwe, note.trim().take(SHORT), on.toString(), null),
+    )
+
+    override suspend fun settleIou(id: Long, on: LocalDate) = dao.settleIou(id, on.toString())
+
+    override suspend fun settlePerson(person: String, on: LocalDate): Int = dao.settlePerson(person, on.toString())
+
+    override suspend fun deleteIou(id: Long) = dao.deleteIou(id)
+
     private fun keep(existing: Long, result: Long): Long = if (existing != 0L) existing else result
 
     private companion object {

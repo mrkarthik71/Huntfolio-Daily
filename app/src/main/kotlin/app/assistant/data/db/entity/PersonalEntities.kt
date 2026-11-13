@@ -57,3 +57,18 @@ data class OrderItemEntity(
     @ColumnInfo(name = "return_by") val returnBy: String?,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
 )
+
+/** How an open task repeats; when it is done the next one is created and this row moves to it. */
+@Entity(tableName = "task_repeat")
+data class TaskRepeatEntity(@PrimaryKey @ColumnInfo(name = "task_id") val taskId: Long, val rule: String, val every: Int)
+
+@Entity(tableName = "iou", indices = [Index("person")])
+data class IouEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val person: String,
+    @ColumnInfo(name = "amount_paise") val amountPaise: Long,
+    @ColumnInfo(name = "they_owe") val theyOwe: Boolean,
+    val note: String,
+    @ColumnInfo(name = "created_on") val createdOn: String,
+    @ColumnInfo(name = "settled_on") val settledOn: String?,
+)
