@@ -222,4 +222,7 @@
     <string name="settings_language">மொழி</string>
     <string name="settings_language_system">ஃபோனின் மொழி</string>
     <string name="settings_language_note">Apex மட்டுமே மாறும்; உங்கள் ஃபோனின் மற்றவை அப்படியே இருக்கும். குரல் கட்டளைகள் இன்னும் ஆங்கிலம், ஹிங்லிஷில் வேலை செய்யும்.</string>
+    <string name="crash_relaunch_title">Apex எதிர்பாராமல் மூடிவிட்டது</string>
+    <string name="crash_relaunch_body">என்ன தவறு நடந்தது என்பது இதோ. நகலெடுத்து டெவலப்பருக்கு அனுப்புங்கள். இதில் நிரலின் இடங்கள் மட்டுமே உள்ளன, உங்கள் தரவு ஒருபோதும் இல்லை.</string>
+    <string name="crash_continue">தொடர்க</string>
 </resources>

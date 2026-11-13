@@ -48,6 +48,13 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         permissions.attach(this)
         startRoute.value = intent?.getStringExtra(EXTRA_ROUTE)?.let { StartRoute(it, launches++) }
+        // After a crash, show its report first (before the app's own screens, in case they are what crashes),
+        // so the User can copy it and send it to the developer.
+        val crash = app.assistant.security.crash.CrashRecorder.unseen(this)
+        if (crash != null) showCrashReport(crash) else startUi()
+    }
+
+    private fun startUi() {
         setContent {
             AssistantTheme {
                 AssistantApp(
@@ -61,6 +68,21 @@ class MainActivity : FragmentActivity() {
                 )
             }
         }
+    }
+
+    private fun showCrashReport(report: String) {
+        app.assistant.security.crash.CrashRecorder.markSeen(this)
+        android.app.AlertDialog.Builder(this)
+            .setTitle(getString(app.assistant.R.string.crash_relaunch_title))
+            .setMessage(getString(app.assistant.R.string.crash_relaunch_body) + "\n\n" + report)
+            .setPositiveButton(getString(app.assistant.R.string.crash_copy)) { _, _ ->
+                getSystemService(android.content.ClipboardManager::class.java)
+                    ?.setPrimaryClip(android.content.ClipData.newPlainText("Apex crash report", report))
+                android.widget.Toast.makeText(this, getString(app.assistant.R.string.crash_copied), android.widget.Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(getString(app.assistant.R.string.crash_continue), null)
+            .setOnDismissListener { startUi() }
+            .show()
     }
 
     override fun onNewIntent(intent: Intent) {

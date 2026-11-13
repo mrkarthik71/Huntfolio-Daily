@@ -22,7 +22,11 @@ class CrashRecorder @Inject constructor(@param:ApplicationContext private val co
     fun install() {
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
-            runCatching { file.writeText(format(thread.name, error)) }
+            runCatching {
+                file.writeText(format(thread.name, error))
+                // Marks it as new, so the next launch shows it before anything else (see [unseen]).
+                File(context.noBackupFilesDir, UNSEEN_FILE).writeText("1")
+            }
             previous?.uncaughtException(thread, error)
         }
     }
@@ -51,9 +55,20 @@ class CrashRecorder @Inject constructor(@param:ApplicationContext private val co
         }
     }
 
-    private companion object {
-        const val FILE_NAME = "last_crash.txt"
-        const val MAX_FRAMES = 30
-        const val MAX_CAUSES = 5
+    companion object {
+        private const val FILE_NAME = "last_crash.txt"
+        private const val UNSEEN_FILE = "crash_unseen"
+
+        /** The report of a crash the User has not seen yet, read without Hilt so it works even when startup is what crashes. */
+        fun unseen(context: Context): String? = runCatching {
+            if (!File(context.noBackupFilesDir, UNSEEN_FILE).exists()) return null
+            File(context.noBackupFilesDir, FILE_NAME).takeIf { it.exists() }?.readText()
+        }.getOrNull()
+
+        fun markSeen(context: Context) {
+            runCatching { File(context.noBackupFilesDir, UNSEEN_FILE).delete() }
+        }
+        private const val MAX_FRAMES = 30
+        private const val MAX_CAUSES = 5
     }
 }

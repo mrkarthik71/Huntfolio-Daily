@@ -222,4 +222,7 @@
     <string name="settings_language">भाषा</string>
     <string name="settings_language_system">फ़ोन जैसी</string>
     <string name="settings_language_note">सिर्फ़ Apex बदलेगा; आपका बाकी फ़ोन जैसा है वैसा रहेगा। आवाज़ वाले निर्देश अब भी अंग्रेज़ी और हिंग्लिश में काम करते हैं।</string>
+    <string name="crash_relaunch_title">Apex अचानक बंद हो गया</string>
+    <string name="crash_relaunch_body">यह रही गड़बड़ी की जानकारी। Copy दबाएँ और डेवलपर को भेजें। इसमें सिर्फ़ कोड की जगहें हैं, आपका डेटा कभी नहीं।</string>
+    <string name="crash_continue">आगे बढ़ें</string>
 </resources>

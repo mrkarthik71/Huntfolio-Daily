@@ -167,4 +167,7 @@
     <string name="lang_en" translatable="false">English</string>
     <string name="lang_hi" translatable="false">हिन्दी</string>
     <string name="lang_ta" translatable="false">தமிழ்</string>
+    <string name="crash_relaunch_title">Apex closed unexpectedly</string>
+    <string name="crash_relaunch_body">Here is what went wrong. Tap Copy and paste it to the developer. It holds only code locations, never your data.</string>
+    <string name="crash_continue">Continue</string>
 </resources>
