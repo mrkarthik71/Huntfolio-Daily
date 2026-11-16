@@ -251,4 +251,7 @@
     <string name="ask_did_i_owe">பதிவு செய்தது: நீங்கள் %1$s க்கு %2$s தர வேண்டும்</string>
     <string name="ask_did_settled">%1$s உடன் அனைத்தும் தீர்ந்தது</string>
     <string name="ask_did_no_owed">%1$s உடன் நிலுவை எதுவும் இல்லை.</string>
+    <string name="calendar_readout">அடுத்த 7 நாட்களில் %1$d நிகழ்வுகள் · கடைசியாக %2$s க்குப் படித்தது</string>
+    <string name="calendar_readout_pending">அடுத்த 7 நாட்களில் %1$d நிகழ்வுகள். உங்கள் நாள்காட்டிகளைப் படிக்கிறது…</string>
+    <string name="calendar_read_again">மீண்டும் படி</string>
 </resources>

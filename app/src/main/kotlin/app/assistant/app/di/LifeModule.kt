@@ -86,6 +86,26 @@ abstract class LifeBindingsModule {
     abstract fun holdingStore(impl: app.assistant.data.repo.RoomHoldingStore): app.assistant.domain.port.HoldingStore
 
     @Binds
+    @dagger.multibindings.IntoSet
+    abstract fun smsStatus(impl: app.assistant.data.sources.SmsSourceStatus): app.assistant.domain.port.SourceStatusProvider
+
+    @Binds
+    @dagger.multibindings.IntoSet
+    abstract fun appNotificationStatus(impl: app.assistant.data.sources.AppNotificationSourceStatus): app.assistant.domain.port.SourceStatusProvider
+
+    @Binds
+    @dagger.multibindings.IntoSet
+    abstract fun calendarStatus(impl: app.assistant.data.sources.CalendarSourceStatus): app.assistant.domain.port.SourceStatusProvider
+
+    @Binds
+    @dagger.multibindings.IntoSet
+    abstract fun mailStatus(impl: app.assistant.data.sources.MailSourceStatus): app.assistant.domain.port.SourceStatusProvider
+
+    @Binds
+    @dagger.multibindings.IntoSet
+    abstract fun aiStatus(impl: app.assistant.data.sources.AiSourceStatus): app.assistant.domain.port.SourceStatusProvider
+
+    @Binds
     abstract fun personalStore(impl: app.assistant.data.repo.RoomPersonalStore): app.assistant.domain.port.PersonalStore
 
     @Binds

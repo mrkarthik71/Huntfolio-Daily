@@ -28,6 +28,9 @@ interface MoneySeedDao {
     @Insert
     suspend fun insertSender(sender: SenderEntryEntity): Long
 
+    @Query("SELECT core FROM sender_entry WHERE builtin = 1")
+    suspend fun builtinSenderCores(): List<String>
+
     @Query("SELECT COUNT(*) FROM category WHERE builtin = 1")
     suspend fun builtinCategoryCount(): Int
 

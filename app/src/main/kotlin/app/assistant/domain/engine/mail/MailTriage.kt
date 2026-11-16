@@ -50,4 +50,17 @@ object MailTriage {
 
     /** The highest score a rule or the classifier may contribute, so scores stay comparable. */
     const val MAX_SCORE = 10
+
+    /**
+     * Built-in shortlist rules, used together with the User's own, so a fresh connection already
+     * keeps the mail that matters (subject words only; ids are negative so they never clash).
+     * Interviews and deadlines score above the default Importance_Threshold (6), so they notify;
+     * bills and payments sit at the threshold; orders, bookings and receipts are kept quietly.
+     */
+    val DEFAULT_RULES: List<ShortlistRule> = listOf(
+        "interview" to 9, "offer letter" to 9, "action required" to 7, "deadline" to 7, "last date" to 7, "appointment" to 6,
+        "payment due" to 6, "bill" to 6, "invoice" to 6, "statement" to 5, "emi" to 6, "premium due" to 6, "renewal" to 5,
+        "subscription" to 5, "receipt" to 4, "payment" to 4, "order" to 3, "shipped" to 3, "delivered" to 3, "booking" to 4,
+        "ticket" to 4, "pnr" to 4, "itinerary" to 4, "meeting" to 4, "reminder" to 4,
+    ).mapIndexed { i, (word, score) -> ShortlistRule(-(i + 1L), "", word, score) }
 }

@@ -52,7 +52,7 @@ class MailSync @Inject constructor(
     suspend fun sync(): SyncResult {
         val db = holder.database()
         val dao = db.mailDao()
-        val rules = dao.rules().map { ShortlistRule(it.id, it.senderContains, it.subjectContains, it.score) }
+        val rules = dao.rules().map { ShortlistRule(it.id, it.senderContains, it.subjectContains, it.score) } + MailTriage.DEFAULT_RULES
         val cfg = settings.current()
         val since = time.now().minusSeconds(FIRST_SYNC_DAYS * DAY_SECONDS)
 
@@ -170,9 +170,10 @@ class MailSync @Inject constructor(
     }
 
     private companion object {
-        const val FIRST_SYNC_DAYS = 7L
+        // Long enough to see a month's subscriptions and bills on the first sync.
+        const val FIRST_SYNC_DAYS = 45L
         const val DAY_SECONDS = 86_400L
-        const val MAX_FIRST_SYNC = 200
+        const val MAX_FIRST_SYNC = 400
         const val DEFAULT_FOLDER = "INBOX"
         const val DUPLICATE = -1L
     }

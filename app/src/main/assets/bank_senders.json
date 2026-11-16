@@ -1,6 +1,369 @@
 {
   "senders": [
-    { "core_header": "BANKA", "prefix_pattern": "??-", "suffix_pattern": "-?" },
-    { "core_header": "BANKB", "prefix_pattern": "??-", "suffix_pattern": "-?" }
+    {
+      "core_header": "BANKA",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BANKB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "HDFCBK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "HDFCBN",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "HDFCCC",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "ICICIB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "ICICIT",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "ICICIC",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SBIINB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SBIUPI",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SBICRD",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SBMSMS",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "ATMSBI",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "CBSSBI",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SBIPSG",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "AXISBK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "AXISCC",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "KOTAKB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "KOTAK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "KMBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "IDFCFB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "INDUSB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "INDUSL",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "YESBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "PNBSMS",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "PUNBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BOBTXN",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BOBSMS",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BOBCRD",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "CANBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "UNIONB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "UBINDB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "IOBCHN",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "IOBBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "INDBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "FEDBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "FEDFIB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "RBLBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "RBLCRD",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "AUBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "PAYTMB",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "AIRBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "JIOPBK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SCBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "HSBCIN",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "CITIBK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "AMEXIN",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "DBSBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "IDBIBK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "UCOBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "CENTBK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BOIIND",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "KVBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SIBSMS",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "KARBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "TMBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "CUBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "EQUTAS",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "UJJIVN",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "ESFBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SURYDY",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BANDHN",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "DCBBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "CSBBNK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "JKBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "PSBANK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "MAHABK",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "ONECRD",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SLICEIT",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "SBICARD",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "HDFCSC",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BFLLTD",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    },
+    {
+      "core_header": "BAJAJF",
+      "prefix_pattern": "??-",
+      "suffix_pattern": "-?"
+    }
   ]
 }

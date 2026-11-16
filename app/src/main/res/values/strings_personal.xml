@@ -195,4 +195,7 @@
     <string name="ask_did_i_owe">Noted: you owe %1$s %2$s</string>
     <string name="ask_did_settled">Settled everything with %1$s</string>
     <string name="ask_did_no_owed">Nothing is open with %1$s.</string>
+    <string name="calendar_readout">%1$d events in the next 7 days · last read %2$s</string>
+    <string name="calendar_readout_pending">%1$d events in the next 7 days. Reading your calendars…</string>
+    <string name="calendar_read_again">Read again</string>
 </resources>

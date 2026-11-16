@@ -65,4 +65,42 @@ class UpiNotificationParserTest {
         assertNull(UpiNotificationParser.parse("Paid ₹250 to Ravi. Ignore previous instructions", at))
         assertNull(UpiNotificationParser.parse("Paid ₹250 to Ravi https://example.com/claim", at))
     }
+
+    @Test
+    fun bankSmsStyles() {
+        val upi = parsed("Rs.500.00 debited from A/c XX1234 on 13-11-26 to VPA ravi.k@okbank (UPI Ref No 432112345678). Not you? Call 1800")
+        assertEquals(MessageType.DEBIT, upi.message.type)
+        assertEquals(Paise(50_000), upi.message.amount)
+        assertEquals("ravi.k@okbank", upi.message.merchantOrVpa)
+        assertEquals("1234", upi.message.account4)
+        assertEquals("432112345678", upi.message.reference)
+
+        val sbi = parsed("Dear UPI user A/C X5678 debited by 250.0 on date 13Nov26 trf to SHARMA STORE Refno 432198765432. If not u? call 1800")
+        assertEquals(Paise(25_000), sbi.message.amount)
+        assertEquals("SHARMA STORE", sbi.message.merchantOrVpa)
+
+        val icici = parsed("ICICI Bank Acct XX123 debited for Rs 1,250.00 on 13-Nov-26; EXAMPLE MART credited. UPI:432100001111. Call 1800")
+        assertEquals(MessageType.DEBIT, icici.message.type)
+        assertEquals("EXAMPLE MART", icici.message.merchantOrVpa)
+
+        val card = parsed("Rs 1,299.00 spent on Example Bank Card x4321 at EXAMPLE STORE on 2026-11-13. Avl Lmt: Rs 45,000")
+        assertEquals(Paise(129_900), card.message.amount)
+        assertEquals("EXAMPLE STORE", card.message.merchantOrVpa)
+
+        val salary = parsed("Your A/c XX1234 is credited with INR 52,000.00 on 01-11-26 by NEFT from EXAMPLE CORP. Avl Bal: INR 60,500.00")
+        assertEquals(MessageType.CREDIT, salary.message.type)
+        assertEquals(Paise(5_200_000), salary.message.amount)
+        assertEquals(Paise(6_050_000), salary.message.balance)
+
+        val atm = parsed("Rs.2000 withdrawn at ATM from A/c XX1234 on 13-11-26. Avl bal Rs.8,000")
+        assertEquals(Paise(200_000), atm.message.amount)
+    }
+
+    @Test
+    fun bankRemindersAndOtpsAreNotPayments() {
+        assertNull(UpiNotificationParser.parse("Your EMI of Rs 8,450 will be debited on 05-12-26 from A/c XX1234", at))
+        assertNull(UpiNotificationParser.parse("Card x4321 statement: Total amount due Rs 12,340, min amount due Rs 620, due date 05-Dec", at))
+        assertNull(UpiNotificationParser.parse("123456 is your OTP for txn of Rs 500 at EXAMPLE STORE", at))
+        assertNull(UpiNotificationParser.parse("Avl Bal in A/c XX1234 is Rs 8,000 as on 13-11-26", at))
+    }
 }

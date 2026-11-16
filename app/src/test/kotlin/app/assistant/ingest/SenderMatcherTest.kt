@@ -111,7 +111,11 @@ class SenderMatcherTest {
     @Test
     fun `the shipped sender list loads and recognises the placeholder banks used by the fixtures`() {
         val entries = BankSenderJson.parse(File("src/main/assets/bank_senders.json").readText()).getOrThrow()
-        assertEquals(setOf("BANKA", "BANKB"), entries.map { it.coreHeader }.toSet())
+        assertTrue(entries.map { it.coreHeader }.containsAll(setOf("BANKA", "BANKB", "HDFCBK", "SBIINB", "ICICIB", "AXISBK")))
+        // Real DLT sender ids, with the operator prefix and the type suffix, are recognised.
+        assertTrue(SenderMatcher.matches("VM-HDFCBK", entries))
+        assertTrue(SenderMatcher.matches("JD-SBIINB-S", entries))
+        assertTrue(SenderMatcher.matches("AD-ICICIT-T", entries))
         assertTrue(SenderMatcher.matches("AD-BANKA-S", entries))
         assertTrue(SenderMatcher.matches("VM-BANKB-T", entries))
         assertFalse(SenderMatcher.matches("XX-OTHER-S", entries), "an unlisted sender is discarded (Requirement 26.3)")

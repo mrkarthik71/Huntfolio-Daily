@@ -44,6 +44,9 @@ interface MailDao {
     @Upsert
     suspend fun putPenalty(penalty: SenderPenaltyEntity)
 
+    @Query("DELETE FROM mail_cursor")
+    suspend fun clearCursors()
+
     @Query("SELECT * FROM mail_cursor WHERE folder = :folder")
     suspend fun cursor(folder: String): MailCursorEntity?
 

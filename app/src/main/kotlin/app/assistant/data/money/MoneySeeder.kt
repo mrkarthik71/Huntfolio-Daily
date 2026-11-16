@@ -26,7 +26,12 @@ class MoneySeeder(private val readAsset: (String) -> String) {
         val seedSenders = senders.map {
             SenderEntryEntity(core = it.coreHeader, prefixPattern = it.prefixPattern, suffixPattern = it.suffixPattern, builtin = true, enabled = true)
         }
-        return db.moneySeedDao().seedIfEmpty(BuiltinCategories.NAMES, seedMerchants, seedSenders)
+        val seeded = db.moneySeedDao().seedIfEmpty(BuiltinCategories.NAMES, seedMerchants, seedSenders)
+        // A newer app may ship more built-in senders: add the ones this store does not have yet.
+        val have = db.moneySeedDao().builtinSenderCores().map { it.uppercase() }.toSet()
+        val missing = seedSenders.filter { it.core.uppercase() !in have }
+        missing.forEach { db.moneySeedDao().insertSender(it) }
+        return seeded || missing.isNotEmpty()
     }
 
     companion object {

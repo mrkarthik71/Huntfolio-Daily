@@ -46,6 +46,17 @@ class MailSyncWorker @AssistedInject constructor(
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(UNIQUE_NAME, ExistingPeriodicWorkPolicy.UPDATE, request)
         }
 
+        /** One sync now (after connecting), besides the periodic schedule. */
+        fun runNow(context: Context) {
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "$UNIQUE_NAME-now",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                androidx.work.OneTimeWorkRequestBuilder<MailSyncWorker>()
+                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                    .build(),
+            )
+        }
+
         fun cancel(context: Context) {
             WorkManager.getInstance(context).cancelUniqueWork(UNIQUE_NAME)
         }

@@ -72,6 +72,28 @@ fun CalendarSettingsScreen(onBack: () -> Unit, viewModel: CalendarSettingsViewMo
                     Text(stringResource(R.string.calendar_rationale), style = MaterialTheme.typography.bodyLarge)
                     Button(onClick = { viewModel.grantAndLoad() }) { Text(stringResource(R.string.calendar_grant)) }
                 }
+            } else {
+                val (count, at) = viewModel.readout.collectAsStateWithLifecycle().value
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                    Text(
+                        if (at == null) {
+                            stringResource(R.string.calendar_readout_pending, count)
+                        } else {
+                            stringResource(
+                                R.string.calendar_readout,
+                                count,
+                                java.time.format.DateTimeFormatter.ofLocalizedTime(java.time.format.FormatStyle.SHORT)
+                                    .format(at.atZone(viewModel.zone())),
+                            )
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1f),
+                    )
+                    androidx.compose.material3.TextButton(onClick = viewModel::refreshNow) { Text(stringResource(R.string.calendar_read_again)) }
+                }
+            }
+            if (!ui.granted) {
+                Unit
             } else if (ui.calendars.isEmpty()) {
                 app.assistant.ui.designsystem.EmptyState(stringResource(R.string.calendar_none))
             } else {

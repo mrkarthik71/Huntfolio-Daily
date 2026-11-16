@@ -40,6 +40,7 @@ class CalendarSettingsViewModel @Inject constructor(
     private val permissions: PermissionManager,
     private val settings: SettingsStore,
     private val scheduler: NotificationScheduling,
+    private val time: app.assistant.domain.port.TimeSource? = null,
 ) : ViewModel() {
 
     val state: StateFlow<CalendarSettingsUi> =
@@ -52,6 +53,23 @@ class CalendarSettingsViewModel @Inject constructor(
                 eventLeadMinutes = s.eventLeadTime.toMinutes().toInt(),
             )
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), CalendarSettingsUi())
+
+    /** How many events the next 7 days hold in the cache, and when the calendars were last read (null: not yet this run). */
+    val readout: StateFlow<Pair<Int, java.time.Instant?>> = run {
+        val today = time?.today() ?: java.time.LocalDate.of(EPOCH_YEAR, 1, 1)
+        val days = (0L until WEEK).map { repository.eventsOn(today.plusDays(it)) }
+        combine(combine(days) { d -> d.sumOf { it.timed.size + it.allDay.size } }, repository.lastSuccessfulRefresh) { n, at -> n to at }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0 to null)
+    }
+
+    fun zone(): java.time.ZoneId = time?.zone() ?: java.time.ZoneOffset.UTC
+
+    /** Reads the calendars again now. */
+    fun refreshNow() {
+        viewModelScope.launch {
+            if (permissions.status(Feature.CALENDAR) == PermissionStatus.GRANTED && repository.loadCalendars() is Outcome.Ok) repository.requestRefresh()
+        }
+    }
 
     /** Asks for the calendar permission, then loads the device calendars and refreshes the cache. */
     fun grantAndLoad() {
@@ -95,3 +113,6 @@ class CalendarSettingsViewModel @Inject constructor(
         }
     }
 }
+
+private const val WEEK = 7L
+private const val EPOCH_YEAR = 1970

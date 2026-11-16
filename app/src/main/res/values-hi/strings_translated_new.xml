@@ -251,4 +251,7 @@
     <string name="ask_did_i_owe">दर्ज किया: आपको %1$s को %2$s देने हैं</string>
     <string name="ask_did_settled">%1$s के साथ सब चुकता</string>
     <string name="ask_did_no_owed">%1$s के साथ कोई बकाया नहीं।</string>
+    <string name="calendar_readout">अगले 7 दिनों में %1$d इवेंट · आख़िरी बार %2$s पर पढ़ा</string>
+    <string name="calendar_readout_pending">अगले 7 दिनों में %1$d इवेंट। आपके कैलेंडर पढ़े जा रहे हैं…</string>
+    <string name="calendar_read_again">फिर से पढ़ें</string>
 </resources>

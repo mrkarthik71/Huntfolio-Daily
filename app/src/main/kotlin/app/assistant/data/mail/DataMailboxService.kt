@@ -52,6 +52,9 @@ class DataMailboxService @Inject constructor(
             is Outcome.Ok -> {
                 val cfg = settings.current()
                 MailSyncWorker.schedule(context, cfg.mailSyncIntervalMinutes.toLong())
+                // A fresh connection reads the recent window again and does not wait for the first period.
+                runCatching { holder.database().mailDao().clearCursors() }
+                MailSyncWorker.runNow(context)
                 MailDigestWorker.schedule(context, cfg.mailDigestTime.toSecondOfDay() / SECONDS_PER_MINUTE, time.now().atZone(time.zone()).toLocalTime())
                 Outcome.Ok(Unit)
             }
