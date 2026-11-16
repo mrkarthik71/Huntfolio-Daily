@@ -46,14 +46,21 @@ data class AppSettings(
     /** Mail_Sync_Interval in minutes (Requirement 51.4, 15 to 1440). */
     val mailSyncIntervalMinutes: Int = 60,
 ) {
-    fun limitFor(type: NotificationType): Int = perTypeLimit[type] ?: DEFAULT_PER_TYPE_LIMIT
+    fun limitFor(type: NotificationType): Int = perTypeLimit[type] ?: defaultLimitFor(type)
 
     companion object {
         const val DEFAULT_PER_TYPE_LIMIT = 3
         const val DEFAULT_EVENT_REMINDER_LIMIT = 8
 
-        fun defaultPerTypeLimits(): Map<NotificationType, Int> = NotificationType.entries.associateWith {
-            if (it == NotificationType.EVENT_REMINDER) DEFAULT_EVENT_REMINDER_LIMIT else DEFAULT_PER_TYPE_LIMIT
+        /** Check-ins and focus blocks happen several times a day, so they get room above the general limit. */
+        const val DEFAULT_CHECK_IN_LIMIT = 12
+
+        fun defaultLimitFor(type: NotificationType): Int = when (type) {
+            NotificationType.EVENT_REMINDER -> DEFAULT_EVENT_REMINDER_LIMIT
+            NotificationType.HABIT_CHECK, NotificationType.FOCUS_END -> DEFAULT_CHECK_IN_LIMIT
+            else -> DEFAULT_PER_TYPE_LIMIT
         }
+
+        fun defaultPerTypeLimits(): Map<NotificationType, Int> = NotificationType.entries.associateWith { defaultLimitFor(it) }
     }
 }

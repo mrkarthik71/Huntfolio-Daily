@@ -4,17 +4,17 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.data.backup.BackupError
-import app.assistant.data.career.HuntfolioFileReader
+import app.assistant.domain.career.CareerImporter
+import app.assistant.domain.career.HuntfolioError
+import app.assistant.domain.career.HuntfolioImport
+import app.assistant.domain.career.ImportPreview
+import app.assistant.domain.career.ImportResult
+import app.assistant.domain.career.SkillChoice
 import app.assistant.domain.engine.backup.ExportPassphrase
 import app.assistant.domain.error.Outcome
-import app.assistant.parse.huntfolio.CareerImporter
-import app.assistant.parse.huntfolio.HuntfolioError
-import app.assistant.parse.huntfolio.HuntfolioImport
-import app.assistant.parse.huntfolio.ImportPreview
-import app.assistant.parse.huntfolio.ImportResult
-import app.assistant.parse.huntfolio.SkillChoice
-import app.assistant.data.backup.BackupManager
+import app.assistant.domain.port.BackupError
+import app.assistant.domain.port.BackupManager
+import app.assistant.domain.port.CareerFileReader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,7 +38,7 @@ data class TransferUi(
 @HiltViewModel
 class DataTransferViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val reader: HuntfolioFileReader,
+    private val reader: CareerFileReader,
     private val importer: CareerImporter,
     private val backup: BackupManager,
 ) : ViewModel() {

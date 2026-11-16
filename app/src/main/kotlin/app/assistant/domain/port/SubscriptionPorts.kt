@@ -19,12 +19,7 @@ data class DueUsageCheck(val subscriptionId: Long, val merchant: String, val amo
 data class SubscriptionView(val snapshot: SubscriptionSnapshot, val merchant: String, val yearlyCost: Paise)
 
 /** Fields for a manual Subscription the User types (Requirement 37.4). */
-data class ManualSubscriptionInput(
-    val merchant: String,
-    val amount: Paise,
-    val interval: SubscriptionInterval,
-    val nextDue: LocalDate,
-)
+data class ManualSubscriptionInput(val merchant: String, val amount: Paise, val interval: SubscriptionInterval, val nextDue: LocalDate)
 
 enum class ManualSubscriptionField { MERCHANT, AMOUNT, INTERVAL, NEXT_DUE }
 

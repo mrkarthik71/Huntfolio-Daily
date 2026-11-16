@@ -36,7 +36,7 @@ class AppViewModel @Inject constructor(
     private val store: EncryptedStoreGate,
     private val wiper: DataWiper,
     private val dispatchers: DispatcherProvider,
-    private val consent: app.assistant.data.consent.ConsentStore,
+    private val consent: app.assistant.domain.port.ConsentRecord,
     val appLock: AppLock,
 ) : ViewModel() {
 

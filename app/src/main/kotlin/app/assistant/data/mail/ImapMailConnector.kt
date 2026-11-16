@@ -35,11 +35,8 @@ interface MailCredentialStore {
  * mailbox is marked needs-reconnection. Resume uses UIDVALIDITY + last UID; a changed UIDVALIDITY
  * restarts the window.
  */
-class ImapMailConnector(
-    private val credentials: MailCredentialStore,
-    private val dispatchers: DispatcherProvider,
-    private val snippetLength: () -> Int,
-) : MailConnector {
+class ImapMailConnector(private val credentials: MailCredentialStore, private val dispatchers: DispatcherProvider, private val snippetLength: () -> Int) :
+    MailConnector {
 
     override suspend fun connectionTest(): Outcome<Unit, MailError> = withContext(dispatchers.io) {
         withStore { store ->
@@ -97,7 +94,13 @@ class ImapMailConnector(
 
     private fun collectParts(content: Any?, contentType: String, into: MutableList<SnippetExtractor.Part>) {
         when (content) {
-            is String -> into += SnippetExtractor.Part(content.toByteArray(charset(contentType)), charsetOf(contentType), isHtml = contentType.contains("html", ignoreCase = true))
+            is String ->
+                into +=
+                    SnippetExtractor.Part(
+                        content.toByteArray(charset(contentType)),
+                        charsetOf(contentType),
+                        isHtml = contentType.contains("html", ignoreCase = true),
+                    )
             is MimeMultipart -> for (i in 0 until content.count) {
                 val part = content.getBodyPart(i)
                 runCatching { collectParts(part.content, part.contentType, into) }
@@ -108,8 +111,7 @@ class ImapMailConnector(
     private fun charset(contentType: String): java.nio.charset.Charset =
         runCatching { charsetOf(contentType)?.let(java.nio.charset.Charset::forName) }.getOrNull() ?: Charsets.UTF_8
 
-    private fun charsetOf(contentType: String): String? =
-        Regex("""charset=\"?([\w-]+)""", RegexOption.IGNORE_CASE).find(contentType)?.groupValues?.get(1)
+    private fun charsetOf(contentType: String): String? = Regex("""charset=\"?([\w-]+)""", RegexOption.IGNORE_CASE).find(contentType)?.groupValues?.get(1)
 
     private inline fun <T> withStore(block: (IMAPStore) -> Outcome<T, MailError>): Outcome<T, MailError> {
         val config = runCatchingBlocking { credentials.config() } ?: return Outcome.Err(MailError.AUTH_REJECTED)
@@ -139,8 +141,7 @@ class ImapMailConnector(
 
     // credentials.config()/password() are suspend; the connector already runs on the IO dispatcher,
     // so a blocking bridge here is safe and keeps withStore non-suspend for the finally/try shape.
-    private fun <T> runCatchingBlocking(block: suspend () -> T): T? =
-        runCatching { kotlinx.coroutines.runBlocking { block() } }.getOrNull()
+    private fun <T> runCatchingBlocking(block: suspend () -> T): T? = runCatching { kotlinx.coroutines.runBlocking { block() } }.getOrNull()
 
     private companion object {
         const val DEFAULT_FOLDER = "INBOX"

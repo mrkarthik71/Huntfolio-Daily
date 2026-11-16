@@ -33,8 +33,7 @@ data class ShortlistRule(
  */
 object MailTriage {
     /** An OTP/verification email that must be discarded with no snippet and no AI (Requirement 54.1). */
-    fun isOtp(header: MailHeader, otpPatterns: List<Regex>): Boolean =
-        otpPatterns.any { it.containsMatchIn(header.subject) || it.containsMatchIn(header.from) }
+    fun isOtp(header: MailHeader, otpPatterns: List<Regex>): Boolean = otpPatterns.any { it.containsMatchIn(header.subject) || it.containsMatchIn(header.from) }
 
     /** True when at least one enabled rule matches (Requirement 53.1). Empty rules shortlist nothing. */
     fun shortlisted(header: MailHeader, rules: List<ShortlistRule>): Boolean = rules.any { it.matches(header) }

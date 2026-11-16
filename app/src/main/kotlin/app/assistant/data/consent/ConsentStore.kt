@@ -13,14 +13,14 @@ import javax.inject.Singleton
  * DataStore) and matches how permission state is stored.
  */
 @Singleton
-class ConsentStore @Inject constructor(@param:ApplicationContext private val context: Context) {
+class ConsentStore @Inject constructor(@param:ApplicationContext private val context: Context) : app.assistant.domain.port.ConsentRecord {
     private val prefs get() = context.getSharedPreferences(FILE, Context.MODE_PRIVATE)
 
-    fun acceptedVersion(): Int? = prefs.getInt(VERSION_KEY, -1).takeIf { it >= 0 }
+    override fun acceptedVersion(): Int? = prefs.getInt(VERSION_KEY, -1).takeIf { it >= 0 }
 
     fun acceptedAtEpochMs(): Long? = prefs.getLong(AT_KEY, -1).takeIf { it >= 0 }
 
-    fun accept(version: Int, atEpochMs: Long) {
+    override fun accept(version: Int, atEpochMs: Long) {
         prefs.edit().putInt(VERSION_KEY, version).putLong(AT_KEY, atEpochMs).commit()
     }
 

@@ -61,7 +61,17 @@ interface NotificationLog {
 enum class RescheduleReason { BOOT, TIME_CHANGED, ZONE_CHANGED, PACKAGE_REPLACED, EXACT_ALARM_CHANGED, SETTINGS_CHANGED }
 
 /** What UI and receivers can ask of the scheduler (design: Notification_Scheduler). */
+/**
+ * A notification raised by background work right now (mail digest, health warning). It still goes
+ * through the Notification_Governor: quiet hours, the daily cap and per-type limits decide whether
+ * it is shown, sent to the inbox, or dropped, and it gets a "Why am I seeing this?" log entry.
+ */
+data class ImmediateAlert(val type: NotificationType, val refKey: String, val title: String, val text: String, val route: String?)
+
 interface NotificationScheduling {
+    /** Offers [alert] to the governor now (see [ImmediateAlert]). */
+    suspend fun offerNow(alert: ImmediateAlert)
+
     /** Aligns the daily rows with the current settings: new times, switched-off types (Requirements 18.9, 20.7). */
     suspend fun refresh()
 

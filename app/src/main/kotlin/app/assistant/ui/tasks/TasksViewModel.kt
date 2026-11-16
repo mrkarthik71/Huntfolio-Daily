@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -44,6 +45,25 @@ class TasksViewModel @Inject constructor(private val tasks: TaskRepository, priv
         }
     }
 
+    /** Saves the task and its repeat rule (null: does not repeat). */
+    fun saveWithRepeat(
+        input: TaskInput,
+        existing: TaskId?,
+        repeat: app.assistant.domain.engine.tasks.TaskRepeat?,
+        onResult: (FieldErrors<TaskField>?) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val result = tasks.save(input, existing, time.now(), time.today())
+            if (result is Outcome.Ok) tasks.setRepeat(result.value, repeat)
+            onResult(if (result is Outcome.Err) result.error else null)
+        }
+    }
+
+    suspend fun repeatOf(id: TaskId): app.assistant.domain.engine.tasks.TaskRepeat? = tasks.repeats().first()[id]
+
+    val repeats: StateFlow<Map<TaskId, app.assistant.domain.engine.tasks.TaskRepeat>> =
+        tasks.repeats().stateIn(viewModelScope, SharingStarted.WhileSubscribed(REPEAT_STOP_MS), emptyMap())
+
     fun markDone(id: TaskId) = viewModelScope.launch { tasks.markDone(id, time.now(), time.today()) }
 
     fun moveToTomorrow(id: TaskId) = viewModelScope.launch {
@@ -56,3 +76,5 @@ class TasksViewModel @Inject constructor(private val tasks: TaskRepository, priv
 
     fun today(): LocalDate = time.today()
 }
+
+private const val REPEAT_STOP_MS = 5_000L

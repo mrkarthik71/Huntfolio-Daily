@@ -1,0 +1,20 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Your BankA Credit Card bill of Rs 720.00 is due on 20-01-25. Pay in the BankA app.",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankA.bill.v1",
+    "type": "BILL",
+    "reversal": false,
+    "amount_paise": 72000,
+    "at": "2025-01-20T00:00:00",
+    "merchant_or_vpa": null,
+    "account4": null,
+    "reference": null,
+    "balance_paise": null
+  }
+}

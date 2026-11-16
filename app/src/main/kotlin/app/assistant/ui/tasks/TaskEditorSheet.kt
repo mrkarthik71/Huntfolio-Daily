@@ -1,5 +1,6 @@
 package app.assistant.ui.tasks
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -50,6 +51,9 @@ fun TaskEditorSheet(
     load: suspend (TaskId) -> Task?,
     onSave: (TaskInput, TaskId?, (FieldErrors<TaskField>?) -> Unit) -> Unit,
     onDismiss: () -> Unit,
+    loadRepeat: suspend (TaskId) -> app.assistant.domain.engine.tasks.TaskRepeat? = { null },
+    /** When given, the editor offers a repeat choice and saves through this. */
+    onSaveWithRepeat: ((TaskInput, TaskId?, app.assistant.domain.engine.tasks.TaskRepeat?, (FieldErrors<TaskField>?) -> Unit) -> Unit)? = null,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val existing = (target as? EditorTarget.Existing)?.id
@@ -61,6 +65,7 @@ fun TaskEditorSheet(
     var goalId by remember { mutableStateOf<GoalId?>(null) }
     var errors by remember { mutableStateOf(FieldErrors.none<TaskField>()) }
     var ready by remember { mutableStateOf(existing == null) }
+    var repeat by remember { mutableStateOf<app.assistant.domain.engine.tasks.RepeatRule?>(null) }
 
     LaunchedEffect(existing) {
         if (existing != null) {
@@ -71,6 +76,7 @@ fun TaskEditorSheet(
                 planned = t.plannedDate
                 goalId = t.goalId
             }
+            repeat = loadRepeat(existing)?.rule
             ready = true
         }
     }
@@ -115,19 +121,24 @@ fun TaskEditorSheet(
             DateField(label = stringResource(R.string.task_planned_label), value = planned, onChange = { planned = it })
             DateField(label = stringResource(R.string.task_due_label), value = due, onChange = { due = it })
             GoalPicker(goals = goals, selected = goalId, onSelect = { goalId = it })
+            if (onSaveWithRepeat != null) RepeatPicker(repeat, onSelect = { repeat = it })
 
             Button(
                 onClick = {
-                    onSave(
-                        TaskInput(
-                            title = title,
-                            dueDate = due,
-                            plannedDate = planned,
-                            estimateText = estimate,
-                            goalId = goalId,
-                        ),
-                        existing,
-                    ) { errs -> if (errs == null) onDismiss() else errors = errs }
+                    val input = TaskInput(
+                        title = title,
+                        dueDate = due,
+                        // A repeating task needs a day to count from.
+                        plannedDate = planned ?: if (repeat != null) defaultPlanned else null,
+                        estimateText = estimate,
+                        goalId = goalId,
+                    )
+                    val done: (FieldErrors<TaskField>?) -> Unit = { errs -> if (errs == null) onDismiss() else errors = errs }
+                    if (onSaveWithRepeat != null) {
+                        onSaveWithRepeat(input, existing, repeat?.let { app.assistant.domain.engine.tasks.TaskRepeat(it) }, done)
+                    } else {
+                        onSave(input, existing, done)
+                    }
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text(stringResource(R.string.save)) }
@@ -154,6 +165,27 @@ private fun GoalPicker(goals: List<Goal>, selected: GoalId?, onSelect: (GoalId?)
                     expanded = false
                 })
             }
+        }
+    }
+}
+
+/** Does not repeat, every day, weekdays, every week or every month. */
+@Composable
+private fun RepeatPicker(selected: app.assistant.domain.engine.tasks.RepeatRule?, onSelect: (app.assistant.domain.engine.tasks.RepeatRule?) -> Unit) {
+    val options = listOf(
+        null to R.string.repeat_none,
+        app.assistant.domain.engine.tasks.RepeatRule.DAILY to R.string.repeat_daily,
+        app.assistant.domain.engine.tasks.RepeatRule.WEEKDAYS to R.string.repeat_weekdays,
+        app.assistant.domain.engine.tasks.RepeatRule.WEEKLY to R.string.repeat_weekly,
+        app.assistant.domain.engine.tasks.RepeatRule.MONTHLY to R.string.repeat_monthly,
+    )
+    Text(stringResource(R.string.repeat_label), style = MaterialTheme.typography.labelLarge)
+    androidx.compose.foundation.layout.Row(
+        Modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        options.forEach { (rule, label) ->
+            app.assistant.ui.life.OptionKey(stringResource(label), selected == rule, { onSelect(rule) })
         }
     }
 }

@@ -31,10 +31,7 @@ fun interface OnDeviceRuntime {
  * return an on-device failure, and the gateway treats that as terminal. It makes no network request
  * — a recording OkHttp client must see zero traffic in this mode (task 29.10).
  */
-class OnDeviceAiProvider(
-    private val availability: OnDeviceAvailability,
-    private val runtime: OnDeviceRuntime,
-) : AiProvider {
+class OnDeviceAiProvider(private val availability: OnDeviceAvailability, private val runtime: OnDeviceRuntime) : AiProvider {
     override val mode: AiMode = AiMode.ON_DEVICE
 
     /** The last reason the model was unavailable, for the Settings display. */
@@ -55,9 +52,11 @@ class OnDeviceAiProvider(
         }
     }
 
-    private fun renderPayload(request: ProviderRequest): String =
-        buildString {
-            request.payload.fields.forEach { (k, v) -> append(k).append(": ").append(v.value).append('\n') }
-            request.payload.lists.forEach { (k, v) -> append(k).append(":\n"); v.forEach { append("  - ").append(it.value).append('\n') } }
+    private fun renderPayload(request: ProviderRequest): String = buildString {
+        request.payload.fields.forEach { (k, v) -> append(k).append(": ").append(v.value).append('\n') }
+        request.payload.lists.forEach { (k, v) ->
+            append(k).append(":\n")
+            v.forEach { append("  - ").append(it.value).append('\n') }
         }
+    }
 }

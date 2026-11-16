@@ -14,44 +14,26 @@ import kotlinx.serialization.json.Json
 
 /** A proposed change the user can accept or dismiss; at most [MAX_SUGGESTIONS] per output. */
 @Serializable
-data class SuggestionDto(
-    val text: String,
-    val reason: String,
-)
+data class SuggestionDto(val text: String, val reason: String)
 
 /** A plan line: an opaque task handle placed in a time window, both from the payload. */
 @Serializable
-data class PlacementDto(
-    @SerialName("task") val taskHandle: String,
-    @SerialName("start") val startMinute: Int,
-    @SerialName("end") val endMinute: Int,
-)
+data class PlacementDto(@SerialName("task") val taskHandle: String, @SerialName("start") val startMinute: Int, @SerialName("end") val endMinute: Int)
 
 @Serializable
-data class DailyPlanOutput(
-    val summary: String,
-    val placements: List<PlacementDto> = emptyList(),
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class DailyPlanOutput(val summary: String, val placements: List<PlacementDto> = emptyList(), val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
-data class EveningReviewOutput(
-    val summary: String,
-    val encouragement: String = "",
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class EveningReviewOutput(val summary: String, val encouragement: String = "", val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
-data class WeeklyReviewOutput(
-    val summary: String,
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class WeeklyReviewOutput(val summary: String, val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
-data class MonthlyMoneyReviewOutput(
-    val summary: String,
-    val suggestions: List<SuggestionDto> = emptyList(),
-)
+data class MonthlyMoneyReviewOutput(val summary: String, val suggestions: List<SuggestionDto> = emptyList())
+
+@Serializable
+data class AssistantAnswerOutput(val summary: String, val suggestions: List<SuggestionDto> = emptyList())
 
 @Serializable
 data class MailClassifierOutput(
@@ -70,7 +52,17 @@ data class SmsFallbackOutput(
 )
 
 /** Shared numeric limits used by both the schemas and the Output_Validator. */
+/** One step of a goal from the breakdown prompt; [goal] is the goal's handle (g1, g2…). */
+@Serializable
+data class GoalStepDto(val goal: String, val title: String, val size: String)
+
+@Serializable
+data class GoalBreakdownOutput(val summary: String = "", val steps: List<GoalStepDto>)
+
 object OutputLimits {
+    const val MAX_STEPS = 40
+    val STEP_SIZES: Set<String> = setOf("S", "M", "L")
+
     const val MAX_SUGGESTIONS = 3
     const val MAX_SUMMARY = 600
     const val MAX_SHORT = 200

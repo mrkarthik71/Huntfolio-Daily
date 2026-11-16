@@ -5,8 +5,10 @@ import app.assistant.domain.engine.redact.RedactionError
 import app.assistant.domain.engine.redact.RedactionPatterns
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.PromptType
+import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.RedactedPayload
 import app.assistant.domain.port.RedactedText
+import app.assistant.domain.port.ReviewFacts
 
 /**
  * Builds the [RedactedPayload] for each Prompt_Type from the feature's own facts (Requirement 46,
@@ -19,24 +21,6 @@ import app.assistant.domain.port.RedactedText
  * [MAX_PAYLOAD_CHARS] (Requirement 46.7); the caller then shows the rule-based result with no send.
  */
 class SummaryBuilder(private val patterns: RedactionPatterns) {
-
-    /** One line that pairs a handle with its (to-be-redacted) label, e.g. t1 -> "Pay the electricity bill". */
-    data class Item(val handle: String, val label: String)
-
-    /** A free time window the daily plan may place tasks into, in minutes from midnight. */
-    data class Gap(val handle: String, val startMinute: Int, val endMinute: Int)
-
-    /** Facts for a planning/review payload: handled items, numeric facts, and optional free gaps. */
-    data class ReviewFacts(
-        val items: List<Item> = emptyList(),
-        val gaps: List<Gap> = emptyList(),
-        /** Numeric/opaque facts already safe to send (counts, totals in ₹, streak days). */
-        val numbers: Map<String, String> = emptyMap(),
-        val summaryLine: String = "",
-    )
-
-    /** Facts for the SMS-fallback / mail-classifier payloads: a handle and the raw message text. */
-    data class MessageFacts(val handle: String, val rawText: String, val numbers: Map<String, String> = emptyMap())
 
     fun buildReview(type: PromptType, facts: ReviewFacts): Outcome<BuiltPayload, RedactionError> {
         require(type in REVIEW_TYPES) { "buildReview called for $type" }
@@ -71,7 +55,11 @@ class SummaryBuilder(private val patterns: RedactionPatterns) {
             }
             lists["free_gaps"] = gapTexts
             // The numeric window is itself a fact the model may echo; carry it as structured numbers.
-            facts.gaps.forEachIndexed { i, g -> fields["gap${i}_start"] = RedactedText.opaqueHandle(g.startMinute.toString()); fields["gap${i}_end"] = RedactedText.opaqueHandle(g.endMinute.toString()) }
+            facts.gaps.forEachIndexed { i, g ->
+                fields["gap${i}_start"] = RedactedText.opaqueHandle(g.startMinute.toString())
+                fields["gap${i}_end"] =
+                    RedactedText.opaqueHandle(g.endMinute.toString())
+            }
         }
 
         return finish(type, fields, lists, handles, gapRanges)
@@ -119,7 +107,15 @@ class SummaryBuilder(private val patterns: RedactionPatterns) {
         const val MAX_PAYLOAD_CHARS = 4_000
         const val SCHEMA_VERSION = 1
 
-        private val REVIEW_TYPES = setOf(PromptType.DAILY_PLAN, PromptType.EVENING_REVIEW, PromptType.WEEKLY_REVIEW, PromptType.MONTHLY_MONEY_REVIEW)
+        private val REVIEW_TYPES =
+            setOf(
+                PromptType.DAILY_PLAN,
+                PromptType.EVENING_REVIEW,
+                PromptType.WEEKLY_REVIEW,
+                PromptType.MONTHLY_MONEY_REVIEW,
+                PromptType.ASSISTANT_ANSWER,
+                PromptType.GOAL_BREAKDOWN,
+            )
         private val MESSAGE_TYPES = setOf(PromptType.MAIL_CLASSIFIER, PromptType.SMS_FALLBACK_PARSER)
     }
 }

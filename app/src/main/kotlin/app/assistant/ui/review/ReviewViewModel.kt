@@ -45,7 +45,7 @@ class ReviewViewModel @Inject constructor(
     private val tasks: TaskRepository,
     private val reviews: ReviewRepository,
     private val time: TimeSource,
-    private val advisor: app.assistant.ai.feature.FeatureAdvisor,
+    private val advisor: app.assistant.domain.port.Advisor,
 ) : ViewModel() {
 
     private val reviewDate = MutableStateFlow<LocalDate?>(null)
@@ -81,7 +81,7 @@ class ReviewViewModel @Inject constructor(
         if (ui.date == null) return
         val s = ui.summary
         viewModelScope.launch {
-            val facts = app.assistant.ai.payload.SummaryBuilder.ReviewFacts(
+            val facts = app.assistant.domain.port.ReviewFacts(
                 numbers = mapOf(
                     "done" to s.done.toString(),
                     "moved" to s.moved.toString(),
@@ -90,13 +90,12 @@ class ReviewViewModel @Inject constructor(
                 ),
             )
             when (val r = advisor.review(app.assistant.domain.model.PromptType.EVENING_REVIEW, facts)) {
-                is app.assistant.ai.feature.FeatureAdvisor.Result.Advice -> {
-                    val summary = (r.output as? app.assistant.ai.output.ValidatedOutput.Review)?.summary
-                    val suggestions = app.assistant.ai.feature.FeatureAdvisor.suggestionsOf(r.output).map { AiReviewSuggestion(it.text, it.reason) }
-                    aiOverlay.value = AiReviewOverlay(summary = summary, suggestions = suggestions, unavailable = false)
+                is app.assistant.domain.port.ReviewAdvice.Wording -> {
+                    val suggestions = r.suggestions.map { AiReviewSuggestion(it.text, it.reason) }
+                    aiOverlay.value = AiReviewOverlay(summary = r.summary, suggestions = suggestions, unavailable = false)
                 }
-                is app.assistant.ai.feature.FeatureAdvisor.Result.Unavailable ->
-                    aiOverlay.value = AiReviewOverlay(unavailable = r.reason != app.assistant.ai.feature.FeatureAdvisor.Reason.DISABLED)
+                is app.assistant.domain.port.ReviewAdvice.Unavailable ->
+                    aiOverlay.value = AiReviewOverlay(unavailable = r.reason != app.assistant.domain.port.AdviceUnavailable.DISABLED)
             }
         }
     }

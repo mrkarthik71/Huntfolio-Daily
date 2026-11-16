@@ -46,6 +46,12 @@ interface GoalRepository {
 }
 
 interface TaskRepository {
+    /** Repeat rules of open tasks by task id. Stores without repeats answer an empty map. */
+    fun repeats(): Flow<Map<app.assistant.domain.model.TaskId, app.assistant.domain.engine.tasks.TaskRepeat>> = kotlinx.coroutines.flow.flowOf(emptyMap())
+
+    /** Sets or clears ([repeat] null) how a task repeats. */
+    suspend fun setRepeat(id: app.assistant.domain.model.TaskId, repeat: app.assistant.domain.engine.tasks.TaskRepeat?) = Unit
+
     fun openTasks(): Flow<List<Task>>
 
     /** Every Task planned for [date], whatever its status. */

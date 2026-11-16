@@ -1,0 +1,20 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Rs 2,500 has been reversed/refunded to your a/c XX1234 on 05-01-25. Ref ZX90QW12.",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankA.reversal.v1",
+    "type": "CREDIT",
+    "reversal": true,
+    "amount_paise": 250000,
+    "at": "2025-01-05T20:00:00",
+    "merchant_or_vpa": null,
+    "account4": "1234",
+    "reference": "ZX90QW12",
+    "balance_paise": null
+  }
+}

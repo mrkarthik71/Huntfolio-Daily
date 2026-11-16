@@ -2,10 +2,6 @@ package app.assistant.ui.settings.ai
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.ai.gateway.CapGovernor
-import app.assistant.ai.ondevice.OnDeviceAiProvider
-import app.assistant.domain.engine.settings.SettingsField
-import app.assistant.domain.error.FieldErrors
 import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.AiMode
 import app.assistant.domain.port.SettingsStore
@@ -37,9 +33,8 @@ data class AiSettingsUi(
 @HiltViewModel
 class AiSettingsViewModel @Inject constructor(
     private val settings: SettingsStore,
-    private val cap: CapGovernor,
-    private val onDevice: OnDeviceAiProvider,
-    private val keyWriter: app.assistant.ai.cloud.CloudKeyWriter,
+    private val usage: app.assistant.domain.port.AiUsage,
+    private val keyWriter: app.assistant.domain.port.CloudKeyWriter,
 ) : ViewModel() {
 
     private val spent = MutableStateFlow(0L)
@@ -51,7 +46,7 @@ class AiSettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            spent.value = cap.spent()
+            spent.value = usage.spentThisMonthPaise()
             keyConfigured.value = keyWriter.hasKey()
         }
     }
@@ -63,9 +58,9 @@ class AiSettingsViewModel @Inject constructor(
             monthlyCapPaise = s.aiMonthlyCapPaise,
             spentThisMonthPaise = spentPaise,
             capReached = s.aiMonthlyCapPaise > 0 && spentPaise >= s.aiMonthlyCapPaise,
-            resumeDate = cap.resumeDateIso(),
+            resumeDate = usage.resumeDateIso(),
             keyConfigured = hasKey,
-            onDeviceUnavailable = onDevice.lastUnavailable?.name,
+            onDeviceUnavailable = usage.onDeviceUnavailableReason(),
             capError = err,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AiSettingsUi())

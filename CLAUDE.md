@@ -1,4 +1,4 @@
-# Personal Assistant (Android)
+# Apex Assistant (Android)
 
 Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tasks.md). Read the design before changing architecture.
 
@@ -20,8 +20,17 @@ Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tas
 - Every notification goes through the Notification_Governor (quiet hours, daily cap, per-type limits) and has a "Why am I seeing this?" action.
 - Parsers must have unit tests with anonymised (synthetic) sample messages.
 
+## Design language ("Instrument panel", direction B, chosen by the user; applies to every screen)
+- Materials: only three. The console ground (`consoleGround()`: graphite with a top glow), raised panels (`raisedPanel()`: top-lit gradient, hairline of light on the top edge, soft shadow) and recessed wells (`recessedWell()`: darker, shaded top inner edge) for readouts and inputs. Plain rows sit directly on the ground; do not wrap everything in cards.
+- Colour: graphite neutrals plus ONE signal orange (`AssistantColors.Signal`) for what is live, progress and the main action. Green = good/done, blue = admin/info. No gradients washes, no purple, no emoji.
+- Type: Space Grotesk for words, JetBrains Mono for every number, time, amount and uppercase caption (`Caption`, `AssistantType.Readout`).
+- Signature parts: the progress `Dial`, the breathing `LiveLight`, `ReadoutTile`, `ReadoutRow`, `KeyButton` (square raised key), `SignalButton` (round glowing orange key, used once: Ask), `ApexIcons` (custom stroke icons; no stock Material glyphs for navigation).
+- Navigation: console bottom bar with 4 tabs (Today, Plan, Money, Inbox) and the orange Ask key in the centre; selected tab sits pressed in a well. Settings opens from the key on Today. Pushed screens use `CredTopBar`. Max one hero per screen; short copy, no explanatory subtitles.
+- Motion: staggered lift on entry (`enterAnimated`), `pressScale` + haptics on every tappable surface, dials and numbers count up, live light breathes; pushed screens slide from the right over a receding parent, tabs fade-through; exits faster than entrances; `LocalReducedMotion` turns it all into plain fades.
+- Check new screens with the Robolectric ScreenshotTest before shipping.
+
 ## Code conventions
-- Package root `app.assistant`; application ID comes from the `app.id` Gradle property (placeholder until the app is named).
+- Package root `app.assistant`; application ID comes from the `app.id` Gradle property (`app.apex.assistant`).
 - Money is `Paise` (Long). Never Double/Float for amounts.
 - Time only through `TimeSource`; only `data.time.SystemTimeSource` calls `Instant.now()` / `ZoneId.systemDefault()`.
 - Logging only through `SafeLog` with `DiagnosticEvent`s (enums and counts, no strings). Never `android.util.Log`, `println` or Timber elsewhere.
@@ -39,4 +48,15 @@ Spec: `.kiro/specs/personal-assistant-android/` (requirements.md, design.md, tas
 - Release verification: `.\gradlew.bat :app:verifyReadOnlyPermissions :app:verifyVersionCode`
 
 ## Open decisions (do not guess; ask)
-App name, Cloud AI vendor and cap, mail access method (IMAP app password vs Google sign-in), first banks/UPI apps, APK vs Play, Hindi/Tamil.
+Cloud AI vendor and cap, mail access method (IMAP app password vs Google sign-in), first banks/UPI apps, APK vs Play, Hindi/Tamil.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- When graphify-out/graph.json exists, run `graphify query "<question>"` before your first grep, search or source-file read for a codebase question, and put this rule in every subagent prompt that explores code. Read raw files only for lines the graph or an earlier read already located. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- A committed graphify-out/graph.json is rewritten whole on every build, so a large diff to it in a pull request is expected. Do not flag it as churn or suggest skipping the graph rebuild or its hooks.

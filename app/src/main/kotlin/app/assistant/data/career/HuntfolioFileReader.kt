@@ -1,8 +1,8 @@
 package app.assistant.data.career
 
+import app.assistant.domain.career.HuntfolioError
+import app.assistant.domain.career.HuntfolioImport
 import app.assistant.domain.error.Outcome
-import app.assistant.parse.huntfolio.HuntfolioError
-import app.assistant.parse.huntfolio.HuntfolioImport
 import app.assistant.parse.huntfolio.HuntfolioParser
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
@@ -17,10 +17,10 @@ import javax.inject.Singleton
  * forbids a JSON library), matching the money parser's split.
  */
 @Singleton
-class HuntfolioFileReader @Inject constructor() {
+class HuntfolioFileReader @Inject constructor() : app.assistant.domain.port.CareerFileReader {
 
-    fun read(stream: InputStream, sizeBytes: Long): Outcome<HuntfolioImport, HuntfolioError> {
-        if (sizeBytes > app.assistant.parse.huntfolio.HUNTFOLIO_MAX_BYTES) return Outcome.Err(HuntfolioError.TooLarge)
+    override fun read(stream: InputStream, sizeBytes: Long): Outcome<HuntfolioImport, HuntfolioError> {
+        if (sizeBytes > app.assistant.domain.career.HUNTFOLIO_MAX_BYTES) return Outcome.Err(HuntfolioError.TooLarge)
         val root = try {
             JsonParser.parseReader(stream.reader()).asJsonObject
         } catch (_: JsonSyntaxException) {

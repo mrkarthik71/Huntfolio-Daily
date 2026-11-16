@@ -24,6 +24,9 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
+    override fun attachBaseContext(newBase: android.content.Context) {
+        super.attachBaseContext(app.assistant.ui.locale.AppLocale.wrap(newBase))
+    }
 
     @Inject lateinit var appLock: AppLock
 
@@ -31,7 +34,8 @@ class MainActivity : FragmentActivity() {
 
     private val appViewModel: AppViewModel by viewModels()
 
-    private val startRoute = androidx.compose.runtime.mutableStateOf<String?>(null)
+    private val startRoute = androidx.compose.runtime.mutableStateOf<StartRoute?>(null)
+    private var launches = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // FLAG_SECURE keeps user data out of screenshots and the recent-apps preview (Requirement
@@ -43,7 +47,14 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         permissions.attach(this)
-        startRoute.value = intent?.getStringExtra(EXTRA_ROUTE)
+        startRoute.value = intent?.getStringExtra(EXTRA_ROUTE)?.let { StartRoute(it, launches++) }
+        // After a crash, show its report first (before the app's own screens, in case they are what crashes),
+        // so the User can copy it and send it to the developer.
+        val crash = app.assistant.security.crash.CrashRecorder.unseen(this)
+        if (crash != null) showCrashReport(crash) else startUi()
+    }
+
+    private fun startUi() {
         setContent {
             AssistantTheme {
                 AssistantApp(
@@ -59,11 +70,26 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    private fun showCrashReport(report: String) {
+        app.assistant.security.crash.CrashRecorder.markSeen(this)
+        android.app.AlertDialog.Builder(this)
+            .setTitle(getString(app.assistant.R.string.crash_relaunch_title))
+            .setMessage(getString(app.assistant.R.string.crash_relaunch_body) + "\n\n" + report)
+            .setPositiveButton(getString(app.assistant.R.string.crash_copy)) { _, _ ->
+                getSystemService(android.content.ClipboardManager::class.java)
+                    ?.setPrimaryClip(android.content.ClipData.newPlainText("Apex crash report", report))
+                android.widget.Toast.makeText(this, getString(app.assistant.R.string.crash_copied), android.widget.Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton(getString(app.assistant.R.string.crash_continue), null)
+            .setOnDismissListener { startUi() }
+            .show()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         // A notification tapped while the app is running routes after the next unlock.
-        intent.getStringExtra(EXTRA_ROUTE)?.let { startRoute.value = it }
+        intent.getStringExtra(EXTRA_ROUTE)?.let { startRoute.value = StartRoute(it, launches++) }
     }
 
     private companion object {
@@ -76,3 +102,6 @@ class MainActivity : FragmentActivity() {
         permissions.checkRevocations()
     }
 }
+
+/** A screen to open on launch; [nonce] makes a second tap on the same notification or tile open it again. */
+data class StartRoute(val route: String, val nonce: Long)

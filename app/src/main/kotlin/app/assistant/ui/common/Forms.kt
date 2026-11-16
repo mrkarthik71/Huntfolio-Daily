@@ -51,6 +51,11 @@ private val timeFormat: DateTimeFormatter = DateTimeFormatter.ofLocalizedTime(Fo
 
 fun formatDate(d: LocalDate): String = d.format(dateFormat)
 
+private val shortDateFormat: java.time.format.DateTimeFormatter = java.time.format.DateTimeFormatter.ofPattern("d MMM")
+
+/** A compact day-and-month date for tight places such as stat tiles. */
+fun formatShortDate(d: LocalDate): String = d.format(shortDateFormat)
+
 fun formatTime(t: LocalTime): String = t.format(timeFormat)
 
 /** A button that shows a date and opens a date picker; the date can be cleared when [clearable]. */

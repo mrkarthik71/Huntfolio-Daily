@@ -8,11 +8,7 @@ import java.time.Duration
  * While open the gateway attempts nothing. A single success closes it and clears the count. The
  * clock comes from [TimeSource] so tests drive it deterministically.
  */
-class CircuitBreaker(
-    private val time: TimeSource,
-    private val maxFailures: Int = DEFAULT_MAX_FAILURES,
-    private val openFor: Duration = DEFAULT_OPEN_FOR,
-) {
+class CircuitBreaker(private val time: TimeSource, private val maxFailures: Int = DEFAULT_MAX_FAILURES, private val openFor: Duration = DEFAULT_OPEN_FOR) {
     private var consecutiveFailures = 0
     private var openedAtMillis: Long? = null
 

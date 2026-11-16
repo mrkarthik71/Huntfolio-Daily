@@ -19,6 +19,8 @@ data class GoalEntity(
     @ColumnInfo(name = "parent_goal_id") val parentGoalId: Long?,
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "archived_at") val archivedAt: Long?,
+    val deadline: String? = null,
+    @ColumnInfo(defaultValue = "3") val priority: Int = 3,
 )
 
 /** Progress per Period_Instance, so edits and archiving never touch it (Requirement 11.6). */
@@ -47,6 +49,10 @@ data class TaskEntity(
     /** Local date of completion, used by streaks and Goal progress. */
     @ColumnInfo(name = "completed_date") val completedDate: String?,
     @ColumnInfo(name = "source_ref") val sourceRef: String?,
+    @ColumnInfo(defaultValue = "3") val priority: Int = 3,
+    @ColumnInfo(defaultValue = "LIGHT_ADMIN") val energy: String = "LIGHT_ADMIN",
+    @ColumnInfo(name = "milestone_id") val milestoneId: Long? = null,
+    @ColumnInfo(defaultValue = "NONE") val verify: String = "NONE",
 )
 
 @Entity(tableName = "task_move", indices = [Index("task_id"), Index("moved_on")])

@@ -3,9 +3,9 @@ package app.assistant.ui.health
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.assistant.data.health.HealthCheck
 import app.assistant.domain.engine.health.BatteryGuide
 import app.assistant.domain.engine.health.HealthRules
+import app.assistant.domain.port.HealthMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,15 +22,14 @@ data class HealthUi(
 )
 
 @HiltViewModel
-class HealthViewModel @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-    private val healthCheck: HealthCheck,
-) : ViewModel() {
+class HealthViewModel @Inject constructor(@param:ApplicationContext private val context: Context, private val healthCheck: HealthMonitor) : ViewModel() {
 
     private val _state = MutableStateFlow(HealthUi())
     val state: StateFlow<HealthUi> = _state.asStateFlow()
 
-    init { refresh() }
+    init {
+        refresh()
+    }
 
     /** Re-checks on open and on return from the settings action (Requirement 61.6, 62.2). */
     fun refresh() {

@@ -15,11 +15,10 @@ object DigestBuilder {
     data class DigestSection(val category: MailCategory, val items: List<DigestItem>)
 
     /** Category order from the design; items newest first within each. Empty categories are dropped. */
-    fun build(items: List<DigestItem>): List<DigestSection> =
-        CATEGORY_ORDER.mapNotNull { category ->
-            val inCategory = items.filter { it.category == category }.sortedByDescending { it.receivedAt }
-            if (inCategory.isEmpty()) null else DigestSection(category, inCategory)
-        }
+    fun build(items: List<DigestItem>): List<DigestSection> = CATEGORY_ORDER.mapNotNull { category ->
+        val inCategory = items.filter { it.category == category }.sortedByDescending { it.receivedAt }
+        if (inCategory.isEmpty()) null else DigestSection(category, inCategory)
+    }
 
     /** True when there is nothing to show; the digest is then skipped while connected (Requirement 56.3). */
     fun isEmpty(items: List<DigestItem>): Boolean = items.isEmpty()

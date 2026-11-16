@@ -35,10 +35,7 @@ data class ShortlistRuleEntity(
 
 /** A per-sender penalty built up from "Not important" taps (Requirement 55.5). */
 @Entity(tableName = "sender_penalty")
-data class SenderPenaltyEntity(
-    @PrimaryKey val sender: String,
-    val penalty: Int,
-)
+data class SenderPenaltyEntity(@PrimaryKey val sender: String, val penalty: Int)
 
 /** The resume cursor per folder (Requirement 52.4). */
 @Entity(tableName = "mail_cursor")

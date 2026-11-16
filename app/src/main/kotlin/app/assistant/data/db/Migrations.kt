@@ -229,3 +229,111 @@ val MIGRATION_8_9: Migration = object : Migration(8, 9) {
         )
     }
 }
+
+/** Apex planner (v10): task and goal planning columns, and the milestone, routine, reminder, card and proof tables. */
+val MIGRATION_9_10: Migration = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `priority` INTEGER NOT NULL DEFAULT 3")
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `energy` TEXT NOT NULL DEFAULT 'LIGHT_ADMIN'")
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `milestone_id` INTEGER")
+        db.execSQL("ALTER TABLE `task` ADD COLUMN `verify` TEXT NOT NULL DEFAULT 'NONE'")
+        db.execSQL("ALTER TABLE `goal` ADD COLUMN `deadline` TEXT")
+        db.execSQL("ALTER TABLE `goal` ADD COLUMN `priority` INTEGER NOT NULL DEFAULT 3")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `milestone` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `goal_id` INTEGER NOT NULL, `title` TEXT NOT NULL, `position` INTEGER NOT NULL, `due_date` TEXT, `estimate_min` INTEGER, `completed_at` INTEGER, FOREIGN KEY(`goal_id`) REFERENCES `goal`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_milestone_goal_id` ON `milestone` (`goal_id`)")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `routine` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `energy` TEXT NOT NULL, `days_mask` INTEGER NOT NULL, `start_minute` INTEGER NOT NULL, `duration_min` INTEGER NOT NULL, `flexible_min` INTEGER NOT NULL, `active` INTEGER NOT NULL)",
+        )
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `smart_reminder` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `message` TEXT NOT NULL, `kind` TEXT NOT NULL, `fire_at` INTEGER, `place_name` TEXT, `latitude` REAL, `longitude` REAL, `radius_m` INTEGER, `on_enter` INTEGER NOT NULL, `device` TEXT, `not_before_minute` INTEGER, `active` INTEGER NOT NULL, `task_id` INTEGER, `last_fired_at` INTEGER)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_smart_reminder_kind_active` ON `smart_reminder` (`kind`, `active`)")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `proactive_card` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kind` TEXT NOT NULL, `for_date` TEXT NOT NULL, `title` TEXT NOT NULL, `reason` TEXT NOT NULL, `status` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
+        )
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_proactive_card_kind_for_date` ON `proactive_card` (`kind`, `for_date`)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_proactive_card_for_date` ON `proactive_card` (`for_date`)")
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `task_verification` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `task_id` INTEGER NOT NULL, `kind` TEXT NOT NULL, `link_url` TEXT, `tracked_seconds` INTEGER, `photo_file` TEXT, `created_at` INTEGER NOT NULL, FOREIGN KEY(`task_id`) REFERENCES `task`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_task_verification_task_id` ON `task_verification` (`task_id`)")
+    }
+}
+
+/** v10 -> v11: the memory_note table for "Ask Apex: remember ...". */
+val MIGRATION_10_11: Migration = object : Migration(10, 11) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `memory_note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `text` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `pinned` INTEGER NOT NULL)",
+        )
+        db.execSQL("CREATE INDEX IF NOT EXISTS `index_memory_note_created_at` ON `memory_note` (`created_at`)")
+    }
+}
+
+/** v11 -> v12: habits, important dates, savings goals, follow-ups, mood log and focus sessions. */
+val MIGRATION_11_12: Migration = object : Migration(11, 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V12_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V12_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `habit` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `times` TEXT NOT NULL, `days` TEXT NOT NULL, `active` INTEGER NOT NULL, `created_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `habit_check` (`habit_id` INTEGER NOT NULL, `date` TEXT NOT NULL, `slot` TEXT NOT NULL, PRIMARY KEY(`habit_id`, `date`, `slot`), FOREIGN KEY(`habit_id`) REFERENCES `habit`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+    "CREATE INDEX IF NOT EXISTS `index_habit_check_date` ON `habit_check` (`date`)",
+    "CREATE TABLE IF NOT EXISTS `important_date` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `kind` TEXT NOT NULL, `date` TEXT NOT NULL, `yearly` INTEGER NOT NULL, `from_contacts` INTEGER NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `savings_goal` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `target_paise` INTEGER NOT NULL, `deadline` TEXT, `created_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `savings_entry` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `goal_id` INTEGER NOT NULL, `amount_paise` INTEGER NOT NULL, `date` TEXT NOT NULL, FOREIGN KEY(`goal_id`) REFERENCES `savings_goal`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+    "CREATE INDEX IF NOT EXISTS `index_savings_entry_goal_id` ON `savings_entry` (`goal_id`)",
+    "CREATE TABLE IF NOT EXISTS `follow_up` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `person` TEXT NOT NULL, `about` TEXT NOT NULL, `nudge_on` TEXT NOT NULL, `done` INTEGER NOT NULL, `created_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `mood_log` (`date` TEXT NOT NULL, `mood` INTEGER NOT NULL, `energy` INTEGER NOT NULL, PRIMARY KEY(`date`))",
+    "CREATE TABLE IF NOT EXISTS `focus_session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `task_id` INTEGER, `started_at` INTEGER NOT NULL, `planned_min` INTEGER NOT NULL, `ended_at` INTEGER, `completed` INTEGER NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS `index_focus_session_started_at` ON `focus_session` (`started_at`)",
+)
+
+/** v12 -> v13: holdings for net worth, and the encrypted vault's index. */
+val MIGRATION_12_13: Migration = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V13_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V13_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `holding` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `kind` TEXT NOT NULL, `value_paise` INTEGER NOT NULL, `monthly_paise` INTEGER NOT NULL, `due_day` INTEGER, `updated_on` TEXT NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `vault_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date_id` INTEGER, `file_name` TEXT NOT NULL, `mime` TEXT NOT NULL, `created_at` INTEGER NOT NULL)",
+    "CREATE INDEX IF NOT EXISTS `index_vault_item_date_id` ON `vault_item` (`date_id`)",
+)
+
+/** v14: notes, journal, lists, keep in touch, trips and orders. New tables only; nothing existing changes. */
+val MIGRATION_13_14: Migration = object : Migration(13, 14) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V14_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V14_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `note` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `body` TEXT NOT NULL, `pinned` INTEGER NOT NULL, `updated_at` INTEGER NOT NULL)",
+    "CREATE TABLE IF NOT EXISTS `journal_entry` (`date` TEXT NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`date`))",
+    "CREATE TABLE IF NOT EXISTS `list_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `list_name` TEXT NOT NULL, `title` TEXT NOT NULL, `done` INTEGER NOT NULL, `repeat_days` INTEGER, `done_on` TEXT)",
+    "CREATE INDEX IF NOT EXISTS `index_list_item_list_name` ON `list_item` (`list_name`)",
+    "CREATE TABLE IF NOT EXISTS `keep_in_touch` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `every_days` INTEGER NOT NULL, `last_talked` TEXT)",
+    "CREATE TABLE IF NOT EXISTS `trip` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kind` TEXT NOT NULL, `title` TEXT NOT NULL, `ref_code` TEXT, `starts_at` INTEGER NOT NULL, `from_place` TEXT, `to_place` TEXT, `source_ref` TEXT NOT NULL)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS `index_trip_source_ref` ON `trip` (`source_ref`)",
+    "CREATE TABLE IF NOT EXISTS `order_item` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `merchant` TEXT NOT NULL, `order_ref` TEXT NOT NULL, `status` TEXT NOT NULL, `expected_on` TEXT, `return_by` TEXT, `updated_at` INTEGER NOT NULL)",
+    "CREATE UNIQUE INDEX IF NOT EXISTS `index_order_item_order_ref` ON `order_item` (`order_ref`)",
+)
+
+/** v15: task repeat rules and money owed. New tables only. */
+val MIGRATION_14_15: Migration = object : Migration(14, 15) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        V15_SQL.forEach(db::execSQL)
+    }
+}
+
+private val V15_SQL = listOf(
+    "CREATE TABLE IF NOT EXISTS `task_repeat` (`task_id` INTEGER NOT NULL, `rule` TEXT NOT NULL, `every` INTEGER NOT NULL, PRIMARY KEY(`task_id`))",
+    "CREATE TABLE IF NOT EXISTS `iou` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `person` TEXT NOT NULL, `amount_paise` INTEGER NOT NULL, `they_owe` INTEGER NOT NULL, `note` TEXT NOT NULL, `created_on` TEXT NOT NULL, `settled_on` TEXT)",
+    "CREATE INDEX IF NOT EXISTS `index_iou_person` ON `iou` (`person`)",
+)

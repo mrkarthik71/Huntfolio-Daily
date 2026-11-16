@@ -29,11 +29,10 @@ value class RedactedText private constructor(val value: String) {
          * Runs [raw] through the [Redactor] with [patterns]; a success yields a [RedactedText], a
          * failure yields the [RedactionError] so the caller can skip the item (Requirement 46.6).
          */
-        fun redact(raw: String, patterns: RedactionPatterns): Outcome<RedactedText, RedactionError> =
-            when (val r = Redactor.redact(raw, patterns)) {
-                is Outcome.Ok -> Outcome.Ok(RedactedText(r.value))
-                is Outcome.Err -> Outcome.Err(r.error)
-            }
+        fun redact(raw: String, patterns: RedactionPatterns): Outcome<RedactedText, RedactionError> = when (val r = Redactor.redact(raw, patterns)) {
+            is Outcome.Ok -> Outcome.Ok(RedactedText(r.value))
+            is Outcome.Err -> Outcome.Err(r.error)
+        }
 
         /**
          * An opaque machine handle (`t1`, `g2`, `gap3`, a number, an enum name) that carries no
@@ -55,8 +54,7 @@ value class RedactedText private constructor(val value: String) {
 }
 
 /** Convenience for the common redaction call. */
-fun redactedTextOf(raw: String, patterns: RedactionPatterns): Outcome<RedactedText, RedactionError> =
-    RedactedText.redact(raw, patterns)
+fun redactedTextOf(raw: String, patterns: RedactionPatterns): Outcome<RedactedText, RedactionError> = RedactedText.redact(raw, patterns)
 
 /**
  * The fully-built, redaction-safe request body for one AI call. Its [fields] are a fixed schema per

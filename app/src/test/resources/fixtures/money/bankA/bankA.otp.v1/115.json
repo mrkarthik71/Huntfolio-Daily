@@ -1,0 +1,11 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "865895 is your OTP for a transaction of Rs 66.0 at Book Nook. Valid for 10 mins.",
+  "expected": {
+    "result": "OTP"
+  }
+}

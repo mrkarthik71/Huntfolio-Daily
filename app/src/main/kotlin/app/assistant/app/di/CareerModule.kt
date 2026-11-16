@@ -1,7 +1,7 @@
 package app.assistant.app.di
 
 import app.assistant.data.career.RoomCareerImporter
-import app.assistant.parse.huntfolio.CareerImporter
+import app.assistant.domain.career.CareerImporter
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

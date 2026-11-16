@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Placeholder launcher icon: a check mark in a circle. Replace when the app name is chosen. -->
+<!-- Apex Assistant launcher mark: a violet peak with a rising accent on the ink canvas. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp"
     android:height="48dp"
     android:viewportWidth="48"
     android:viewportHeight="48">
     <path
-        android:fillColor="#2E5E4E"
+        android:fillColor="#0B0B0F"
         android:pathData="M24,2a22,22 0,1 0,0 44a22,22 0,1 0,0 -44z" />
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M20.5,31.2l-7,-7l2.8,-2.8l4.2,4.2l11.2,-11.2l2.8,2.8z" />
+        android:fillColor="#B7A8FF"
+        android:pathData="M24,11L36.5,35H31.2L24,20.6L16.8,35H11.5Z" />
+    <path
+        android:fillColor="#E6E0FF"
+        android:pathData="M20.2,30.5h7.6l-1.6,3.2h-4.4z" />
 </vector>

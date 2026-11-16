@@ -1,8 +1,8 @@
 package app.assistant.data.repo
 
+import app.assistant.domain.port.PersistedMessage
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.SubscriptionRepository
-import app.assistant.ingest.pipeline.PersistedMessage
-import app.assistant.ingest.pipeline.PostCommitHook
 import javax.inject.Inject
 import javax.inject.Singleton
 

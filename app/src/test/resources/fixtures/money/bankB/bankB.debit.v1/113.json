@@ -1,0 +1,20 @@
+{
+  "origin": "VM-BANKB-T",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "INR 2,500.00 spent on your BankB Card XX4321 at City Pharmacy on 05/01/2025. Call 1800-xxx if not you.",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankB.debit.v1",
+    "type": "DEBIT",
+    "reversal": false,
+    "amount_paise": 250000,
+    "at": "2025-01-05T20:00:00",
+    "merchant_or_vpa": "City Pharmacy",
+    "account4": "4321",
+    "reference": null,
+    "balance_paise": null
+  }
+}

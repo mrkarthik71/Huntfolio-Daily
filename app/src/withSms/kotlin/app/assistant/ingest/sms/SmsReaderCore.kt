@@ -53,6 +53,12 @@ class SmsReaderCore(
         return ImportSummary.of(report.status, report.batch)
     }
 
+    /** Reads every earlier SMS from listed senders, when the User asks for all of them. Safe to repeat: ingest is idempotent. */
+    suspend fun importAll(): ImportSummary {
+        val report = readInbox(Instant.EPOCH)
+        return ImportSummary.of(report.status, report.batch)
+    }
+
     private suspend fun readInbox(start: Instant): ReadReport {
         val listed = senders.entries()
         val rows = try {

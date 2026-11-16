@@ -38,6 +38,7 @@ import app.assistant.domain.port.MoneyAppStore
 import app.assistant.domain.port.NotificationLog
 import app.assistant.domain.port.NotificationScheduling
 import app.assistant.domain.port.PlanRepository
+import app.assistant.domain.port.PostCommitHook
 import app.assistant.domain.port.ReportRepository
 import app.assistant.domain.port.ReviewQueueRepository
 import app.assistant.domain.port.ReviewRepository
@@ -47,7 +48,6 @@ import app.assistant.domain.port.SourceDisconnect
 import app.assistant.domain.port.SourceStatusProvider
 import app.assistant.domain.port.TaskRepository
 import app.assistant.domain.port.TransactionRepository
-import app.assistant.ingest.pipeline.PostCommitHook
 import app.assistant.notify.AndroidNotificationScheduler
 import app.assistant.ui.permission.AndroidPermissionManager
 import app.assistant.ui.permission.PermissionManager
@@ -71,6 +71,30 @@ abstract class DataModule {
 
     @Binds
     abstract fun taskRepository(impl: RoomTaskRepository): TaskRepository
+
+    @Binds
+    abstract fun plannerRepository(impl: app.assistant.data.repo.RoomPlannerRepository): app.assistant.domain.port.PlannerRepository
+
+    @Binds
+    abstract fun habitStore(impl: app.assistant.data.repo.RoomHabitStore): app.assistant.domain.port.HabitStore
+
+    @Binds
+    abstract fun dateStore(impl: app.assistant.data.repo.RoomDateStore): app.assistant.domain.port.DateStore
+
+    @Binds
+    abstract fun savingsStore(impl: app.assistant.data.repo.RoomSavingsStore): app.assistant.domain.port.SavingsStore
+
+    @Binds
+    abstract fun followUpStore(impl: app.assistant.data.repo.RoomFollowUpStore): app.assistant.domain.port.FollowUpStore
+
+    @Binds
+    abstract fun reflectionStore(impl: app.assistant.data.repo.RoomReflectionStore): app.assistant.domain.port.ReflectionStore
+
+    @Binds
+    abstract fun contactDates(impl: app.assistant.data.contacts.AndroidContactDatesReader): app.assistant.domain.port.ContactDatesReader
+
+    @Binds
+    abstract fun memoryRepository(impl: app.assistant.data.repo.RoomMemoryRepository): app.assistant.domain.port.MemoryRepository
 
     @Binds
     abstract fun transactionRepository(impl: TrackedTransactionRepository): TransactionRepository

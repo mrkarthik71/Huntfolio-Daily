@@ -82,7 +82,8 @@ class AndroidMoneyReaderControls @Inject constructor(
 
     override fun openNotificationAccessSettings() {
         val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        // Some phones have no such screen; a missing page must not crash the app.
+        runCatching { context.startActivity(intent) }
     }
 
     override suspend fun refreshNotifications() {

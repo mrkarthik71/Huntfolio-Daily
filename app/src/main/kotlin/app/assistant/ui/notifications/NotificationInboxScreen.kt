@@ -13,7 +13,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -22,6 +21,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.assistant.R
 import app.assistant.domain.port.LogEntry
+import app.assistant.ui.designsystem.CredTopBar
 import app.assistant.ui.settings.notificationTypeLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,7 +31,7 @@ fun NotificationInboxScreen(onBack: () -> Unit, viewModel: NotificationSettingsV
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CredTopBar(
                 title = { Text(stringResource(R.string.notif_inbox_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {

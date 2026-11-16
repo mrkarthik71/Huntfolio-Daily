@@ -59,6 +59,8 @@ class TodayScreenTest {
         time = time,
         calendar = FakeCalendarRepository(),
         settings = FakeSettingsStore(),
+        advisor = app.assistant.domain.port.Advisor.Disabled,
+        planner = app.assistant.testing.FakePlannerRepository(),
     )
 
     @Test
@@ -67,6 +69,7 @@ class TodayScreenTest {
         compose.setContent {
             AssistantTheme { TodayScreen(onOpenReview = {}, viewModel = viewModel(tasks)) }
         }
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("No priorities are set. Add a task below to plan your day."))
         compose.onNodeWithText("No priorities are set. Add a task below to plan your day.").assertIsDisplayed()
     }
 
@@ -77,6 +80,7 @@ class TodayScreenTest {
         compose.setContent {
             AssistantTheme { TodayScreen(onOpenReview = {}, viewModel = viewModel(tasks, listOf(TaskId(1)))) }
         }
+        compose.onNode(hasScrollAction()).performScrollToNode(hasText("Ship the release"))
         compose.onNodeWithText("Ship the release").assertIsDisplayed()
     }
 

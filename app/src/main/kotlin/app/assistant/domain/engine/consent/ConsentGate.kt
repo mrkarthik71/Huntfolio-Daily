@@ -15,6 +15,5 @@ object ConsentGate {
      * True when consent must be shown before anything else runs. Shared builds require an accepted
      * record at the current version; personal builds never do.
      */
-    fun mustShow(isSharedBuild: Boolean, acceptedVersion: Int?): Boolean =
-        isSharedBuild && acceptedVersion != CURRENT_VERSION
+    fun mustShow(isSharedBuild: Boolean, acceptedVersion: Int?): Boolean = isSharedBuild && acceptedVersion != CURRENT_VERSION
 }

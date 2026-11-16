@@ -11,10 +11,7 @@ import javax.inject.Singleton
  * the 7-day window of fully-connected days. Read-only aggregates over `inbox_item`.
  */
 @Singleton
-class MailQuality @Inject constructor(
-    private val holder: DatabaseHolder,
-    private val time: TimeSource,
-) {
+class MailQuality @Inject constructor(private val holder: DatabaseHolder, private val time: TimeSource) {
     data class Metrics(
         val wrongAlertsLast8Weeks: Int,
         val notificationsLast8Weeks: Int,

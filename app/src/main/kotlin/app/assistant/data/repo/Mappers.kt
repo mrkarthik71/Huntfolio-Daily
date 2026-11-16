@@ -27,6 +27,8 @@ internal fun GoalEntity.toDomain() = Goal(
     parentId = parentGoalId?.let(::GoalId),
     createdAt = Instant.ofEpochMilli(createdAt),
     archivedAt = archivedAt?.let(Instant::ofEpochMilli),
+    deadline = deadline?.let(LocalDate::parse),
+    priority = priority,
 )
 
 internal fun TaskEntity.toDomain() = Task(
@@ -39,6 +41,10 @@ internal fun TaskEntity.toDomain() = Task(
     goalId = goalId?.let(::GoalId),
     createdAt = Instant.ofEpochMilli(createdAt),
     completedAt = completedAt?.let(Instant::ofEpochMilli),
+    priority = priority,
+    energy = runCatching { app.assistant.domain.model.EnergyTag.valueOf(energy) }.getOrDefault(app.assistant.domain.model.EnergyTag.LIGHT_ADMIN),
+    milestoneId = milestoneId?.let { app.assistant.domain.model.MilestoneId(it) },
+    verify = runCatching { app.assistant.domain.model.VerifyKind.valueOf(verify) }.getOrDefault(app.assistant.domain.model.VerifyKind.NONE),
 )
 
 internal fun TimeBlockEntity.toDomain() = TimeBlock(

@@ -1,0 +1,20 @@
+{
+  "origin": "VM-BANKB-T",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "INR 199.0 spent on your BankB Card XX4321 at Book Nook on 05/01/2025. Call 1800-xxx if not you.",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankB.debit.v1",
+    "type": "DEBIT",
+    "reversal": false,
+    "amount_paise": 19900,
+    "at": "2025-01-05T20:00:00",
+    "merchant_or_vpa": "Book Nook",
+    "account4": "4321",
+    "reference": null,
+    "balance_paise": null
+  }
+}

@@ -31,6 +31,7 @@ import javax.inject.Singleton
  * (Requirements 17.6, 18.9, 20.7). It runs off the main thread and never blocks the first frame.
  */
 @Singleton
+@Suppress("LongParameterList") // the app start-up root wires every background job
 class AppStartup @Inject constructor(
     private val notifier: Notifier,
     private val scheduler: NotificationScheduling,
@@ -43,7 +44,8 @@ class AppStartup @Inject constructor(
     private val time: TimeSource,
     private val reviewQueue: app.assistant.domain.port.ReviewQueueRepository,
     private val smsFallback: app.assistant.data.ai.SmsFallbackParser,
-    private val backup: app.assistant.data.backup.BackupManager,
+    private val backup: app.assistant.domain.port.BackupManager,
+    private val reminders: app.assistant.domain.port.ReminderScheduler,
     @param:ApplicationContext private val context: Context,
     @param:ApplicationScope private val scope: CoroutineScope,
 ) {
@@ -62,6 +64,8 @@ class AppStartup @Inject constructor(
                     runCatching { billAlarms.sync() }
                     app.assistant.data.maintenance.MaintenanceDailyWorker.schedule(context)
                     app.assistant.data.health.HealthCheckWorker.schedule(context)
+                    app.assistant.data.planner.ProactiveWorker.schedule(context)
+                    runCatching { reminders.sync() }
                     observeWidgetData()
                     observeReviewQueueForFallback()
                     if (FeatureFlags.CALENDAR) startCalendarRefresh()

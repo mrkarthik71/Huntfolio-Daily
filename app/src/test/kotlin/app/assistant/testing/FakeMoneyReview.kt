@@ -75,6 +75,12 @@ class FakeReviewQueueRepository(
         dismissed += id
         all.update { list -> list.filterNot { it.id == id } }
     }
+
+    val fallbackAttempts = mutableListOf<Pair<ReviewItemId, String?>>()
+
+    override suspend fun markFallbackAttempted(id: ReviewItemId, proposalJson: String?) {
+        fallbackAttempts += id to proposalJson
+    }
 }
 
 fun reviewItem(id: Long, text: String, origin: String = "AX-HDFCBK", receivedAt: Instant = Instant.parse("2026-11-03T03:30:00Z")): ReviewItem =

@@ -1,0 +1,20 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Rs 199.00 debited from a/c XX1234 on 05-01-25 14:05 at Book Nook. Avl Bal Rs 20,000.00",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "bankA.debit.v1",
+    "type": "DEBIT",
+    "reversal": false,
+    "amount_paise": 19900,
+    "at": "2025-01-05T14:05:00",
+    "merchant_or_vpa": "Book Nook",
+    "account4": "1234",
+    "reference": null,
+    "balance_paise": 2000000
+  }
+}

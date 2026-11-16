@@ -1,10 +1,10 @@
 package app.assistant.app.di
 
-import app.assistant.ai.cloud.CloudKeySource
-import app.assistant.ai.cloud.CloudKeyWriter
-import app.assistant.ai.cloud.ProxyClient
 import app.assistant.data.ai.SharedCloudKeySource
 import app.assistant.data.ai.SharedCloudKeyWriter
+import app.assistant.domain.port.CloudKeySource
+import app.assistant.domain.port.CloudKeyWriter
+import app.assistant.domain.port.ProxyClient
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -34,14 +34,12 @@ abstract class SharedAiModule {
          */
         @Provides
         @Singleton
-        fun proxyClient(
-            holder: app.assistant.data.db.DatabaseHolder,
-            keyManager: app.assistant.security.keys.KeyManager,
-        ): ProxyClient = app.assistant.data.ai.HttpProxyClient(
-            endpointUrl = PROXY_ENDPOINT,
-            holder = holder,
-            keyManager = keyManager,
-            policy = { if (PROXY_HOST.isBlank()) emptySet() else setOf(PROXY_HOST) },
-        )
+        fun proxyClient(holder: app.assistant.data.db.DatabaseHolder, keyManager: app.assistant.security.keys.KeyManager): ProxyClient =
+            app.assistant.data.ai.HttpProxyClient(
+                endpointUrl = PROXY_ENDPOINT,
+                holder = holder,
+                keyManager = keyManager,
+                policy = { if (PROXY_HOST.isBlank()) emptySet() else setOf(PROXY_HOST) },
+            )
     }
 }

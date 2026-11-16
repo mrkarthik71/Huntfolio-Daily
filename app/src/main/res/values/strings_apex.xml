@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Today dashboard -->
+    <string name="today_focus_now">Focus now · %1$s</string>
+    <string name="today_focus_left">%3$d min left · till %2$s</string>
+    <string name="today_free_now">Today</string>
+    <string name="today_next_up">Next: %1$s at %2$s</string>
+    <string name="today_load_chip">Day load %1$d%%</string>
+    <string name="today_streak_chip">%1$d-day streak</string>
+    <string name="today_done_chip">%1$d of %2$d done</string>
+    <string name="today_timeline">Timeline</string>
+    <string name="today_booked">%1$s booked · %2$s free</string>
+    <string name="today_free_slot">Free · %1$d min</string>
+    <string name="today_free_slot_hint">Good for focused work</string>
+    <string name="duration_h_m">%1$dh %2$dm</string>
+    <string name="duration_m">%1$dm</string>
+    <string name="energy_deep_work">Deep work</string>
+    <string name="energy_light_admin">Light admin</string>
+    <string name="energy_physical">Physical routine</string>
+    <string name="energy_rest">Rest</string>
+    <string name="kind_meeting">Meeting</string>
+    <string name="kind_routine">Routine</string>
+
+    <!-- Proactive cards -->
+    <string name="card_dismiss">Dismiss</string>
+    <string name="card_got_it">Got it</string>
+    <string name="card_fill_slot">Plan it</string>
+    <string name="card_why">Why?</string>
+    <string name="card_why_overload">You have more planned for that day than the free time inside your working hours.</string>
+    <string name="card_why_goal">The work left on this goal is more than about 70% of your free time before its deadline.</string>
+    <string name="card_why_renewal">This subscription renews within two days.</string>
+    <string name="card_why_free">You still have a free stretch today and open deep-work tasks.</string>
+    <string name="card_why_routine">A routine you planned for today did not happen.</string>
+    <string name="card_overload_title">Tomorrow is overbooked</string>
+    <string name="card_overload_body">%1$s planned in %2$s of free time. Move something to a lighter day?</string>
+    <string name="card_goal_title">%1$s is at risk</string>
+    <string name="card_goal_body">%1$s of work left and about %2$s of free time in the %3$d days before the deadline.</string>
+    <string name="card_renewal_title">%1$s renews soon</string>
+    <string name="card_renewal_body">Renews in %1$d days. Still using it?</string>
+    <string name="card_renewal_today">Renews today. Still using it?</string>
+    <string name="card_free_title">%1$s free today</string>
+    <string name="card_free_body">Good time for one of your deep-work tasks.</string>
+
+    <!-- Goals -->
+    <string name="goals_summary">%1$d active · %2$d at risk</string>
+    <string name="goal_milestones">Milestones</string>
+    <string name="goal_plan_it">Plan it for me</string>
+    <string name="goal_more">Deadline and priority</string>
+    <string name="goal_priority_due">Priority %1$d · due %2$s</string>
+    <string name="goal_priority">Priority %1$d</string>
+    <string name="percent">%1$d%%</string>
+    <string name="goal_done">Done</string>
+    <string name="goal_planned">Planned</string>
+    <string name="goal_finish">Finish</string>
+    <string name="goal_finish_none">Not set</string>
+    <string name="goal_at_risk">At risk</string>
+    <string name="goal_milestone_done">Done</string>
+    <string name="goal_tasks_of">%1$d of %2$d tasks</string>
+    <string name="goal_due_on">due %1$s</string>
+    <string name="goal_forecast">Forecast to finish %1$s</string>
+    <string name="goal_hours_value">%1$d h %2$d m</string>
+    <string name="goal_hours_only">%1$d h</string>
+    <string name="goal_deadline">Deadline</string>
+    <string name="goal_priority_label">Priority (1 is highest)</string>
+    <string name="goal_priority_hint">Higher priority goals get more of your free time in the forecast and the planner.</string>
+    <string name="plan_proposal_eyebrow">Proposal · nothing changes until you accept</string>
+    <string name="plan_proposal_summary">%1$d checkpoints, paced to your deadline</string>
+    <string name="plan_proposal_why">Checkpoints are spread evenly to the deadline (four weeks if none is set), so you can see early if the goal slips.</string>
+    <string name="plan_accept">Add to my plan</string>
+    <string name="plan_step_define">Decide what done looks like</string>
+    <string name="plan_step_build">Do the main work</string>
+    <string name="plan_step_finish">Review and finish</string>
+    <string name="plan_step_reach">Reach %1$d %2$s</string>
+
+    <!-- Subscription health -->
+    <string name="subs_monthly_burn">Monthly burn</string>
+    <string name="subs_yearly_active">%1$s a year · %2$d active</string>
+    <string name="subs_more_count">%1$d more</string>
+    <string name="subs_renewing_soon">Renewing soon</string>
+    <string name="subs_days">days</string>
+    <string name="subs_renews_on">%1$s · renews %2$s</string>
+
+    <!-- Smart reminders -->
+    <string name="channel_smart_reminder">Smart reminders</string>
+    <string name="notif_type_smart_reminder">Smart reminders</string>
+    <string name="reminder_alert_title">Reminder</string>
+    <string name="reminders_title">Reminders</string>
+    <string name="reminders_entry">Smart reminders</string>
+    <string name="reminders_summary">%1$d active</string>
+    <string name="reminders_summary_quiet">%1$d active · quiet %2$s–%3$s</string>
+    <string name="reminders_when">Remind me when…</string>
+    <string name="reminders_kind_time">At a time</string>
+    <string name="reminders_kind_place">At a place</string>
+    <string name="reminders_kind_device">Phone does</string>
+    <string name="reminders_empty">No reminders yet. Pick one of the three kinds above.</string>
+    <string name="reminders_section_time">At a time</string>
+    <string name="reminders_section_place">Places</string>
+    <string name="reminders_section_device">When my phone…</string>
+    <string name="reminders_at_time">%1$s at %2$s</string>
+    <string name="reminders_arriving">Arriving at %1$s · within %2$d m</string>
+    <string name="reminders_leaving">Leaving %1$s · within %2$d m</string>
+    <string name="reminders_device_car">Connects to car Bluetooth</string>
+    <string name="reminders_device_charging">Starts charging</string>
+    <string name="reminders_device_after">%1$s · after %2$s</string>
+    <string name="reminders_delete">Delete reminder</string>
+    <string name="reminders_privacy">Places stay on this phone. Every reminder respects quiet hours and your daily limit, and shows why it appeared.</string>
+    <string name="reminders_add_title">New reminder</string>
+    <string name="reminders_message">Remind me to…</string>
+    <string name="reminders_date">Date</string>
+    <string name="reminders_time">Time</string>
+    <string name="reminders_place_name">Place name (for example Office)</string>
+    <string name="reminders_location_rationale">To remind you at a place, the app needs your location, including in the background. It is checked on this phone only and never sent anywhere.</string>
+    <string name="reminders_use_here">Use where I am now</string>
+    <string name="reminders_location_set">Location saved</string>
+    <string name="reminders_location_unknown">Your location is not known yet. Open a maps app once, then try again.</string>
+    <string name="reminders_location_denied">Without location access, place reminders cannot work.</string>
+    <string name="reminders_background_denied">Allow location “all the time” in system settings so the reminder works while the app is closed.</string>
+    <string name="reminders_on_arrive">When I arrive</string>
+    <string name="reminders_on_leave">When I leave</string>
+    <string name="reminders_radius">%1$d m</string>
+    <string name="reminders_bluetooth_rationale">To notice your car, the app needs to see Bluetooth connections. It only checks the kind of device and keeps nothing.</string>
+    <string name="reminders_allow_bluetooth">Allow Bluetooth</string>
+    <string name="reminders_bluetooth_denied">Without Bluetooth access, car reminders cannot work.</string>
+    <string name="reminders_not_before">Only after a time</string>
+    <!-- Widget -->
+    <string name="widget_today">Today</string>
+    <string name="widget_open">Open</string>
+    <string name="widget_next">Next · %1$s</string>
+    <string name="widget_no_priorities">No priorities set</string>
+    <string name="widget_quick_add">+ Quick add</string>
+</resources>

@@ -3,7 +3,6 @@ package app.assistant.data.repo
 import androidx.room.withTransaction
 import app.assistant.data.db.AppDatabase
 import app.assistant.data.db.DbProvider
-import app.assistant.data.db.entity.SubscriptionChargeEntity
 import app.assistant.data.db.entity.SubscriptionEntity
 import app.assistant.data.db.entity.SuggestionEntity
 import app.assistant.data.db.entity.UsageCheckEntity
@@ -44,10 +43,7 @@ import javax.inject.Singleton
  * request (Requirement 40.3).
  */
 @Singleton
-class SubscriptionRepositoryImpl @Inject constructor(
-    private val holder: DbProvider,
-    private val time: TimeSource,
-) : SubscriptionRepository {
+class SubscriptionRepositoryImpl @Inject constructor(private val holder: DbProvider, private val time: TimeSource) : SubscriptionRepository {
 
     private fun db(): AppDatabase = holder.database()
 
@@ -57,18 +53,18 @@ class SubscriptionRepositoryImpl @Inject constructor(
     override fun active(): Flow<List<SubscriptionView>> =
         db().subscriptionDao().observeByStatus(SubscriptionStatus.ACTIVE.name).map { rows -> rows.map { view(it) } }
 
-    override fun totalYearlyCost(): Flow<Paise> =
-        db().subscriptionDao().observeByStatus(SubscriptionStatus.ACTIVE.name).map { rows -> Paise.sum(rows.map { SubscriptionDetector.yearlyCost(Paise(it.amountPaise), interval(it.interval)) }) }
+    override fun totalYearlyCost(): Flow<Paise> = db().subscriptionDao().observeByStatus(SubscriptionStatus.ACTIVE.name).map { rows ->
+        Paise.sum(rows.map { SubscriptionDetector.yearlyCost(Paise(it.amountPaise), interval(it.interval)) })
+    }
 
     override fun suggestions(): Flow<List<SuggestionSnapshot>> =
         db().subscriptionDao().observeSuggestions().map { rows -> SuggestionManager.visible(rows.map { it.toSnapshot() }, time.now()) }
 
-    override fun dueUsageChecks(): Flow<List<DueUsageCheck>> =
-        db().subscriptionDao().observeByStatus(SubscriptionStatus.ACTIVE.name).map { subs ->
-            val today = time.today()
-            subs.filter { UsageCheckRules.isDue(LocalDate.parse(it.activatedOn), it.lastUsageCheck?.let(LocalDate::parse), today) }
-                .map { DueUsageCheck(it.id, merchantName(it.merchantId), Paise(it.amountPaise)) }
-        }
+    override fun dueUsageChecks(): Flow<List<DueUsageCheck>> = db().subscriptionDao().observeByStatus(SubscriptionStatus.ACTIVE.name).map { subs ->
+        val today = time.today()
+        subs.filter { UsageCheckRules.isDue(LocalDate.parse(it.activatedOn), it.lastUsageCheck?.let(LocalDate::parse), today) }
+            .map { DueUsageCheck(it.id, merchantName(it.merchantId), Paise(it.amountPaise)) }
+    }
 
     override suspend fun redetect() {
         val dao = db().subscriptionDao()
@@ -136,7 +132,12 @@ class SubscriptionRepositoryImpl @Inject constructor(
             if (outcome.raiseReviewSuggestion) {
                 raiseSuggestion(
                     kind = SuggestionKind.REVIEW_NON_USE,
-                    text = "You marked ${merchantName(sub.merchantId)} unused twice. Cancel to save ${SubscriptionDetector.yearlyCost(Paise(sub.amountPaise), interval(sub.interval)).value / PAISE_PER_RUPEE} a year?",
+                    text = "You marked ${merchantName(
+                        sub.merchantId,
+                    )} unused twice. Cancel to save ${SubscriptionDetector.yearlyCost(
+                        Paise(sub.amountPaise),
+                        interval(sub.interval),
+                    ).value / PAISE_PER_RUPEE} a year?",
                     reason = "Two consecutive \"No\" usage answers",
                     change = ProposedChange.SubscriptionCancel(subscriptionId),
                 )
@@ -245,11 +246,10 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun loadDebitCharges(): List<Charge> =
-        db().transactionDao().debitChargesForSubscriptions().mapNotNull { row ->
-            val merchantId = row.merchantId ?: return@mapNotNull null
-            Charge(TransactionId(row.id), MerchantId(merchantId), Paise(row.amountPaise), Instant.ofEpochMilli(row.at).atZone(time.zone()).toLocalDate())
-        }
+    private suspend fun loadDebitCharges(): List<Charge> = db().transactionDao().debitChargesForSubscriptions().mapNotNull { row ->
+        val merchantId = row.merchantId ?: return@mapNotNull null
+        Charge(TransactionId(row.id), MerchantId(merchantId), Paise(row.amountPaise), Instant.ofEpochMilli(row.at).atZone(time.zone()).toLocalDate())
+    }
 
     private suspend fun view(e: SubscriptionEntity): SubscriptionView =
         SubscriptionView(e.toSnapshot(), merchantName(e.merchantId), SubscriptionDetector.yearlyCost(Paise(e.amountPaise), interval(e.interval)))

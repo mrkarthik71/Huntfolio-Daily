@@ -1,0 +1,20 @@
+{
+  "origin": "com.example.upiapp",
+  "source": "APP",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "Received 21,999.00 INR from friend.name@bank on 2025-01-05 at 14:05. UPI Ref 1234567890.",
+  "expected": {
+    "result": "PARSED",
+    "format_id": "upiapp.credit.v1",
+    "type": "CREDIT",
+    "reversal": false,
+    "amount_paise": 2199900,
+    "at": "2025-01-05T14:05:00",
+    "merchant_or_vpa": "friend.name@bank",
+    "account4": null,
+    "reference": "1234567890",
+    "balance_paise": null
+  }
+}

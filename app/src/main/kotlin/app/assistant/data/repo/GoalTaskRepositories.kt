@@ -250,7 +250,57 @@ class RoomTaskRepository @Inject constructor(private val holder: DbProvider, pri
 
     override suspend fun markDone(id: TaskId, at: Instant, on: LocalDate) {
         val lastDay = settings.current().lastDayOfWeek
-        db.withTransaction { TaskOps.markDone(db, id.value, at, on, lastDay) }
+        db.withTransaction {
+            val before = db.taskDao().get(id.value)
+            TaskOps.markDone(db, id.value, at, on, lastDay)
+            // A repeating task: the next one is created at once, and the repeat moves to it.
+            val repeat = db.personalDao().repeatOf(id.value)
+            if (before != null && before.status == TaskStatus.OPEN.name && repeat != null) {
+                val rule = runCatching { app.assistant.domain.engine.tasks.RepeatRule.valueOf(repeat.rule) }.getOrNull() ?: return@withTransaction
+                val r = app.assistant.domain.engine.tasks.TaskRepeat(rule, repeat.every)
+                val planned = before.plannedDate?.let(LocalDate::parse)
+                val next = app.assistant.domain.engine.tasks.RepeatRules.next(r, planned, on)
+                val due = before.dueDate?.let(LocalDate::parse)?.let { d ->
+                    planned?.let { p -> d.plusDays(java.time.temporal.ChronoUnit.DAYS.between(p, next)) }
+                        ?: next
+                }
+                val newId = db.taskDao().insert(
+                    before.copy(
+                        id = 0,
+                        status = TaskStatus.OPEN.name,
+                        plannedDate = next.toString(),
+                        dueDate = due?.toString(),
+                        createdAt = at.toEpochMilli(),
+                        completedAt = null,
+                        completedDate = null,
+                        sourceRef = null,
+                    ),
+                )
+                db.personalDao().deleteRepeat(id.value)
+                db.personalDao().upsertRepeat(repeat.copy(taskId = newId))
+            }
+        }
+    }
+
+    override fun repeats(): Flow<Map<TaskId, app.assistant.domain.engine.tasks.TaskRepeat>> = db.personalDao().repeats().map { l ->
+        l.mapNotNull { e ->
+            runCatching { app.assistant.domain.engine.tasks.RepeatRule.valueOf(e.rule) }.getOrNull()
+                ?.let { TaskId(e.taskId) to app.assistant.domain.engine.tasks.TaskRepeat(it, e.every) }
+        }.toMap()
+    }
+
+    override suspend fun setRepeat(id: TaskId, repeat: app.assistant.domain.engine.tasks.TaskRepeat?) {
+        if (repeat == null) {
+            db.personalDao().deleteRepeat(id.value)
+        } else {
+            db.personalDao().upsertRepeat(
+                app.assistant.data.db.entity.TaskRepeatEntity(
+                    id.value,
+                    repeat.rule.name,
+                    repeat.every.coerceIn(1, app.assistant.domain.engine.tasks.RepeatRules.MAX_EVERY),
+                ),
+            )
+        }
     }
 
     override suspend fun move(id: TaskId, to: LocalDate, today: LocalDate): Outcome<Unit, MoveError> = db.withTransaction {

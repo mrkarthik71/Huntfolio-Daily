@@ -1,9 +1,9 @@
 package app.assistant.data.ai
 
-import app.assistant.ai.cloud.CloudCredential
-import app.assistant.ai.cloud.CloudKeySource
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.domain.error.Outcome
+import app.assistant.domain.port.CloudCredential
+import app.assistant.domain.port.CloudKeySource
 import app.assistant.security.keys.KeyManager
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,10 +15,7 @@ import javax.inject.Singleton
  * refuses Cloud until the user sets one.
  */
 @Singleton
-class PersonalCloudKeySource @Inject constructor(
-    private val holder: DatabaseHolder,
-    private val keyManager: KeyManager,
-) : CloudKeySource {
+class PersonalCloudKeySource @Inject constructor(private val holder: DatabaseHolder, private val keyManager: KeyManager) : CloudKeySource {
     override suspend fun credential(): CloudCredential? {
         val secret = holder.database().secretDao().get(SECRET_NAME) ?: return null
         return when (val plain = keyManager.decryptSecret(secret.blob)) {

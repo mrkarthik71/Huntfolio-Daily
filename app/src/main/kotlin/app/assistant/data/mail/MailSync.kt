@@ -1,9 +1,6 @@
 package app.assistant.data.mail
 
 import androidx.room.withTransaction
-import app.assistant.ai.feature.FeatureAdvisor
-import app.assistant.ai.output.ValidatedOutput
-import app.assistant.ai.payload.SummaryBuilder
 import app.assistant.data.db.DatabaseHolder
 import app.assistant.data.db.entity.InboxItemEntity
 import app.assistant.data.db.entity.MailCursorEntity
@@ -13,11 +10,14 @@ import app.assistant.domain.error.Outcome
 import app.assistant.domain.model.DataSource
 import app.assistant.domain.model.MailCategory
 import app.assistant.domain.model.MailMessage
-import app.assistant.domain.model.PromptType
+import app.assistant.domain.port.Advisor
 import app.assistant.domain.port.AuditLog
+import app.assistant.domain.port.MailAdvice
 import app.assistant.domain.port.MailConnector
+import app.assistant.domain.port.MessageFacts
 import app.assistant.domain.port.SettingsStore
 import app.assistant.domain.port.TimeSource
+import app.assistant.parse.mail.toTrip
 import app.assistant.security.refs.SourceRefFactory
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,20 +31,24 @@ import javax.inject.Singleton
  * written per sync. An email at or above the Importance_Threshold raises a notification.
  */
 @Singleton
+@Suppress("LongParameterList") // one port per thing a mail can become: inbox item, bill, trip or order
 class MailSync @Inject constructor(
     private val holder: DatabaseHolder,
     private val connector: MailConnector,
     private val refs: SourceRefFactory,
     private val settings: SettingsStore,
-    private val advisor: FeatureAdvisor,
+    private val advisor: Advisor,
     private val audit: AuditLog,
     private val time: TimeSource,
     private val otpPatterns: MailOtpPatterns,
     private val notify: MailNotifier,
     private val accountId: MailAccountId,
+    private val billProposals: app.assistant.domain.port.BillProposals,
+    private val personal: app.assistant.domain.port.PersonalStore,
 ) {
     data class SyncResult(val fetched: Int, val stored: Int, val notified: Int, val error: Boolean)
 
+    @Suppress("NestedBlockDepth", "LoopWithTooManyJumpStatements") // batched IMAP loop with resume and skip points
     suspend fun sync(): SyncResult {
         val db = holder.database()
         val dao = db.mailDao()
@@ -66,6 +70,8 @@ class MailSync @Inject constructor(
                 for (message in batch.value.messages) {
                     fetched++
                     if (MailTriage.isOtp(message.header, otpPatterns.patterns())) continue
+                    proposeBill(message)
+                    captureTripOrOrder(message)
                     if (!MailTriage.shortlisted(message.header, rules)) continue
                     val outcome = scoreAndStore(message, rules, cfg.mailImportanceThreshold, dao, db)
                     if (outcome != null) {
@@ -83,7 +89,13 @@ class MailSync @Inject constructor(
     }
 
     /** Returns null when the item already existed, true when stored+notified, false when stored only. */
-    private suspend fun scoreAndStore(message: MailMessage, rules: List<ShortlistRule>, threshold: Int, dao: app.assistant.data.db.dao.MailDao, db: app.assistant.data.db.AppDatabase): Boolean? {
+    private suspend fun scoreAndStore(
+        message: MailMessage,
+        rules: List<ShortlistRule>,
+        threshold: Int,
+        dao: app.assistant.data.db.dao.MailDao,
+        db: app.assistant.data.db.AppDatabase,
+    ): Boolean? {
         val h = message.header
         val ref = when (val r = refs.mail(accountId.value(), h.messageId, h.folder, h.uidValidity, h.uid)) {
             is Outcome.Ok -> r.value
@@ -115,16 +127,45 @@ class MailSync @Inject constructor(
         return notified
     }
 
+    /**
+     * Bills and subscription receipts become Bill proposals the User reviews in Money › Bills; only the
+     * merchant, amount and due date are kept (never the message). A renewing receipt without a date
+     * is proposed for a month after it arrived.
+     */
+    private suspend fun proposeBill(message: MailMessage) {
+        val h = message.header
+        val received = h.receivedAt.atZone(time.zone()).toLocalDate()
+        val r = app.assistant.parse.mail.ReceiptParser.parse(h.from, h.subject, message.snippet, received) ?: return
+        val due = r.dueDate ?: if (r.recurring) received.plusMonths(1) else null
+        runCatching { billProposals.propose(r.merchant, app.assistant.domain.model.Paise(r.amountPaise), due) }
+    }
+
+    /**
+     * Bookings and order updates become Trips and Orders: only the booking reference, dates, places,
+     * shop and order number are kept, never the message. A later mail about the same booking or order
+     * updates it.
+     */
+    private suspend fun captureTripOrOrder(message: MailMessage) {
+        val h = message.header
+        val zone = time.zone()
+        val received = h.receivedAt.atZone(zone).toLocalDate()
+        runCatching {
+            app.assistant.parse.mail.TripParser.parse(h.from, h.subject, message.snippet, received)?.let { t ->
+                personal.upsertTrip(t.toTrip(zone))
+            } ?: app.assistant.parse.mail.OrderParser.parse(h.from, h.subject, message.snippet, received)?.let { o ->
+                personal.upsertOrder(
+                    app.assistant.domain.model.Order(0, o.merchant, o.orderRef, o.status, o.expectedOn, o.returnBy, h.receivedAt),
+                )
+            }
+        }
+    }
+
     /** The classifier for shortlisted mail; falls back to (Rule_Score, OTHER) when AI is off or fails. */
     private suspend fun classify(message: MailMessage, ruleScore: Int): Pair<Int, MailCategory> {
-        val facts = SummaryBuilder.MessageFacts(handle = "mail1", rawText = "${message.header.subject}\n${message.snippet}")
-        return when (val r = advisor.message(PromptType.MAIL_CLASSIFIER, facts)) {
-            is FeatureAdvisor.Result.Advice -> {
-                val mail = (r.output as? ValidatedOutput.Mail)?.output
-                if (mail == null) ruleScore to MailCategory.OTHER
-                else mail.score to (MailCategory.entries.firstOrNull { it.name == mail.category } ?: MailCategory.OTHER)
-            }
-            is FeatureAdvisor.Result.Unavailable -> ruleScore to MailCategory.OTHER
+        val facts = MessageFacts(handle = "mail1", rawText = "${message.header.subject}\n${message.snippet}")
+        return when (val r = advisor.classifyMail(facts)) {
+            is MailAdvice.Classified -> r.score to (MailCategory.entries.firstOrNull { it.name == r.category } ?: MailCategory.OTHER)
+            is MailAdvice.Unavailable -> ruleScore to MailCategory.OTHER
         }
     }
 
@@ -144,7 +185,7 @@ fun interface MailOtpPatterns {
 
 /** Raises the important-mail notification (Requirement 55.2); kept behind an interface for the notify layer. */
 fun interface MailNotifier {
-    fun important(itemId: Long, subject: String, category: MailCategory)
+    suspend fun important(itemId: Long, subject: String, category: MailCategory)
 }
 
 /** The connected mailbox account id used in Source_Refs. */

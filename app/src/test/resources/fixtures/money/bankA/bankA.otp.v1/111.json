@@ -1,0 +1,11 @@
+{
+  "origin": "AD-BANKA-S",
+  "source": "SMS",
+  "received_at": "2025-01-05T20:00:00",
+  "zone": "Asia/Kolkata",
+  "injection": false,
+  "text": "865371 is your OTP for a transaction of Rs 3333.0 at Shop One. Valid for 10 mins.",
+  "expected": {
+    "result": "OTP"
+  }
+}

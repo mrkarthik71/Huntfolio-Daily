@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -23,7 +22,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +39,7 @@ import app.assistant.R
 import app.assistant.domain.engine.settings.SettingsValidator
 import app.assistant.ui.common.TimeField
 import app.assistant.ui.common.formatTime
+import app.assistant.ui.designsystem.CredTopBar
 import app.assistant.ui.settings.notificationTypeLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +50,7 @@ fun NotificationSettingsScreen(onBack: () -> Unit, onOpenInbox: () -> Unit, view
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CredTopBar(
                 title = { Text(stringResource(R.string.notif_settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -64,7 +63,7 @@ fun NotificationSettingsScreen(onBack: () -> Unit, onOpenInbox: () -> Unit, view
         LazyColumn(Modifier.fillMaxSize().padding(padding)) {
             if (!ui.hasExactAlarmAccess) {
                 item {
-                    Card(Modifier.fillMaxWidth().padding(16.dp)) {
+                    app.assistant.ui.designsystem.CredSurface(Modifier.fillMaxWidth().padding(16.dp)) {
                         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                             Column(Modifier.weight(1f)) {

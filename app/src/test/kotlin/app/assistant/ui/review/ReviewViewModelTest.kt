@@ -45,6 +45,7 @@ class ReviewViewModelTest {
             tasks = FakeTaskRepository(listOf(task)),
             reviews = reviews,
             time = FakeTimeSource(),
+            advisor = app.assistant.domain.port.Advisor.Disabled,
         )
         vm.setDate(date)
         // Make a choice but never call finish() — the User navigates away.

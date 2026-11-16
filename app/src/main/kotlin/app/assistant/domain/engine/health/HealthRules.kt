@@ -57,8 +57,7 @@ object HealthRules {
      * none were dismissed or a NEW problem appeared since the dismissal; stay quiet when the current
      * problems are a subset of what was already dismissed.
      */
-    fun shouldWarn(current: Set<Problem>, dismissed: Set<Problem>): Boolean =
-        current.isNotEmpty() && !dismissed.containsAll(current)
+    fun shouldWarn(current: Set<Problem>, dismissed: Set<Problem>): Boolean = current.isNotEmpty() && !dismissed.containsAll(current)
 
     /** Health_Status per job/feature for Settings (Requirement 62.6). */
     enum class Status { OK, WARNING, UNKNOWN }
